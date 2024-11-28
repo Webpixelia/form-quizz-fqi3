@@ -111,7 +111,7 @@ final class FormQuizzFQI3 {
         );
 
         // Optional: Set the branch that contains the stable release
-        $updateChecker->setBranch('main');
+        //$updateChecker->setBranch('main');
 
         // Enable release assets
         //$updateChecker->getVcsApi()->enableReleaseAssets();
