@@ -1,0 +1,722 @@
+/*
+ * Frontend Styles for Form Quizz FQI3
+ *
+ * Description:
+ * This stylesheet provides the styling for the frontend of the Form Quizz FQI3 plugin.
+ * It includes styles for the quiz container, question sections, buttons, and results.
+ * 
+ * Version: 1.0.0
+ * Author: Jonathan Webpixelia
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package Form_Quizz_FQI3
+ */
+:root {
+    --red : #ff1b47;
+    --green : #5bdb5b;
+}
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 6px;
+}
+
+.large-p {
+    font-size: 1.3em;
+    margin-bottom: 1em;
+}
+.ft-w600 {
+    font-weight: 600;
+}
+
+button {font-family: inherit;}
+
+#loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 1000;
+}
+#error-text {
+    font-weight: 600;
+    color: #0D0D0D;
+}
+#error-message {
+    display: none;
+    color: rgb(89, 126, 98);
+    padding: 1.5em;
+    background-color: #d7f9ee;
+    border: 1px solid #668246;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-top: 5rem;
+}
+
+#error-message p {
+    margin-bottom: 1.5em;
+    font-weight: 600;
+}
+
+#error-message .btn {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.content-quiz {
+    font-family: inherit;
+    flex-grow: 1;
+    text-align: center;
+}
+
+.custom-box{
+    max-width: 70vw;
+    background-color: #FCFCFC;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 10px;
+    animation: fadeInRight 1s ease;
+}
+@keyframes fadeInRight{
+    0%{
+        transform: translateX(40px);
+        opacity: 0;
+    }
+    100%{
+        transform: translateX(0px);
+        opacity: 1;
+    }
+}
+.custom-box::before,
+.custom-box::after{
+    content: '';
+    clear: both;
+    display: table;
+}
+.custom-box.hide{
+    display: none;
+}
+.content-pre-form h1 {
+    font-size: 28px;
+    color: var(--color-text-pre-form);
+    font-weight: bold;
+    margin-bottom: 15px;
+    line-height: 35px;
+}
+.content-quiz h2 {
+    font-size: 1.5em;
+}
+
+.home-box p {
+    font-size: 16px;
+    margin-bottom: 10px;
+    line-height: 22px;
+    color: var(--color-text-pre-form);
+    font-weight: 400;
+}
+#result-text {
+    border: 1px dashed black;
+    padding: 1em;
+    font-weight: 600;
+    font-size: 1.2em;
+    margin: 1em 0 .5em;
+}
+
+.home-box span{
+    font-weight: 500;
+}
+
+.home-box .btn, .mt-20{
+    margin-top: 20px;
+}
+
+.mb-20{
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 15px 45px;
+    background-color: var(--color-bg-btn);
+    line-height: 1;
+    color: var(--color-text-btn);;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: inline-block;
+    text-transform: uppercase;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-5px);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--color-bg-btn);
+    border-color: var(--color-bg-btn)
+}
+
+.level-options {
+    display: flex;
+    justify-content: space-around;
+    margin: 1.5rem 0;
+}
+
+.btn input {
+    display: none;
+}
+
+.quiz-box .question-number,
+.quiz-box .question-text,
+.quiz-box .option-container,
+.quiz-box .next-question-btn,
+.quiz-box .answer-indicator{
+    width: 100%;
+}
+
+#options-container .option-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.quiz-box .next-question-btn .btn {
+    font-size: 20px;
+}
+
+.quiz-box #reappuyer, .level-box #level-choice-message {
+    color: var(--red);
+    font-size: 16px;
+}
+
+.quiz-box .question-number {
+    font-size: 22px;
+    color: var(--color-text-top-question);
+    font-weight: 600;
+    border-bottom: 1px solid #eaeaea;
+    border-top: 1px solid #eaeaea;
+    border-radius: 10px;
+    padding: 1rem .5rem;
+    line-height: 25px;
+    background-color: var(--color-bg-top-question);
+}
+.quiz-box .question-text {
+    font-size: 34px;
+    color: #000000;
+    line-height: 1.5;
+    font-weight: bold;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.quiz-box .question-text2 {
+    font-size: 30px;
+    color: #3C6F71;
+    line-height: 1.5;
+    font-weight: bold;
+    text-align: center;
+    padding: 1rem 0;
+    margin: 0;
+}
+.quiz-box .option-container .option{
+    background-color: #f7f7f7;
+    padding: 13px 15px;
+    font-size: 24px;
+    line-height: 1.5;
+    text-align: center;
+    color: #000000;
+    border-radius: 5px;
+    border: 1px solid #D9D1C6;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-transform: capitalize;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+    position: relative;
+    overflow: hidden;
+    animation-delay: 0.15s;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+.quiz-box .option-container .option:not(.wrong):not(.correct):not(.selected):hover {
+    background-color: #EDEBE8 !important;
+    transform: translateY(-3px);
+}
+.quiz-box .option-container .option.already-answered{
+    pointer-events: none;
+}
+@keyframes fadeIn{
+    0%{
+        opacity:0;
+    }
+    100%{
+        opacity:1;
+    }
+}
+
+@keyframes slideInLeft{
+    0%{
+        transform: translateX(100%);
+    }
+    100%{
+        transform: translateX(0%);
+    }
+}
+
+.quiz-box .option-container .option.wrong{
+    background-color: #EAC2C2;
+}
+.quiz-box .option-container .option.correct{
+    background-color: #D5EDD0;
+}
+.quiz-box .option-container .option.selected::before {
+    content: "";
+    background: url(../img/selection.png);
+    background-size: contain;
+    display: inline-block;
+    margin-right: 2rem;
+    height: 15px;
+    width: 15px;
+}
+
+.quiz-box .btn{
+    margin: 15px 0;
+}
+.quiz-box .answers-indicator-container {
+    display: flex;
+    position: relative;
+    width: 100%;
+    border-top: 1px solid #cccccc;
+}
+.quiz-box .answers-indicator-container div{
+    height: 5px;
+    width: 40px;
+    display: inline-block;
+    background-color: #cccccc;
+    margin-right: 3px;
+    margin-top: 15px;
+    flex-grow: 1;
+}
+
+.quiz-box .answers-indicator-container div.current-progress {background-color: #0D0D0D;}
+
+ #progress-container {
+     margin-top: 20px;
+ }
+
+ #progress-bar {
+     height: 10px;
+     background-color: lightgray;
+     margin-top: 5px;
+ }
+
+.result-box{
+    text-align: center;
+}
+.result-box.hide{
+    display: none;
+}
+.result-box h1{
+    font-size: 26px;
+    line-height: 42px;
+    color: #000000;
+}
+.result-box .btn{
+    margin-right: 20px;
+    margin: 10px 0px;
+    display: inline-block;
+    font-size: 1em;
+    text-decoration: none;
+}
+
+/* Timer */
+.timer-options {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 15px;
+    max-width: 400px;
+    margin: 20px auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.timer-label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.timer-label input {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+#timer-settings {
+    display: block;
+    margin-top: 20px;
+}
+
+#timer-settings label {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.timer-duration-input {
+    width: 80px;
+    padding: 8px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timer-duration-input:focus {
+    border-color: #0D0D0D;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2), 0 0 8px rgba(0, 0, 0, 0.5);
+    outline: none;
+}
+
+.timer-duration-input::-webkit-inner-spin-button,
+.timer-duration-input::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Supprime les boutons de réglage par défaut dans Chrome, Safari, Edge */
+    margin: 0; /* Évite tout décalage dû aux boutons */
+}
+
+.timer-duration-input::-moz-inner-spin-button,
+.timer-duration-input::-moz-outer-spin-button {
+    appearance: none; /* Supprime les boutons de réglage dans Firefox */
+    margin: 0;
+}
+
+
+#timer-container {
+    display: inline-block;
+    border: 2px #0D0D0D solid;
+    margin-bottom: 1rem;
+    padding: 1em;
+    border-radius: 10px;
+    font-weight: 600;
+    animation-duration: 1.2s;
+   animation-name: clignoterGreen;
+   animation-iteration-count: infinite;
+   transition: none;
+}
+#timer-container.time-end {
+    animation-name: clignoterRed;
+   animation-iteration-count: infinite;
+   transition: none;
+}
+@keyframes clignoterGreen {
+    0%   { color:inherit; }
+    40%   {color:var(--green); border-color: var(--green)}
+    100% { color:inherit; }
+}
+@keyframes clignoterRed {
+    0%   { color:inherit; }
+    40%   {color:var(--red); border-color: var(--red)}
+    100% { color:inherit; }
+}
+#timer-end-message {
+    background-color: var(--red);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+.end-message {
+    background-color: red;
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+/* Share on */
+.social-share {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.social-share p {
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.social-share .btn {
+    color: white;
+    margin: 5px;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.social-share .btn:hover {
+    opacity: 0.9;
+}
+.social-share .btn.facebook { background-color: #4267B2;}
+.social-share .btn.x { background-color: #14171A;}
+.social-share .btn.linkedin { background-color: #0077B5;}
+
+/* Stats */
+.x-scroll {
+    overflow-x: auto;
+}
+.fqi3-shortcode h2{
+    margin-bottom: 1rem;
+    padding: 10px .8rem;
+}
+.fqi3-shortcode h3{
+    font-size: .875rem;
+    margin-bottom: 5px;
+    text-align: center;
+    border: 1px solid;
+}
+.fqi3-user-stats h2, .fqi3-awards-container h2, .fqi3-comparative-stats h2 {
+    margin-bottom: 1rem;
+    padding: 10px .8rem;
+}
+.fqi3-legend-badges-list, .fqi3-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.fqi3-table th, .fqi3-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.fqi3-table th {
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+}
+
+.fqi3-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.fqi3-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.fqi3-table td, .fqi3-table td {
+    color: #555;
+}
+
+.fqi3-table .success-rate, .fqi3-table .best-score {
+    font-weight: bold;
+    color: var(--green);
+}
+
+.fqi3-table tfoot {background-color: rgb(228, 228, 228)}
+
+.fqi3-table .not-best-score {
+    color: var(--red);
+}
+
+/* Graphiques circulaires */
+.fqi3-pie-charts-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-evenly;
+}
+.fqi3-single-pie-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 200px;
+}
+.fqi3-pie-chart {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.fqi3-pie-chart-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+.fqi3-pie-chart-infos {
+    font-size: .8em;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Badge Cards */
+.user-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Espace entre les cartes */
+}
+
+.badge-card {
+    width: 200px; /* Taille des cartes */
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.badge-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.badge-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.badge-info p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Liste des badges */
+.legend-badges {
+    margin: 2rem 0;
+}
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+table.fqi3-legend-badges-list th, table.fqi3-legend-badges-list td {
+    padding: 6px 13px;
+    border: 1px solid;
+}
+
+/* Shortcode [fqi3_remaining_attempts] */
+.attempts-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 10px;
+    border: none;
+    background: #1b1a1a;
+    border-radius: 8px;
+}
+.attempts-col1 {
+    flex: 1;
+}
+.attempts-col2 {
+    text-align: center;
+    padding-left: 10px;
+}
+.infos-attempts {
+    color: #fff;
+    margin:0;
+}
+.bar-attempts {
+    background-color: var(--green); 
+    border-radius: 5px; 
+    height: 5px; 
+    width: 100%;
+    margin-top: 5px;
+}
+#attempts-progress-bar {
+    background-color: var(--red); 
+    height: 10px;
+    margin-top: 5px;
+    height: 100%;
+}
+.cta-premium {
+    background: #fff;
+    color: black;
+    border-radius: 5px;
+    padding: 8px 10px; 
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width:980px) {
+    .btn{padding: 1em;}
+}
+
+@media(max-width: 767px) {
+    .result-box .btn {
+        margin-bottom: 15px;
+    }
+
+    .content-quiz {
+        padding: 15px;
+    }
+
+    .quiz-box .next-question-btn .btn,.result-box .btn {font-size: 16px;}
+}
+
+@media (max-width: 576px) {
+    .custom-box {
+        max-width: 90vw;
+        padding: 30px 10px;
+    }
+    #site-header{padding: 2px 1rem;}
+    .header-buttons a {
+        flex: 1 1 auto;
+        margin: 0.5rem;
+    }
+
+    .header-buttons .form-btn {
+        flex: 1 1 100%;
+        margin-right:0;
+    }
+
+    .header-buttons a:last-child:nth-child(4n) {
+        flex: 1 1 100%;
+    }
+
+    .header-container,
+    .footer-container {
+        display: flex;
+        flex-direction: column;
+    }
+    .level-options {
+        flex-direction: column;
+    }
+    .level-options .btn:not(:last-child) {margin-bottom:2rem;}
+    .fqi3-user-stats h2, .fqi3-awards-container h2, .fqi3-comparative-stats h2 {
+        text-align: center;
+    }
+    .user-badges {justify-content: space-evenly;}
+}

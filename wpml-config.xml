@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wpml-config>
+    <admin-texts>
+        <key name="fqi3_quiz_levels">
+            <key name="label" />
+        </key>
+        <key name="fqi3_options">
+            <key name="fqi3_text_pre_form" />
+            <key name="fqi3_email_cta_label" />
+        </key>
+        <key name="fqi3_badges">
+            <key name="fqi3_quizzes_completed_badge_names" />
+            <key name="fqi3_success_rate_badge_names" />
+        </key>
+    </admin-texts>
+</wpml-config>

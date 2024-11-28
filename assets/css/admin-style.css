@@ -1,0 +1,536 @@
+/*
+ * Backend Styles for Form Quizz FQI3
+ *
+ * Description:
+ * This stylesheet provides the styling for the admin area of the Form Quizz FQI3 plugin.
+ * It includes styles for the plugin's settings pages, admin menus, and other backend elements.
+ * 
+ * Author: Jonathan Webpixelia
+ * Version: 1.0.0
+ * License: GPL2
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ */
+
+ :root {
+    --fqi3--border--color: #E5E7EB;
+    --fqi3--border--radius: 6px;
+    --fqi3--box-shadow: 1px 2px 3px #12196110;
+    --fqi3--color--blue-medium-transparent: #E2E8F099;
+    --fqi3--color--blue-medium: #E2E8F0;
+    --fqi3--color--blue-darkest-transparent: #C3D0E099;
+    --fqi3--color--blue-darkest: #C3D0E0;
+    --fqi3--color--almost-black: #0F172A;
+    --fqi3--color--info-background: #d9edf7;
+    --fqi3--color--info-border: #bce8f1;
+    --fqi3--color--info-text: #2a5f7a;
+    --fqi3--color--info-link: #1f4659;
+    --fqi3--color--success-background: #d4edda;
+    --fqi3--color--success-border: #c3e6cb;
+    --fqi3--color--success-text: #0F441C;
+    --fqi3--color--success-link: #2b542c;
+    --fqi3--color--error-background: #f8d7da;
+    --fqi3--color--error-border: #f5c6cb;
+    --fqi3--color-very-good: #008000;
+    --fqi3--color-good: #1979ed;
+    --fqi3--color-average: #ffa500;
+    --fqi3--color-poor: #ff0000;
+    --fqi3--color--alert-background: #fff8e0;
+    --fqi3--color--alert-border: #ffeeba;
+    --fqi3--color--alert-text: #6C5101;
+    --fqi3--color--alert-link: #66512c;
+    --fqi3--spacing--large: 50px;
+    --fqi3--spacing--medium: 30px;
+    --fqi3--spacing--small: 10px;
+    --fqi3--weight-font-bold: 800;
+ }
+ body {
+    font-size: initial;
+ }
+ .form-switch .form-check-input {
+    background-repeat:no-repeat;
+    float: unset;
+ }
+
+ /* Header */
+ .fqi3_banner {
+    background-color: #FFF;
+    box-shadow: var(--fqi3--box-shadow);
+    margin-left: -20px;
+    padding: var(--fqi3--spacing--medium) 0 calc(var(--fqi3--spacing--medium) / 2) 0;
+}
+.fqi3_banner .fqi3_banner_wrapper {
+    padding: 0 var(--fqi3--spacing--medium);
+}
+.fqi3_banner .fqi3_logo {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    gap: var(--fqi3--spacing--small);
+}
+.fqi3_banner .fqi3_logo h1 {white-space: nowrap;}
+.fqi3_banner .fqi3_version {
+    background: var(--fqi3--color--blue-medium);
+    color: var(--fqi3--color--almost-black);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 6px 12px;
+}
+.fqi3_banner .fqi3_meta {
+    font-size: 16px;
+    line-height: 1.5;
+    text-align: center;
+    width: 100%;
+}
+.fqi3_banner .fqi3_meta a {
+    display: inline-block;
+    margin: 0 0 0 10px;
+}
+@media only screen and (min-width: 783px) {
+    .fqi3_banner .fqi3_banner_wrapper {
+        align-items: center;
+        display: flex;
+        gap: calc(var(--fqi3--spacing--medium) / 2);
+    }
+    .fqi3_banner .fqi3_meta {
+        text-align: right;
+    }
+}
+
+.wrap>h2.page-title {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #d7cbcb;
+    padding-bottom: 1rem;
+    font-weight: 600;
+}
+
+
+.free-quiz-btn {
+    background-color: #000;
+    color: #fff;
+    margin-right: 10px;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.free-quiz-btn:hover {
+    background-color: #293847;
+    color: #FFF;
+}
+.red {
+    background-color: #d63638;
+}
+.green {
+    background-color: #65d636;
+}
+
+.overflow-y {
+    overflow-y: auto;
+}
+
+.h500 {
+    max-height: 500px;
+}
+.flex-vertical {
+    flex-direction: column;
+    align-items: flex-start !important;
+    row-gap: 10px;
+}
+
+/* RTL Mode */
+.rtl-mode {
+    direction: rtl;
+    text-align: right;
+}
+.rtl-mode .accordion-button {
+    text-align: right;
+}
+.rtl-mode .accordion-button::after {
+    margin-left: unset;
+    margin-right: auto; 
+}
+
+/* Styles globaux des options */
+.fqi3-section-options {font-size: 13px;}
+.fqi3-section-options, table.widefat, .gp-shadow {
+    background: #fff;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 20px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    border-collapse: separate;
+    border-spacing: 10px;
+}
+.fqi3-section-options:not(:last-child) {
+    margin-bottom: 1.8rem;
+}
+.fqi3-section-options .form-table {
+    border-top: 1px solid #eee;
+}
+#options_tab_content .option-container {
+    padding: 10px 0;
+    border-bottom: 1px solid rgb(153, 152, 152);
+}
+#options_tab_content .option-container>* {
+    display: block;
+    margin-bottom: 5px;
+}
+#options_tab_content  .option-container label {
+    font-weight: 600;
+}
+#options_tab_content .default-value {
+    font-size: .9em;
+}
+
+.fqi3-notices .notice.notice-updated {
+    border-color: #28a745;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.fqi3-notices .notice.notice-error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Animation loader */
+.fqi3-test-email-button + .loader, .group-test-email {
+    display: none;
+    display: flex;
+    align-items: center;
+}
+
+.fqi3-test-email-button + .loader div {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px;
+    background-color: #333;
+    border-radius: 50%;
+    animation: loaderAnimation 1.2s infinite ease-in-out;
+}
+
+.fqi3-test-email-button + .loader div:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.fqi3-test-email-button + .loader div:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.fqi3-test-email-button + .loader div:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes loaderAnimation {
+    0%, 100% {
+        opacity: 0;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-10px);
+    }
+}
+
+/* Styles globaux du formulaire */
+label[for="fqi3_items_per_page"] {font-size: 13px;}
+.ajouterQuestionForm, .editQuestionForm {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.field-question {
+    margin-bottom: 15px;
+    border: 1px solid #8f8787;
+    border-radius: 5px;
+    padding: 1em;
+}
+.field-question .field-question-label {
+    display: block;
+    margin-bottom: 1em;
+}
+
+.field-question label {
+    font-weight: bold;
+    color: #333;
+}
+.field-question .field-question-answers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    align-items: center;
+}
+
+.field-question input[type="text"],
+.field-question input[type="radio"] {
+    margin-right: 10px;
+}
+
+.field-question input[type="text"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.field-question input[type="radio"] {
+    margin-right: 0;
+}
+
+.field-question-answers label {
+    border-radius: 5px;
+    border: 1px solid #716b6b;
+    padding: 5px;
+    margin: 0 10px;
+}
+
+.bts-img {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.button {
+    background-color: #007cba;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #005a8e;
+}
+.button.current {
+    background-color: #005a8e;
+    color: #fff;
+}
+
+.button-primary {
+    background-color: #007cba;
+}
+
+.button-primary:hover {
+    background-color: #005a8e;
+}
+
+input[type="hidden"] {
+    display: none;
+}
+
+/* Options tableau questions */
+.tablenav.top {margin: 1rem 0;}
+.tablenav .tablenav-pages {font-size: 14px;}
+.widefat td, .widefat th {
+    vertical-align: middle;
+    text-align: unset;
+}
+
+/* Styles pour la navigation verticale des onglets */
+i.bi {
+    margin-right: 5px;
+}
+#options_container {
+    display: flex;
+    flex-direction: row;
+    background: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 20px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;
+    border-collapse: separate;
+    border-spacing: 10px;
+}
+#options_container .button-group {
+    display: flex;
+    gap: 10px;
+}
+#options_tab_link {
+    flex: 0 0 auto;
+    padding: 20px 5px;
+    border-right: 1px solid #ddd;
+}
+
+.fqi3-tab-links {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.fqi3-tab-link {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.fqi3-tab-link.active a {
+    color: blue
+}
+
+.fqi3-tab-link a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.fqi3-tab-link a:hover {
+    color: #0073aa;
+}
+
+#options_tab_content {
+    flex: 1;
+    padding: 20px;
+}
+
+.fqi3-section-options-page {
+    display: none;
+}
+
+.fqi3-section-options-page.active {
+    display: block;
+}
+
+/* Statistics page */
+.list-levels, .user-badges {
+    list-style-type: square;
+    margin-bottom: 0;
+    padding-left: 1rem;
+}
+.widefat .very_good {color: var(--fqi3--color-very-good);}
+.widefat .good {color: var(--fqi3--color-good);}
+.widefat .average {color: var(--fqi3--color-average);}
+.widefat .poor {color: var(--fqi3--color-poor);}
+.bold {font-weight: var(--fqi3--weight-font-bold);}
+.color-legend {padding-left: 0;}
+.color-legend li {
+    display: inline-block;
+    margin-right: 1em;
+}
+.color-legend li:before {
+    width: 1.5em;
+    height: .7em;
+    display: inline-block;
+    content: "";
+    margin-right: 5px;
+}
+.color-legend li.very_good:before {background-color: var(--fqi3--color-very-good);}
+.color-legend li.good:before {background-color: var(--fqi3--color-good);}
+.color-legend li.average:before {background-color: var(--fqi3--color-average);}
+.color-legend li.poor:before {background-color: var(--fqi3--color-poor);}
+
+/* Badges page */
+.badges-container, .levels-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; 
+    margin: 20px 0;
+}
+
+.sub-section {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.badge-group, .level-group {
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+}
+
+.rudr-upload {
+    margin-right: 10px !important;
+}
+
+.wp-core-ui .button.remove-badge, .wp-core-ui .button.remove-level {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+}
+
+.add-badge:hover,
+.remove-badge:hover,
+.add-level:hover,
+.remove-level:hover {
+    opacity: 0.9;
+}
+
+/* Guide Page */
+.copy-icon {
+    cursor: pointer;
+    margin-right: 5px;
+    display: inline-block;
+}
+.copy-icon:hover + strong {
+    text-decoration: dotted underline;
+}
+.copied {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+#api_doc details {
+    margin: 10px 0;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+#api_doc summary {
+    cursor: pointer;
+    font-weight: bold;
+    margin: -10px;
+    padding: 10px;
+    background: #f9f9f9;
+}
+#api_doc details[open] summary {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+.api-routes {list-style: disc;}
+
+.api-routes > li {
+    margin-bottom: 20px;
+}
+.api-routes > li > ul {list-style: decimal;}
+.api-routes > li > strong {text-decoration: underline;}
+
+.changelog-container {
+    padding: 0 20px;
+}
+.changelog-version {
+    color: #23282d;
+    font-size: 1.2em;
+    margin: 1.5em 0 0.5em;
+    padding-bottom: 0.3em;
+    border-bottom: 1px solid #eee;
+}
+.changelog-entry {
+    margin: 1em 0;
+    line-height: 1.6;
+}

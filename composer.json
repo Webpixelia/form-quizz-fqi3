@@ -1,0 +1,15 @@
+{
+    "name": "jonathan-webpixelia/form-quizz-fqi3",
+    "description": "A plugin to create and manage free quizzes with premium features.",
+    "require": {
+        "yahnis-elsts/plugin-update-checker": "^5.5"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Jonathan Webpixelia",
+            "email": "contact@webpixelia.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
