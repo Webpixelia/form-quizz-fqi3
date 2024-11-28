@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.7.1
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 Requires PHP: 8.0
 
 Create a multiple choice and multi-level quiz
@@ -56,6 +56,9 @@ By downloading the ZIP file
 
 
 == Changelog ==
+= 2.0.1 =
+* New: Updates are now managed through GitHub releases, ensuring seamless updates directly from the repository.
+
 = 2.0.0 =
 * New Feature: Added a [fqi3_periodic_stats] shortcode to display advanced periodic statistics for the current user on posts, pages, or widgets.
 * New: Displayed incorrectly answered questions at the end of the quiz, along with the user's answers and the correct answers.

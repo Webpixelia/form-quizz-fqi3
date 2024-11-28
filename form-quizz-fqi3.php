@@ -2,12 +2,12 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Requires PHP: 8.0
  * Requires at least: 5.0
- * Tested up to: 6.6
+ * Tested up to: 6.7.1
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: form-quizz-fqi3
