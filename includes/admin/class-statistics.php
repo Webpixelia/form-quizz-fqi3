@@ -41,6 +41,14 @@ class FQI3_Statistics_Page {
         return $this->awards ??= new FQI3_Awards();
     }
 
+    /**
+     * Renders the main statistics page in the WordPress admin area.
+     * 
+     * This method generates a page displaying user statistics with a refresh button,
+     * performance legend, and a table of user performance metrics.
+     * 
+     * @return void
+     */
     public function render_statistics_page(): void {     
         ?>
         <div class="wrap container-fluid mt-4">
@@ -63,6 +71,14 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders a legend explaining performance color codes.
+     * 
+     * Displays a horizontal list of performance levels with corresponding color badges
+     * based on the PERFORMANCE_LEVELS class constant.
+     * 
+     * @return void
+     */
     private function render_performance_legend(): void {
         ?>
         <div class="mb-4">
@@ -80,6 +96,14 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Generates a complete HTML table of user statistics.
+     * 
+     * Retrieves user statistics, processes them, and renders a responsive Bootstrap table
+     * showing user performance across different quiz levels.
+     * 
+     * @return string HTML content of the user statistics table
+     */
     private function display_all_user_statistics(): string {
         $user_stats = $this->get_user_statistics();
         $arrayLevels = fqi3_get_free_quiz_levels();
@@ -98,6 +122,13 @@ class FQI3_Statistics_Page {
         return ob_get_clean();
     }
 
+    /**
+     * Renders the table header for user statistics.
+     * 
+     * Creates a table header with columns for User ID, Username, Levels, and Awards/Badges.
+     * 
+     * @return void
+     */
     private function render_table_header(): void {
         ?>
         <thead class="thead-dark">
@@ -111,6 +142,16 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders the table body with user statistics.
+     * 
+     * Populates the table rows with user performance data. If no statistics are available,
+     * displays a "No data" message.
+     * 
+     * @param array $user_stats Array of user statistics
+     * @param array $arrayLevels Available quiz levels
+     * @return void
+     */
     private function render_table_body(array $user_stats, array $arrayLevels): void {
         ?>
         <tbody>
@@ -134,6 +175,15 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders performance levels for a specific user.
+     * 
+     * Displays a list of quiz levels with success rates and performance badges for each level.
+     * 
+     * @param array $user User's performance data
+     * @param array $arrayLevels Available quiz levels
+     * @return void
+     */
     private function render_user_levels(array $user, array $arrayLevels): void {
         ?>
         <div class="list-group">
@@ -147,6 +197,16 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders an individual level item with performance metrics.
+     * 
+     * Shows a single level's performance with success rate and total quizzes taken,
+     * color-coded based on performance.
+     * 
+     * @param array $level_data Level configuration
+     * @param array $stats Performance statistics for the level
+     * @return void
+     */
     private function render_level_item(array $level_data, array $stats): void {
         $success_rate = $stats['success_rate'] ?? __('N/A', 'form-quizz-fqi3');
         $total_quizzes = $stats['total_quizzes'] ?? 0;
@@ -174,6 +234,14 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders badges earned by a specific user.
+     * 
+     * Retrieves and displays user badges. If no badges are earned, shows a "No badges" message.
+     * 
+     * @param int $user_id WordPress user ID
+     * @return void
+     */
     private function render_user_badges(int $user_id): void {
         $badges = $this->get_awards_instance()->display_user_badges($user_id);
         if (empty($badges)) {
@@ -184,6 +252,13 @@ class FQI3_Statistics_Page {
         $this->render_badges_list($badges);
     }
 
+    /**
+     * Renders a message when no badges have been awarded to a user.
+     * 
+     * Displays an informative alert indicating the user has not earned any badges yet.
+     * 
+     * @return void
+     */
     private function render_no_badges_message(): void {
         ?>
         <div class="alert alert-info d-flex align-items-center" role="alert">
@@ -196,6 +271,14 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * Renders a list of badges earned by a user.
+     * 
+     * Creates an unordered list of badges with their names, icons, and award dates.
+     * 
+     * @param array $badges List of badges earned by the user
+     * @return void
+     */
     private function render_badges_list(array $badges): void {
         ?>
         <ul class="list-group">
@@ -220,6 +303,14 @@ class FQI3_Statistics_Page {
         <?php
     }
 
+    /**
+     * AJAX handler to refresh user statistics dynamically.
+     * 
+     * Validates nonce and user permissions, clears cache, and returns fresh statistics HTML.
+     * Used for live updating of the statistics page without page reload.
+     * 
+     * @return void
+     */
     public function ajax_refresh_statistics(): void {
         check_ajax_referer('fqi3_refresh_stats', 'nonce');
         
@@ -235,6 +326,14 @@ class FQI3_Statistics_Page {
         ]);
     }
 
+    /**
+     * Retrieves user statistics from the database.
+     * 
+     * Implements caching to improve performance. Fetches user performance data
+     * across different quiz levels from a custom database table.
+     * 
+     * @return array Processed user statistics
+     */
     private function get_user_statistics(): array {
         if (!empty($this->userStatsCache)) {
             return $this->userStatsCache;
@@ -244,22 +343,27 @@ class FQI3_Statistics_Page {
         $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
         
         // Optimized query with JOIN and single query execution
-        $results = $wpdb->get_results($wpdb->prepare("
-            SELECT 
-                u.ID AS user_id,
-                u.display_name,
-                p.level,
-                p.success_rate,
-                p.total_quizzes
-            FROM {$wpdb->users} u
-            LEFT JOIN {$table_name} p ON u.ID = p.user_id
-            ORDER BY u.display_name ASC
-        "), ARRAY_A);
+        $results = $wpdb->get_results(
+            "SELECT u.ID AS user_id, u.display_name, p.level, p.success_rate, p.total_quizzes 
+             FROM {$wpdb->users} u 
+             LEFT JOIN {$table_name} p ON u.ID = p.user_id 
+             ORDER BY u.display_name ASC", 
+            ARRAY_A
+        );
 
         $this->userStatsCache = $this->process_user_statistics($results);
         return $this->userStatsCache;
     }
 
+    /**
+     * Processes raw database results into a structured user statistics array.
+     * 
+     * Transforms database query results into a more manageable format for rendering.
+     * Handles cases of deleted users and multiple levels per user.
+     * 
+     * @param array $results Raw database query results
+     * @return array Processed user statistics
+     */
     private function process_user_statistics(array $results): array {
         $user_stats = [];
         foreach ($results as $row) {
@@ -275,6 +379,15 @@ class FQI3_Statistics_Page {
         return $user_stats;
     }
 
+    /**
+     * Determines the performance badge class based on success rate.
+     * 
+     * Maps a user's success rate to a color-coded performance level using
+     * the PERFORMANCE_LEVELS class constant.
+     * 
+     * @param float|string $success_rate User's quiz success rate
+     * @return string CSS class representing performance level
+     */
     private function get_performance_class(float|string $success_rate): string {
         if (!is_numeric($success_rate)) {
             return 'bg-secondary';

@@ -20,21 +20,12 @@ if ( ! class_exists( 'FQI3_Emails_Settings' ) ) :
 class FQI3_Emails_Settings {
     public function __construct() {
         add_action('wp_ajax_fqi3_send_test_email', [$this, 'handle_test_email_submission']);
-        add_action('admin_init', [$this, 'set_default_options_emails']); 
     }
 
 
     public function register_settings() {
         $this->add_settings_section();
     }
-
-    /*public function register_fields_settings () {
-        register_setting(
-            'fqi3_options_group',
-            'fqi3_options',
-            [ $this, 'sanitize_emails_settings_options' ]
-        );
-    }*/
 
     public function add_settings_section() {
         $settings = fqi3_options_settings_sections();
@@ -176,7 +167,7 @@ class FQI3_Emails_Settings {
      */
     public function render_email_cta() {
         $pages = get_pages();
-        $default_options = $this->get_default_options_cta();
+        $default_options = fqi3_default_options();
 
         $options = fqi3_get_options();
               
@@ -272,41 +263,6 @@ class FQI3_Emails_Settings {
         } else {
             wp_send_json_error(array('message' => __('Security check failed.', 'form-quizz-fqi3')));
         }   
-    }
-
-    /**
-     * Sets default options for the plugin if not already set.
-     * 
-     * This method retrieves default options and merges them with the current options. 
-     * It updates the options only if there are changes.
-     * 
-     * @since 1.4.0 Initial
-     */
-    public function set_default_options_emails() {
-        $default_options = $this->get_default_options_cta();
-
-        // Use the generic function to set default options
-        fqi3_set_default_options($default_options, 'fqi3_options');
-    }
-
-    /**
-     * Retrieves the default options for the email CTA.
-     * 
-     * This method returns an associative array of default options that will be used if no custom options are set.
-     * 
-     * @return array Default options for the email CTA.
-     * 
-     * @since 1.4.0 Initial
-     */
-    public function get_default_options_cta() {
-        $home_page_id = absint(get_option('page_on_front'));
-        return [
-            'fqi3_email_hour' => '08:00',
-            'fqi3_email_link_cta' => $home_page_id,
-            'fqi3_email_cta_label' => __('Go to the site', 'form-quizz-fqi3'),
-            'fqi3_email_cta_color_text' => '#ffffff',
-            'fqi3_email_cta_color_bg' => '#0D0D0D',
-        ];
     }
 
     /**

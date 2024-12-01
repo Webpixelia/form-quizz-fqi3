@@ -98,7 +98,7 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
         /**
          * Record weekly statistics
          */
-        private function recordWeeklyStatistics(): void {
+        public function recordWeeklyStatistics(): void {
             $startDate = date('Y-m-d', strtotime('last Sunday -7 days'));
             $endDate = date('Y-m-d', strtotime('last Sunday'));
             $this->recordPeriodicStatistics('weekly', $startDate, $endDate);
@@ -107,7 +107,7 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
         /**
          * Record monthly statistics
          */
-        private function recordMonthlyStatistics(): void {
+        public function recordMonthlyStatistics(): void {
             $startDate = date('Y-m-01', strtotime('first day of last month'));
             $endDate = date('Y-m-t', strtotime('last day of last month'));
             $this->recordPeriodicStatistics('monthly', $startDate, $endDate);

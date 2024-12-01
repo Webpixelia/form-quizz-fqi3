@@ -1,4 +1,7 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
 /**
  * Returns the array of quiz levels with translated labels and free status.
  * 
@@ -8,9 +11,6 @@
  * @since 1.3.1 Modified to include 'free' status for each level
  * @since 1.5.0 Updated to retrieve levels from the database
 */
-if (!defined('ABSPATH')) {
-    exit;
-}
 function fqi3_get_free_quiz_levels() {
     $stored_levels = get_option('fqi3_quiz_levels', false);
 
@@ -24,6 +24,8 @@ function fqi3_get_free_quiz_levels() {
         }
         return $levels;
     }
+    
+    return [];
 }
 
 /**
@@ -175,6 +177,37 @@ function fqi3_options_settings_sections() {
 }
 
 /**
+ * Returns the default options for the plugin.
+ * 
+ * This function defines and returns an array of default options for the plugin, including
+ * various settings such as the number of trials per day, the color scheme for buttons and text, 
+ * the email settings, and more. These default options are used when initializing or updating 
+ * the plugin's options in the database.
+ * 
+ * @return array An associative array containing the default options for the plugin.
+ * 
+ * @since 2.1.0 Introduced default options for the plugin setup.
+*/
+function fqi3_default_options() {
+    return [
+        'fqi3_render_link_sales_page_field' => absint(get_option('page_on_front')),
+        'fqi3_free_trials_per_day' => '3',
+        'fqi3_number_questions_per_quiz' => '10',
+        'fqi3_text_pre_form' => '<h1>Bienvenue au quiz de <span style="color:#D9D0C6; font-weight: bold;">' . get_bloginfo('name') . '</span></h1><p>QCMs aléatoires pour t’entrainer gratuitement !</p>',
+        'fqi3_color_text_pre_form' => '#393A3A',
+        'fqi3_color_text_top_question' => '#ffffff',
+        'fqi3_color_bg_top_question' => '#393A3A',
+        'fqi3_color_text_btn' => '#ffffff',
+        'fqi3_color_bg_btn' => '#0D0D0D',
+        'fqi3_email_hour' => '08:00',
+        'fqi3_email_link_cta' => absint(get_option('page_on_front')),
+        'fqi3_email_cta_label' => __('Go to the site', 'form-quizz-fqi3'),
+        'fqi3_email_cta_color_text' => '#ffffff',
+        'fqi3_email_cta_color_bg' => '#0D0D0D',
+    ];
+}
+
+/**
  * Retrieves the list of premium user roles.
  *
  * This function returns an array of user roles that are considered premium.
@@ -259,6 +292,7 @@ function fqi3_get_options($option_name = 'fqi3_options') {
  * 
  * @since 1.4.0 .
  * @since 1.5.0 Added the ability to specify an option name for updating.
+ * @since 2.1.0 Optimized options sanitization and merged default options with current options.
  */
 function fqi3_set_default_options($default_options, $option_name) {
     // Retrieve the current options or initialize an empty array if none exist
@@ -268,10 +302,26 @@ function fqi3_set_default_options($default_options, $option_name) {
     if (!is_array($current_options)) {
         $current_options = [];
     }
-    $default_options = array_map('sanitize_text_field', $default_options);
-    $current_options = array_map('sanitize_text_field', $current_options);
+    $default_options = array_map(function($value) {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return esc_url_raw($value);
+        }
+        if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            return sanitize_email($value);
+        }
+        return sanitize_text_field($value);
+    }, $default_options);
+    $current_options = array_map(function($value) {
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return esc_url_raw($value);  // Pour les URL
+        }
+        if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            return sanitize_email($value);  // Pour les emails
+        }
+        return sanitize_text_field($value);  // Pour les autres types (texte)
+    }, $current_options);
     // Merge the default options with the current options
-    $new_options = array_map('sanitize_text_field', array_merge($default_options, $current_options));
+    $new_options = array_merge($default_options, $current_options);
 
     // If the new options differ from the current options, update the database
     if ($new_options !== $current_options) {

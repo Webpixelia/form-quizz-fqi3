@@ -129,7 +129,7 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
          /**
          * Create the badges table with improved schema and error handling.
          */
-        private function create_badges_table() {
+        public function create_badges_table() {
             global $wpdb;
 
             $charset_collate = $wpdb->get_charset_collate();

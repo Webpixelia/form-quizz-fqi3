@@ -603,7 +603,7 @@ function showResults() {
         .replace('%2$s', questions.length)
         .replace('%3$s', percentage.toFixed(2))
         .replace('%4$s', userLevelLabel);
-        if (!fqi3Data.config.disable_statistics) {
+        if (fqi3Data.isUserLoggedIn && !fqi3Data.config.disable_statistics) {
             sendQuizStatistics(userLevelValue, correctAnswers, questions.length)
                 .then(() => {
                     awardBadges(userLevelValue);

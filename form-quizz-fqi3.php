@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 2.0.1
+ * Version: 2.1.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Requires PHP: 8.0
@@ -46,7 +46,7 @@ final class FormQuizzFQI3 {
      *
      * @var string
      */
-    private const FQI3_VERSION = '2.0.0';
+    private const FQI3_VERSION = '2.1.0';
 
     /**
      * GitHub repository details
@@ -75,6 +75,8 @@ final class FormQuizzFQI3 {
         'FQI3_TABLE_PERFORMANCE' => 'fqi3_performance',
         'FQI3_TABLE_AWARDS' => 'fqi3_awards',
         'FQI3_TABLE_PERIODIC_STATISTICS' => 'fqi3_periodic_statistics',
+        'DEFAULT_ANSWERS_COUNT' => 4,
+        'MAX_ANSWERS_COUNT' => 8,
     ];
 
     /**
@@ -212,7 +214,7 @@ final class FormQuizzFQI3 {
     public function activate(): void {
         $this->createTables();
         $this->createPremiumRole();
-        //$this->initializeOptions();
+        $this->initializeOptions();
         $this->initializeSettings();
         flush_rewrite_rules();
     }
@@ -254,11 +256,16 @@ final class FormQuizzFQI3 {
         }
     }
 
-    /*private function initializeOptions(): void {
-        (new \Form_Quizz_FQI3\FQI3_General_Settings())->set_default_options_general_settings();
-        (new \Form_Quizz_FQI3\FQI3_Content_Settings())->set_default_options_content();
-        (new \Form_Quizz_FQI3\FQI3_Emails_Settings())->set_default_options_emails(); 
-    }*/
+    /**
+     * Initializes the plugin's options
+     * 
+     * @since 2.1.0 Added automatic initialization of plugin options on activation.
+    */
+    private function initializeOptions(): void {    
+        if (false === get_option('fqi3_options')) {
+            fqi3_set_default_options(fqi3_default_options(), 'fqi3_options');
+        }
+    }
 
     /**
      * Initialize plugin settings and statistics
@@ -376,11 +383,16 @@ final class FormQuizzFQI3 {
             'media_title' => __('Insert image', 'form-quizz-fqi3'),
             'media_button' => __('Use this image', 'form-quizz-fqi3'),
             'upload_button' => __('Upload image', 'form-quizz-fqi3'),
+            'answer_choice' => __('Answer choice', 'form-quizz-fqi3'),
+            'remove_answer_option' => __('Remove Answer Option', 'form-quizz-fqi3'),
+            'min_answers' => __('You must have at least 4 answer options.', 'form-quizz-fqi3'),
         ];
     
         wp_localize_script('fqi3-admin-script', 'admin_vars', [
             'admin_url' => admin_url('admin.php'),
             'translations' => $translations,
+            'max_answers_count' => defined('MAX_ANSWERS_COUNT') ? MAX_ANSWERS_COUNT : 10,
+            'default_answers_count' => defined('DEFAULT_ANSWERS_COUNT') ? DEFAULT_ANSWERS_COUNT : 4,         
         ]);
     
         wp_localize_script('fqi3-admin-script', 'fqi3_admin_cookies_ajax_obj', [
@@ -470,6 +482,7 @@ final class FormQuizzFQI3 {
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('fqi3_frontend_nonce'),
             'user_id' => get_current_user_id(),
+            'isUserLoggedIn' => is_user_logged_in(),
             
             // Translations organized as 'translations' subkey
             'translations' => $this->getFrontendTranslations($free_trials),

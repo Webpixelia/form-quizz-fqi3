@@ -6,56 +6,114 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.7.1
-Stable tag: 2.0.1
+Stable tag: 2.1.0
 Requires PHP: 8.0
 
-Create a multiple choice and multi-level quiz
+Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
 
-== Description ==
+== Description ==  
 
-This plugin introduces options pages in the admin panel, allowing you to quickly create questions, view existing questions, edit or delete them.
+**Form Quizz FQI3** is the ultimate plugin for creating multi-level quizzes in the form of multiple-choice questions (MCQs).  
 
-Just put the shortcode in your post or page and they will work out of the box: **[free_quiz_form]**
+Simply add the shortcode **[free_quiz_form]** to your post or page, and your quiz will work out of the box! Participants will receive real-time feedback on their answers, and at the end of the quiz, a detailed summary is displayed, highlighting incorrect answers alongside the correct ones.  
 
-Many other shortcodes are available.
+This plugin provides a wealth of options to customize the quiz experience for both admins and users.  
 
-= Features =
-* Simple & Intuitive
-* Set multiple choice quizzes
-* Set pre-quiz text
-* Set colors text and button
-* View user statistics
-* Gamification system
+### Key Features  
+- **Real-Time Feedback**: Participants are informed immediately whether their answer is correct or not.  
+- **Detailed End-of-Quiz Summary**: Display incorrect answers alongside the correct ones for easy review.  
+- **Multi-Level Quizzes**: Easily configure different levels for a progressive challenge.  
+- **Gamification**: Assign badges and track user progress for enhanced engagement.  
+- **Responsive Design**: Fully compatible with RTL and optimized for mobile and desktop users.  
 
-= Links =
+### Available Shortcodes  
+Your plugin offers six shortcodes to easily integrate quizzes and stats into your site:  
+
+1. **[free_quiz_form]**: Displays the main quiz interface.  
+2. **[fqi3_user_stats]**: Displays individual user statistics for logged-in users.  
+3. **[fqi3_global_stats]**: Displays overall quiz statistics for all users.  
+4. **[fqi3_badges]**: Showcases user-earned badges and achievements.  
+5. **[fqi3_quiz_history]**: Displays a logged-in user's quiz history.  
+6. **[fqi3_periodic_stats]**: Shows advanced periodic statistics for the current user.  
+
+### Admin Options  
+- **Manage Questions**: Quickly create, edit, and delete questions via an intuitive admin interface.  
+- **Customizable Settings**:  
+  - Specify the **number of questions per quiz** (minimum: 4).  
+  - Define the **number of free attempts per day** (default: 3).  
+  - Configure **level settings** and **badges**.  
+  - Enable or disable **email notifications** to inform free users when new attempts are available.  
+  - Control **social sharing** of results (available for logged-in users only).  
+  - Turn off **statistics tracking** for privacy-conscious setups.  
+  - Set up a link to a **sales page** for premium features.  
+
+- **Advanced Statistics**:  
+  - View personal stats and compare them to other users.  
+  - Track user progress and quiz performance over time.  
+  - Export user stats and quiz results.  
+
+- **Administration Access Control**: Restrict admin capabilities to certain user roles.  
+- **Import/Export Settings**: Easily migrate plugin settings between sites.  
+- **API Integration**: Use the API to interact with quizzes programmatically.  
+
+### Additional Features  
+- **Free Attempt Management**: Specify the maximum number of free attempts per user per day.  
+- **Gamification Elements**: Configure badges and awards for users based on their performance.  
+- **Custom Email Notifications**: Customize email templates for user notifications.  
+- **Admin Stats Dashboard**: Gain insights into overall quiz performance and user activity.  
+
+This plugin is designed to be flexible, scalable, and user-friendly, making it perfect for educators, businesses, and anyone who wants to engage users with quizzes.  
+
+== Installation ==  
+
+1. Upload the plugin files to the `/wp-content/plugins/form-quizz-fqi3` directory, or install the plugin directly through the Github repository.  
+2. Activate the plugin through the 'Plugins' screen in WordPress.  
+3. Go to the plugin's settings page to configure your options.  
+
+== Frequently Asked Questions ==  
+
+= How do I display a quiz on my site? =  
+Simply insert the shortcode **[free_quiz_form]** into any post or page.  
+
+= Can I customize the number of questions in each quiz? =  
+Yes, you can specify the number of questions per quiz in the plugin's settings.  
+
+= Are user statistics saved? =  
+Statistics are saved for logged-in users only, unless you disable this feature in the settings.  
+
+= Does the plugin support RTL languages? =  
+Yes, the plugin fully supports right-to-left (RTL) languages. 
+
+== Links ==
 * [Support](https://webpixelia.com)
 
-== Installation ==
+== Support us ==
+⭐️⭐️⭐️⭐️⭐️ If you like this plugin, please give me a 5 star rating. This will motivate me to develop new features and write other plugins.
 
-From your WordPress dashboard
-
-1. **Visit** Plugins > Add New
-2. **Search** for "Form Quizz FQI3"
-3. **Install and Activate** Form Quizz FQI3 from your Plugins page
-4. **Click** on the new menu item "Form Quizz FQI3 Settings" and configure your quiz form!
-
-By downloading the ZIP file
-
-1. **Visit** https://github.com/Webpixelia/form-quizz-fqi3
-2. **Upload** the ZIP file
-3. **Install and Activate** Form Quizz FQI3 from your Plugins page
-4. **Click** on the new menu item "Form Quizz FQI3 Settings" and configure your quiz form!
+☕️ If you want buy me a coffee, you can do it here : [Buy me a coffee](https://buymeacoffee.com/webpixelia) ☕️
 
 == Screenshots ==
 1. Questions page View
 2. Add Question page View
 3. Edit Question page View
-4. Settings page View
-5. Statistics page View
+4. Statistics page View
+5. Settings page View
 6. Import/Export page View
-
+7. Guide and Changelog page View
 
 == Changelog ==
+= 2.1.0 =
+* Added: Option to set the number of answer choices for questions, with a range between 4 and 10.
+* Enhanced: RTL support for forms
+* Changed: Default option management to use the global fqi3_default_options() function instead of class-specific methods
+* Fixed: SQL query preparation to comply with WordPress database query best practices
+* Fixed: Call to undefined function during uninstallation
+* Fixed: Fatal error due to private method used as callback during activation
+* Fixed: Fatal error when quiz levels option is not initialized by ensuring a default empty array is returned
+* Fixed: Fatal error in access control settings
+* Fixed: Issue where plugin options were not properly initialized during uninstallation
+* Updated: Readme.txt file
+
 = 2.0.1 =
 * New: Updates are now managed through GitHub releases, ensuring seamless updates directly from the repository.
 

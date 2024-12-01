@@ -23,14 +23,6 @@ class FQI3_Access_Control_Settings {
         $this->add_settings_section();
     }
 
-    /*public function register_fields_settings () {
-        register_setting(
-            'fqi3_options_group',
-            'fqi3_access_roles',
-            [ $this, 'sanitize_roles' ]
-        );
-    }*/
-
     public function add_settings_section() {
         $settings = fqi3_options_settings_sections();
         $sections = $settings['sections']['access_control'];
@@ -97,7 +89,10 @@ class FQI3_Access_Control_Settings {
         }
     
         // Retrieves the roles selected in the options
-        $selected_roles = get_option('fqi3_access_roles', array());
+        $selected_roles = get_option('fqi3_access_roles', []);
+        if (!is_array($selected_roles)) {
+            $selected_roles = [];
+        }
     
         // Generating the field with the roles that have the 'publish_posts' capability except the administrator
         echo '<div>';

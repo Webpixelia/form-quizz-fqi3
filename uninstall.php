@@ -4,16 +4,16 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 // Check if the option to delete data is enabled
-$options = fqi3_get_options();
+$options = get_option('fqi3_options', []);
 if (isset($options['fqi3_delete_data']) && $options['fqi3_delete_data']) {
     
     // Delete plugin-related tables from database
     global $wpdb;
     $tables = [
-        $wpdb->prefix . FQI3_TABLE_QUIZZES,
-        $wpdb->prefix . FQI3_TABLE_PERFORMANCE,
-        $wpdb->prefix . FQI3_TABLE_AWARDS,
-        $wpdb->prefix . FQI3_TABLE_PERIODIC_STATISTICS,
+        $wpdb->prefix . 'fqi3_quizzes',
+        $wpdb->prefix . 'fqi3_performance',
+        $wpdb->prefix . 'fqi3_awards',
+        $wpdb->prefix . 'fqi3_periodic_statistics',
     ];
     foreach ($tables as $table) {
         $wpdb->query("DROP TABLE IF EXISTS $table");

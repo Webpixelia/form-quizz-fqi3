@@ -18,21 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 if ( ! class_exists( 'FQI3_Content_Settings' ) ) :
 
 class FQI3_Content_Settings {
-    public function __construct() {
-        add_action('admin_init', [$this, 'set_default_options_content']); 
-    }
-
     public function register_settings() {
         $this->add_settings_section();
     }
-
-    /*public function register_fields_settings () {
-        register_setting(
-            'fqi3_options_group',
-            'fqi3_options',
-            [ $this, 'sanitize_content_options' ]
-        );
-    }*/
 
     public function add_settings_section() {
         $settings = fqi3_options_settings_sections();
@@ -88,15 +76,39 @@ class FQI3_Content_Settings {
      * The fields are populated with default values and are rendered using the `render_content_fields` method.
      */
     public function add_content_fields() {
-        $default_options = $this->get_default_options_content();
+        $default_options = fqi3_default_options();
     
         $fields = [
-            'fqi3_text_pre_form' => ['label' => __('Title/Description Pre Form Text', 'form-quizz-fqi3'), 'type' => 'textarea', 'default' => $default_options['fqi3_text_pre_form']],
-            'fqi3_color_text_pre_form' => ['label' => __('Title/Description Pre Form Color', 'form-quizz-fqi3'), 'type' => 'color', 'default' => $default_options['fqi3_color_text_pre_form']],
-            'fqi3_color_text_top_question' => ['label' => __('Top Question Text Color', 'form-quizz-fqi3'), 'type' => 'color', 'default' => $default_options['fqi3_color_text_top_question']],
-            'fqi3_color_bg_top_question' => ['label' => __('Top Question Background Color', 'form-quizz-fqi3'), 'type' => 'color', 'default' => $default_options['fqi3_color_bg_top_question']],
-            'fqi3_color_text_btn' => ['label' => __('Button Text Color', 'form-quizz-fqi3'), 'type' => 'color', 'default' => $default_options['fqi3_color_text_btn']],
-            'fqi3_color_bg_btn' => ['label' => __('Button Background Color', 'form-quizz-fqi3'), 'type' => 'color', 'default' => $default_options['fqi3_color_bg_btn']],
+            'fqi3_text_pre_form' => [
+            'label' => __('Title/Description Pre Form Text', 'form-quizz-fqi3'),
+            'type' => 'textarea',
+            'default' => $default_options['fqi3_text_pre_form']
+            ],
+            'fqi3_color_text_pre_form' => [
+                'label' => __('Title/Description Pre Form Color', 'form-quizz-fqi3'),
+                'type' => 'color',
+                'default' => $default_options['fqi3_color_text_pre_form']
+            ],
+            'fqi3_color_text_top_question' => [
+                'label' => __('Top Question Text Color', 'form-quizz-fqi3'),
+                'type' => 'color',
+                'default' => $default_options['fqi3_color_text_top_question']
+            ],
+            'fqi3_color_bg_top_question' => [
+                'label' => __('Top Question Background Color', 'form-quizz-fqi3'),
+                'type' => 'color',
+                'default' => $default_options['fqi3_color_bg_top_question']
+            ],
+            'fqi3_color_text_btn' => [
+                'label' => __('Button Text Color', 'form-quizz-fqi3'),
+                'type' => 'color',
+                'default' => $default_options['fqi3_color_text_btn']
+            ],
+            'fqi3_color_bg_btn' => [
+                'label' => __('Button Background Color', 'form-quizz-fqi3'),
+                'type' => 'color',
+                'default' => $default_options['fqi3_color_bg_btn']
+            ],
         ];
     
         foreach ($fields as $id => $field) {
@@ -159,41 +171,6 @@ class FQI3_Content_Settings {
                 echo '</div>';            
                 break;
         }
-    }
-
-    /**
-     * Sets default options for the plugin if not already set.
-     * 
-     * This method retrieves default options and merges them with the current options. 
-     * It updates the options only if there are changes.
-     * 
-     * @since 1.4.0 Modified to use the generic fqi3_set_default_options function.
-     */
-    public function set_default_options_content() {
-        $default_options = $this->get_default_options_content();
-
-        // Use the generic function to set default options
-        fqi3_set_default_options($default_options, 'fqi3_options');
-    }
-
-    /**
-     * Retrieves the default options for the plugin.
-     * 
-     * This method returns an associative array of default options that will be used if no custom options are set.
-     * 
-     * @return array Default options for the plugin.
-     * 
-     * @since 1.0.0 .
-     */
-    public function get_default_options_content() {
-        return [
-            'fqi3_text_pre_form' => '<h1>Bienvenue au quiz de <span style="color:#D9D0C6; font-weight: bold;">' . get_bloginfo('name') . '</span></h1><p>QCMs aléatoires pour t’entrainer gratuitement !</p>',
-            'fqi3_color_text_pre_form' => '#393A3A',
-            'fqi3_color_text_top_question' => '#ffffff',
-            'fqi3_color_bg_top_question' => '#393A3A',
-            'fqi3_color_text_btn' => '#ffffff',
-            'fqi3_color_bg_btn' => '#0D0D0D'
-        ];
     }
 
      /**

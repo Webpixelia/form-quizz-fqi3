@@ -229,35 +229,6 @@ if ( ! class_exists( 'FQI3_Levels_Settings' ) ) :
 
             return $sanitized_input;
         }
-        public static function new_sanitize_levels_options($input) {
-            // Ajoutez un log de débogage
-            error_log('Sanitizing levels options: ' . print_r($input, true));
-
-            $sanitized_input = [];
-        
-            // Filtrez les valeurs vides et sanitizez
-            $sanitized_input['fqi3_quiz_levels_name'] = array_filter(array_map('sanitize_title', $input['fqi3_quiz_levels_name'] ?? []));
-            $sanitized_input['fqi3_quiz_levels_label'] = array_filter(array_map('sanitize_text_field', $input['fqi3_quiz_levels_label'] ?? []));
-        
-            // Calculez le nombre de niveaux en fonction des labels non vides
-            $nb_levels = count($sanitized_input['fqi3_quiz_levels_label']);
-        
-            $sanitized_input['fqi3_quiz_levels_is_free'] = [];
-        
-            // Boucle pour chaque niveau
-            for ($i = 0; $i < $nb_levels; $i++) {
-                $sanitized_input['fqi3_quiz_levels_is_free'][$i] = isset($input['fqi3_quiz_levels_is_free'][$i]) && $input['fqi3_quiz_levels_is_free'][$i] == 1 ? 1 : 0;
-            }
-
-            // Log du résultat sanitizé
-            error_log('Sanitized levels options: ' . print_r($sanitized_input, true));
-        
-            if (empty($sanitized_input['fqi3_quiz_levels_name']) || empty($sanitized_input['fqi3_quiz_levels_label'])) {
-                return [];
-            }
-        
-            return $sanitized_input;
-        }
 
         /**
          * Retrieves the default options for quiz levels.

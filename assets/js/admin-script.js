@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             this.initializeEventListeners();
             this.activateDefaultTab();
+            this.initAnswerOptionsManagement();
         }
 
         setupSelectAllCheckbox(selectAllSelector, checkboxSelector) {
@@ -338,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         initializeDisplayUserChoiceField() {
-            const checkboxes = document.querySelectorAll('[data-dependency="choice-user-container"], [data-dependency="advanced-stats-user-container"]');
+            const checkboxes = document.querySelectorAll('[data-dependency="choice-user-container"]');
             const userContainer = document.getElementById('choice-user-container');
             
             if (!checkboxes || checkboxes.length === 0) {
@@ -419,6 +420,150 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeButton.style.display = 'none'; // Hide remove button
                 uploadButton.classList.add('btn');
                 uploadButton.innerHTML = admin_vars.translations.upload_button;
+            }
+        }
+
+        // Gestion des options de réponse
+        initAnswerOptionsManagement() {
+            const answerOptionsContainer = document.getElementById('answer-options-container');
+            const correctAnswerContainer = document.getElementById('correct-answer-container');
+            const addButton = document.getElementById('add-answer-option');
+            
+            if (answerOptionsContainer && correctAnswerContainer && addButton) {
+                const maxAnswers = parseInt(addButton.dataset.maxAnswers) || admin_vars.max_answers_count;
+                        
+                // Fonction pour mettre à jour les options de réponses correctes
+                function updateCorrectAnswerOptions() {
+                    const currentOptions = answerOptionsContainer.querySelectorAll('.answer-option').length;
+                    const currentCorrectOptions = correctAnswerContainer.querySelectorAll('.correct-answer-option');
+                    console.log(currentOptions);
+                    console.log(currentCorrectOptions);
+                    
+                    // Supprimer les options supplémentaires
+                    while (currentCorrectOptions.length > currentOptions) {
+                        correctAnswerContainer.removeChild(currentCorrectOptions[currentCorrectOptions.length - 1]);
+                    }
+                    /*while (currentCorrectOptions.length > currentOptions) {
+                        const lastOption = currentCorrectOptions[currentCorrectOptions.length - 1];
+                        if (lastOption && lastOption.parentNode === correctAnswerContainer) {
+                            correctAnswerContainer.removeChild(lastOption);
+                        }
+                    }*/
+                    
+                    // Ajouter de nouvelles options si nécessaire
+                    for (let i = currentCorrectOptions.length; i < currentOptions; i++) {
+                        const newOption = document.createElement('label');
+                        newOption.classList.add('correct-answer-option');
+                        
+                        const newRadio = document.createElement('input');
+                        newRadio.type = 'radio';
+                        newRadio.id = `reponseCorrecte${i + 1}`;
+                        newRadio.name = 'reponseCorrecte';
+                        newRadio.value = i;
+                        
+                        // Ajouter le premier bouton radio comme requis
+                        if (i === 0) {
+                            newRadio.required = true;
+                        }
+                        
+                        const textNode = document.createTextNode(
+                            admin_vars.translations.answer_choice + ` ${i + 1}`
+                        );
+                        
+                        newOption.appendChild(newRadio);
+                        newOption.appendChild(textNode);
+                        
+                        correctAnswerContainer.appendChild(newOption);
+                    }
+                }
+                
+                // Fonction pour réorganiser les indices
+                function reorganizeIndices() {
+                    const options = answerOptionsContainer.querySelectorAll('.answer-option');
+                    const correctOptions = correctAnswerContainer.querySelectorAll('.correct-answer-option');
+                    
+                    options.forEach((option, index) => {
+                        // Mise à jour des labels et inputs pour les réponses possibles
+                        const label = option.querySelector('label');
+                        const input = option.querySelector('input');
+                        
+                        label.setAttribute('for', `reponse${index + 1}`);
+                        label.textContent = `${admin_vars.translations.answer_choice} ${index + 1}:`;
+                        
+                        input.setAttribute('id', `reponse${index + 1}`);
+                        input.setAttribute('name', 'reponse[]');
+                        input.setAttribute('value', input.value);
+                        
+                        // Mettre à jour les valeurs des radios de réponse correcte
+                        const correctRadio = correctOptions[index];
+                        const radioInput = correctRadio.querySelector('input');
+                        
+                        radioInput.id = `reponseCorrecte${index + 1}`;
+                        radioInput.value = index;
+                    });
+                }
+                
+                // Gestion de l'ajout de nouvelles options de réponse
+                addButton.addEventListener('click', function() {
+                    const currentOptions = answerOptionsContainer.querySelectorAll('.answer-option').length;
+                    
+                    if (currentOptions < maxAnswers) {
+                        const newIndex = currentOptions + 1;
+                        
+                        const newOption = document.createElement('li');
+                        newOption.classList.add('answer-option');
+                        newOption.innerHTML = `
+                            <label for="reponse${newIndex}">
+                                ${admin_vars.translations.answer_choice} ${newIndex}:
+                            </label>
+                            <input type="text"
+                                id="reponse${newIndex}"
+                                name="reponse[]"
+                                required>
+                            <button type="button test" class="remove-answer-option btn btn-danger">
+                                ${admin_vars.translations.remove_answer_option}
+                            </button>
+                        `;
+                        
+                        answerOptionsContainer.appendChild(newOption);
+                        
+                        // Mettre à jour les options de réponse correcte
+                        updateCorrectAnswerOptions();
+                        
+                        // Masquer le bouton d'ajout si le maximum est atteint
+                        if (currentOptions + 1 >= maxAnswers) {
+                            addButton.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Gestion de la suppression des options de réponse
+                answerOptionsContainer.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-answer-option')) {
+                        // Ne pas permettre de supprimer si moins de 4 réponses
+                        const currentOptions = answerOptionsContainer.querySelectorAll('.answer-option');
+                        if (currentOptions.length > admin_vars.default_answers_count) {
+                            // Supprimer l'option
+                            e.target.closest('.answer-option').remove();
+                            
+                            // Réorganiser les indices
+                            reorganizeIndices();
+                            
+                            // Mettre à jour les options de réponse correcte
+                            updateCorrectAnswerOptions();
+                            
+                            // Réafficher le bouton d'ajout
+                            if (addButton) {
+                                addButton.style.display = 'block';
+                            }
+                        } else {
+                            alert(admin_vars.translations.min_answers);
+                        }
+                    }
+                });
+                
+                // Initialisation
+                updateCorrectAnswerOptions();
             }
         }
     }
@@ -522,266 +667,3 @@ jQuery(document).ready(function($) {
     // Démarrer toutes les initialisations
     initialize();
 });
-
-
-/*jQuery(document).ready(function($) {
-    // Generic function to handle adding and removing items
-    function manageItems(addButtonClass, removeButtonClass, templateClass, containerClass, indexClass, groupClass) {
-       // Handle click on the add button
-       $(document).on('click', addButtonClass, function() {
-           const $itemTemplate = $(this).siblings(templateClass).clone().removeClass(templateClass.replace('.', '')).show();
-           const $itemsContainer = $(this).siblings(containerClass);
-   
-           // Count the number of existing items
-           const itemCount = $itemsContainer.find(groupClass).length;
-   
-           // Update the index in the title
-           $itemTemplate.find(indexClass).text(itemCount + 1);
-   
-           // Append the new item to the container
-           $itemsContainer.append($itemTemplate);
-       });
-   
-       // Handle click on the remove button
-       $(document).on('click', removeButtonClass, function() {
-           const $itemsContainer = $(this).closest(containerClass);
-           $(this).closest(groupClass).prev('p.sub-section').remove();
-           $(this).closest(groupClass).remove();
-   
-           // Reindex the items
-           $itemsContainer.find(groupClass).each(function(index) {
-               $(this).find(indexClass).text(index + 1);
-           });
-       });
-   }
-   // Initialize the management for badges
-   manageItems('.add-badge', '.remove-badge', '.badge-template', '.badges-container', '.badge-level', '.badge-group');
-   // Initialize the management for levels
-   manageItems('.add-level', '.remove-level', '.level-template', '.levels-container', '.level-number', '.level-group');
-   
-   // Stats admin page
-    $('.refresh-stats').on('click', function() {
-        const button = $(this);
-        button.prop('disabled', true);
-        
-        $.ajax({
-            url: fqi3Stats.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'refresh_statistics',
-                nonce: fqi3Stats.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#statistics-container').html(response.data.html);
-                }
-            },
-            complete: function() {
-                button.prop('disabled', false);
-            }
-        });
-    });    
-
-    // Essai ajax form
-    // Empêcher la soumission du formulaire
-    $('#fqi3-form-options').on('submit', function(e) {
-        e.preventDefault();
-        
-        const form = $(this);
-        const submitButton = $('#submit');
-        submitButton.prop('disabled', true);
-        
-        // Récupérer toutes les données du formulaire
-        const rawFormData = form.serializeArray();
-        
-        // Organiser les données par groupes d'options
-        const organizedData = {
-            fqi3_options: {},
-            fqi3_badges: {},
-            fqi3_quiz_levels: {},
-            fqi3_access_roles: {}
-        };
-        
-        // Regrouper les données par catégorie
-        rawFormData.forEach(function(item) {
-            if (item.name.startsWith('fqi3_badges_')) {
-                organizedData.fqi3_badges[item.name] = item.value;
-            } else if (item.name.startsWith('fqi3_quiz_levels_')) {
-                organizedData.fqi3_quiz_levels[item.name] = item.value;
-            } else if (item.name.startsWith('fqi3_access_roles_')) {
-                organizedData.fqi3_access_roles[item.name] = item.value;
-            } else {
-                organizedData.fqi3_options[item.name] = item.value;
-            }
-        });
-        
-        $.ajax({
-            url: fqi3_settings.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'fqi3_save_options',
-                options: organizedData,
-                security: fqi3_settings.nonce
-            },
-            success: function(response) {
-                console.log('Response:', response); // Pour le debugging
-                if (response.success) {
-                    form.before('<div class="notice notice-success is-dismissible"><p>' + response.data.message + '</p></div>');
-                } else {
-                    form.before('<div class="notice notice-error is-dismissible"><p>' + response.data.message + '</p></div>');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                form.before('<div class="notice notice-error is-dismissible"><p>Erreur technique: ' + error + '</p></div>');
-            },
-            complete: function() {
-                submitButton.prop('disabled', false);
-            }
-        });
-    });
-    
-});*/
-
-// Essai onglet actif au reload
-/*jQuery(document).ready(function($) {
-    // Récupérer l'onglet actif depuis localStorage
-    var activeTab = localStorage.getItem('activeTab');
-
-    // Si un onglet actif est défini, afficher cet onglet
-    if (activeTab) {
-        // Cacher tous les onglets
-        $('.fqi3-section-options-page').removeClass('active');
-
-        // Afficher l'onglet actif
-        $('#' + activeTab).addClass('active');
-
-        // Marquer l'onglet correspondant comme actif
-        $('.fqi3-tab-link').removeClass('active');
-        $('li[data-tab="' + activeTab + '"]').addClass('active');
-    }
-
-    // Lorsque l'utilisateur clique sur un onglet, activer cet onglet et mémoriser l'ID dans localStorage
-    $('.fqi3-tab-link').on('click', function() {
-        var tabId = $(this).data('tab');
-        
-        // Ajouter la classe 'active' sur l'onglet cliqué et activer la section correspondante
-        $('.fqi3-tab-link').removeClass('active');
-        $(this).addClass('active');
-        
-        // Masquer toutes les sections et afficher la section associée à l'onglet cliqué
-        $('.fqi3-section-options-page').removeClass('active');
-        $('#' + tabId).addClass('active');
-
-        // Sauvegarder l'ID de l'onglet actif dans localStorage
-        localStorage.setItem('activeTab', tabId);
-    });
-
-    // Lorsque le formulaire est soumis, on conserve l'onglet actif
-    $('#fqi3-form-options').on('submit', function() {
-        // Sauvegarder l'onglet actif avant la soumission
-        var activeTab = $('.fqi3-tab-link.active').data('tab');
-        localStorage.setItem('activeTab', activeTab);
-    });
-});*/
-
-
-/*jQuery(document).ready(function($) {
-    let searchTimer;
-    const statisticsContainer = $('#statistics-container');
-    
-    // Sorting functionality
-    $(document).on('click', '.sortable-header', function() {
-        const sortOrder = $(this).data('sort');
-        const button = $('.refresh-stats');
-        button.prop('disabled', true);
-        
-        $.ajax({
-            url: fqi3Stats.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'sort_statistics',
-                nonce: fqi3Stats.nonce,
-                sort_order: sortOrder
-            },
-            success: function(response) {
-                if (response.success) {
-                    statisticsContainer.html(response.data.html);
-                    // Update URL without page refresh
-                    const newUrl = updateQueryStringParameter(window.location.href, 'sort_order', sortOrder);
-                    window.history.pushState({ path: newUrl }, '', newUrl);
-                }
-            },
-            complete: function() {
-                button.prop('disabled', false);
-            }
-        });
-    });
-
-    // Search functionality with debouncing
-    $('#search-users').on('input', function() {
-        clearTimeout(searchTimer);
-        const searchTerm = $(this).val();
-        
-        searchTimer = setTimeout(function() {
-            const button = $('.refresh-stats');
-            button.prop('disabled', true);
-            
-            $.ajax({
-                url: fqi3Stats.ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'search_statistics',
-                    nonce: fqi3Stats.nonce,
-                    search: searchTerm
-                },
-                success: function(response) {
-                    if (response.success) {
-                        statisticsContainer.html(response.data.html);
-                        // Update URL without page refresh
-                        const newUrl = updateQueryStringParameter(window.location.href, 'search', searchTerm);
-                        window.history.pushState({ path: newUrl }, '', newUrl);
-                    }
-                },
-                complete: function() {
-                    button.prop('disabled', false);
-                }
-            });
-        }, 500); // Debounce delay of 500ms
-    });
-
-    // Refresh functionality
-    $('.refresh-stats').on('click', function() {
-        const button = $(this);
-        button.prop('disabled', true);
-        
-        $.ajax({
-            url: fqi3Stats.ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'refresh_statistics',
-                nonce: fqi3Stats.nonce
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#statistics-container').html(response.data.html);
-                }
-            },
-            complete: function() {
-                button.prop('disabled', false);
-            }
-        });
-    });
-
-    // Helper function to update URL parameters
-    function updateQueryStringParameter(uri, key, value) {
-        const re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
-        const separator = uri.indexOf('?') !== -1 ? "&" : "?";
-        
-        if (uri.match(re)) {
-            return uri.replace(re, '$1' + key + "=" + value + '$2');
-        } else {
-            return uri + separator + key + "=" + value;
-        }
-    }
-});*/

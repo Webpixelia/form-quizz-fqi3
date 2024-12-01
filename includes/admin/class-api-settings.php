@@ -21,14 +21,6 @@ class FQI3_Api_Settings {
         $this->add_settings_section();
     }
 
-    /*public function register_fields_settings() {
-        register_setting(
-            'fqi3_options_group',
-            'fqi3_options',
-            [ $this, 'sanitize_api_options' ]
-        );
-    }*/
-
     public function add_settings_section() {
         $settings = fqi3_options_settings_sections();
         $sections = $settings['sections']['api'];

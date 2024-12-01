@@ -18,22 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 if ( ! class_exists( 'FQI3_General_Settings' ) ) :
 
 class FQI3_General_Settings {
-    public function __construct() {
-        add_action('admin_init', [$this, 'set_default_options_general_settings']); 
-    }
-
-
     public function register_settings() {
         $this->add_settings_section();
     }
-
-    /*public function register_fields_settings() {
-        register_setting(
-            'fqi3_options_group',
-            'fqi3_options',
-            [ $this, 'sanitize_general_settings_options' ]
-        );
-    }*/
 
     public function add_settings_section() {
         $settings = fqi3_options_settings_sections();
@@ -215,40 +202,6 @@ class FQI3_General_Settings {
         echo '</div>'; // End input-group
         echo '</div>';
         echo '<p>' . esc_html__('Minimum 4 questions', 'form-quizz-fqi3') . '</p>';
-    }
-
-     /**
-     * Sets default options for the plugin if not already set.
-     * 
-     * This method retrieves default options and merges them with the current options. 
-     * It updates the options only if there are changes.
-     * 
-     * @since 1.4.0 Modified to use the generic fqi3_set_default_options function.
-     */
-    public function set_default_options_general_settings() {
-        $default_options = $this->get_default_general_settings_value();
-
-        // Use the generic function to set default options
-        fqi3_set_default_options($default_options, 'fqi3_options');
-    }
-    
-    /**
-     * Retrieves the default options for the plugin.
-     * 
-     * This method returns an associative array of default options that will be used if no custom options are set.
-     * 
-     * @return array Default options for the plugin.
-     * 
-     * @since 1.0.0 .
-     */
-    public function get_default_general_settings_value() {
-        $home_page_id = absint(get_option('page_on_front'));
-        return [
-            'fqi3_render_link_sales_page_field' => $home_page_id,
-            'fqi3_free_trials_per_day' => '3',
-            'fqi3_number_questions_per_quiz' => '10',
-
-        ];
     }
 
     /**

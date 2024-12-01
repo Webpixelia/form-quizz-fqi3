@@ -2,21 +2,21 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Quizz FQI3 2.0.0\n"
+"Project-Id-Version: Form Quizz FQI3 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-28T16:49:15+00:00\n"
+"POT-Creation-Date: 2024-12-01T16:21:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: form-quizz-fqi3\n"
 
 #. Plugin Name of the plugin
 #: form-quizz-fqi3.php
-#: includes/fqi3-config-functions.php:40
+#: includes/fqi3-config-functions.php:42
 msgid "Form Quizz FQI3"
 msgstr ""
 
@@ -36,97 +36,110 @@ msgid "https://webpixelia.com"
 msgstr ""
 
 #. translators: 1: Current PHP version 2: Required PHP version
-#: form-quizz-fqi3.php:178
+#: form-quizz-fqi3.php:180
 msgid "Form Quizz FQI3 requires PHP version %2$s or higher. Your current version is %1$s."
 msgstr ""
 
-#: form-quizz-fqi3.php:374
+#: form-quizz-fqi3.php:381
 msgid "Are you sure you want to revoke the API token?"
 msgstr ""
 
-#: form-quizz-fqi3.php:375
+#: form-quizz-fqi3.php:382
 msgid "Unable to copy the shortcode. Please try again."
 msgstr ""
 
-#: form-quizz-fqi3.php:376
+#: form-quizz-fqi3.php:383
 msgid "Insert image"
 msgstr ""
 
-#: form-quizz-fqi3.php:377
+#: form-quizz-fqi3.php:384
 msgid "Use this image"
 msgstr ""
 
-#: form-quizz-fqi3.php:378
+#: form-quizz-fqi3.php:385
 msgid "Upload image"
 msgstr ""
 
-#: form-quizz-fqi3.php:426
-#: includes/admin/class-import-export.php:62
-#: includes/fqi3-config-functions.php:81
+#: form-quizz-fqi3.php:386
+msgid "Answer choice"
+msgstr ""
+
+#: form-quizz-fqi3.php:387
+#: templates/question-form.php:105
+msgid "Remove Answer Option"
+msgstr ""
+
+#: form-quizz-fqi3.php:388
+msgid "You must have at least 4 answer options."
+msgstr ""
+
+#: form-quizz-fqi3.php:438
+#: includes/admin/class-import-export.php:52
+#: includes/fqi3-config-functions.php:83
 msgid "Settings"
 msgstr ""
 
-#: form-quizz-fqi3.php:429
+#: form-quizz-fqi3.php:441
 #: templates/header.php:27
 msgid "Support"
 msgstr ""
 
-#: form-quizz-fqi3.php:506
+#: form-quizz-fqi3.php:519
 msgid "Please select a level before starting the quiz."
 msgstr ""
 
 #. Translators: %s is the limit number of quiz per day
-#: form-quizz-fqi3.php:508
+#: form-quizz-fqi3.php:521
 msgid "You have reached the limit of %s quizzes per day as a free logged in user."
 msgstr ""
 
 #. Translators: %1$s is the number of correct answer if singular, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:510
+#: form-quizz-fqi3.php:523
 msgid "You have %1$s correct answer on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 
 #. Translators: %1$s is the number of correct answers if plural, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:512
+#: form-quizz-fqi3.php:525
 msgid "You have %1$s correct answers on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 
-#: form-quizz-fqi3.php:513
+#: form-quizz-fqi3.php:526
 msgid "Select an answer before moving on to the next question."
 msgstr ""
 
-#: form-quizz-fqi3.php:514
+#: form-quizz-fqi3.php:527
 #: includes/admin/class-view-questions.php:112
 #: templates/partials/quiz-results.php:28
 msgid "Question"
 msgstr ""
 
-#: form-quizz-fqi3.php:515
+#: form-quizz-fqi3.php:528
 msgid "on"
 msgstr ""
 
-#: form-quizz-fqi3.php:516
+#: form-quizz-fqi3.php:529
 msgid "Oops! Your time is up! Feel free to try again."
 msgstr ""
 
 #. Translators: %1$s is the URL site, %2$s is  the number of correct answers, %3$s is the total number of questions, %3$s is the percentage of correct answers
-#: form-quizz-fqi3.php:518
+#: form-quizz-fqi3.php:531
 msgid "I just finished the quiz on %1$s and I answered %2$s of %3$s questions correctly; that's %4$s%. Try it too; it's free!"
 msgstr ""
 
-#: includes/admin/class-access-control-settings.php:60
+#: includes/admin/class-access-control-settings.php:52
 msgid "This feature allows specific roles with at least the capability to publish posts to access the question management (viewing, editing, and deleting questions). However, access to plugin settings is restricted to administrators only."
 msgstr ""
 
-#: includes/admin/class-access-control-settings.php:69
+#: includes/admin/class-access-control-settings.php:61
 msgid "Who can manage questions?"
 msgstr ""
 
-#: includes/admin/class-access-control-settings.php:117
+#: includes/admin/class-access-control-settings.php:112
 msgid "Please note: The Administrator role cannot be disabled and always has access to plugin settings."
 msgstr ""
 
 #: includes/admin/class-add-questions.php:45
-#: templates/question-form.php:127
+#: templates/question-form.php:150
 msgid "Add question"
 msgstr ""
 
@@ -136,75 +149,93 @@ msgstr ""
 
 #. Translators: %s indicates the name of the required field missing.
 #: includes/admin/class-add-questions.php:122
-#: includes/admin/class-edit-questions.php:172
+#: includes/admin/class-add-questions.php:168
+#: includes/admin/class-edit-questions.php:174
+#: includes/admin/class-edit-questions.php:248
 msgid "Field %s is required"
 msgstr ""
 
 #. Translators: %d indicates the number of the field answer.
 #: includes/admin/class-add-questions.php:138
-#: includes/admin/class-edit-questions.php:220
+#: includes/admin/class-add-questions.php:208
+#: includes/admin/class-edit-questions.php:222
+#: includes/admin/class-edit-questions.php:314
 msgid "Answer %d cannot be empty"
 msgstr ""
 
 #: includes/admin/class-add-questions.php:154
-#: includes/admin/class-edit-questions.php:195
+#: includes/admin/class-add-questions.php:230
+#: includes/admin/class-edit-questions.php:197
+#: includes/admin/class-edit-questions.php:289
 msgid "Invalid correct answer selection"
 msgstr ""
 
-#: includes/admin/class-add-questions.php:176
+#. Translators: %d indicates the minimum answers required.
+#: includes/admin/class-add-questions.php:187
+#: includes/admin/class-edit-questions.php:269
+msgid "At least %d answers are required"
+msgstr ""
+
+#. Translators: %d indicates the maximum answers authorized.
+#: includes/admin/class-add-questions.php:195
+#: includes/admin/class-edit-questions.php:276
+msgid "Maximum %d answers are allowed"
+msgstr ""
+
+#: includes/admin/class-add-questions.php:254
 msgid "Error encoding answers"
 msgstr ""
 
-#: includes/admin/class-add-questions.php:195
+#: includes/admin/class-add-questions.php:273
 msgid "Database error occurred while inserting the question"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:52
+#: includes/admin/class-api-settings.php:44
 msgid "Enable API Rest"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:59
+#: includes/admin/class-api-settings.php:51
 msgid "API Token"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:72
+#: includes/admin/class-api-settings.php:64
 msgid "Allow access to plugin data via the REST API"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:91
+#: includes/admin/class-api-settings.php:83
 msgid "Generate Token"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:93
+#: includes/admin/class-api-settings.php:85
 msgid "Revoke Token"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:96
+#: includes/admin/class-api-settings.php:88
 msgid "Click the button to generate a new API token."
 msgstr ""
 
-#: includes/admin/class-api-settings.php:101
+#: includes/admin/class-api-settings.php:93
 msgid "Show/Hide Token"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:102
+#: includes/admin/class-api-settings.php:94
 msgid "Copy token"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:105
+#: includes/admin/class-api-settings.php:97
 msgid "The generated token will appear above. Click Save Settings to store it."
 msgstr ""
 
-#: includes/admin/class-api-settings.php:106
+#: includes/admin/class-api-settings.php:98
 msgid "Note:"
 msgstr ""
 
-#: includes/admin/class-api-settings.php:106
+#: includes/admin/class-api-settings.php:98
 msgid "Do not share your API token and ensure it is stored securely."
 msgstr ""
 
 #. translators: Guide page URL
-#: includes/admin/class-api-settings.php:110
+#: includes/admin/class-api-settings.php:102
 msgid "The API documentation can be found <a href=\"%s#api_doc\" target=\"_blank\" rel=\"noopener noreferrer\">here</a>."
 msgstr ""
 
@@ -259,14 +290,14 @@ msgstr ""
 #: includes/admin/class-badges-settings.php:172
 #: includes/admin/class-badges-settings.php:176
 #: includes/admin/class-badges-settings.php:212
-#: includes/admin/class-emails-settings.php:135
-#: includes/admin/class-emails-settings.php:139
+#: includes/admin/class-emails-settings.php:126
+#: includes/admin/class-emails-settings.php:130
 msgid "Remove Image"
 msgstr ""
 
 #: includes/admin/class-badges-settings.php:175
 #: includes/admin/class-badges-settings.php:211
-#: includes/admin/class-emails-settings.php:138
+#: includes/admin/class-emails-settings.php:129
 msgid "Upload Image"
 msgstr ""
 
@@ -283,360 +314,352 @@ msgstr ""
 msgid "Minimum quizzes completed to start assigning success rate badges:"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:57
+#: includes/admin/class-content-settings.php:45
 msgid "RTL mode for table"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:79
+#: includes/admin/class-content-settings.php:67
 msgid "Enable RTL (Right-to-Left) mode"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:81
+#: includes/admin/class-content-settings.php:69
 msgid "Check this to activate RTL layout for languages like Arabic or Hebrew for the question overview table."
 msgstr ""
 
-#: includes/admin/class-content-settings.php:94
+#: includes/admin/class-content-settings.php:83
 msgid "Title/Description Pre Form Text"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:95
+#: includes/admin/class-content-settings.php:88
 msgid "Title/Description Pre Form Color"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:96
+#: includes/admin/class-content-settings.php:93
 msgid "Top Question Text Color"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:97
+#: includes/admin/class-content-settings.php:98
 msgid "Top Question Background Color"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:98
+#: includes/admin/class-content-settings.php:103
 msgid "Button Text Color"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:99
+#: includes/admin/class-content-settings.php:108
 msgid "Button Background Color"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:134
-#: includes/admin/class-content-settings.php:145
-#: includes/admin/class-content-settings.php:156
-#: includes/admin/class-emails-settings.php:206
-#: includes/admin/class-emails-settings.php:213
-#: includes/admin/class-emails-settings.php:220
+#: includes/admin/class-content-settings.php:146
+#: includes/admin/class-content-settings.php:157
+#: includes/admin/class-content-settings.php:168
+#: includes/admin/class-emails-settings.php:197
+#: includes/admin/class-emails-settings.php:204
+#: includes/admin/class-emails-settings.php:211
 msgid "Default:"
 msgstr ""
 
-#: includes/admin/class-content-settings.php:135
-#: includes/admin/class-content-settings.php:146
-#: includes/admin/class-content-settings.php:157
-#: includes/admin/class-emails-settings.php:207
-#: includes/admin/class-emails-settings.php:214
-#: includes/admin/class-emails-settings.php:221
+#: includes/admin/class-content-settings.php:147
+#: includes/admin/class-content-settings.php:158
+#: includes/admin/class-content-settings.php:169
+#: includes/admin/class-emails-settings.php:198
+#: includes/admin/class-emails-settings.php:205
+#: includes/admin/class-emails-settings.php:212
 msgid "Reset"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:65
-#: templates/question-form.php:127
+#: includes/admin/class-edit-questions.php:67
+#: templates/question-form.php:150
 msgid "Edit question"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:99
-#: includes/admin/class-emails-settings.php:273
+#: includes/admin/class-edit-questions.php:101
+#: includes/admin/class-emails-settings.php:264
 msgid "Security check failed."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:134
+#: includes/admin/class-edit-questions.php:136
 msgid "Question not found."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:153
+#: includes/admin/class-edit-questions.php:155
 msgid "Error: Question options not found or invalid."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:182
+#: includes/admin/class-edit-questions.php:184
+#: includes/admin/class-edit-questions.php:258
 msgid "Invalid question ID"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:228
+#: includes/admin/class-edit-questions.php:230
+#: includes/admin/class-edit-questions.php:322
 msgid "Failed to encode answers"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:296
+#: includes/admin/class-edit-questions.php:390
 msgid "Failed to update question."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:323
+#: includes/admin/class-edit-questions.php:417
 msgid "Invalid question ID. Please choose the question to modify in the question consultation page."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:327
+#: includes/admin/class-edit-questions.php:421
 msgid "View questions"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:59
+#: includes/admin/class-emails-settings.php:50
 msgid "Disable email notification"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:66
+#: includes/admin/class-emails-settings.php:57
 msgid "Upload Email Image"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:73
+#: includes/admin/class-emails-settings.php:64
 msgid "Email Send Hour"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:80
+#: includes/admin/class-emails-settings.php:71
 msgid "Email CTA settings"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:87
+#: includes/admin/class-emails-settings.php:78
 msgid "Send Test Email to WP admin"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:110
+#: includes/admin/class-emails-settings.php:101
 msgid "Disable email notifications"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:113
+#: includes/admin/class-emails-settings.php:104
 msgid "Check this to disable the email notifications."
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:157
-#: includes/admin/class-emails-settings.php:159
+#: includes/admin/class-emails-settings.php:148
+#: includes/admin/class-emails-settings.php:150
 msgid "Select the time (HH:MM) for sending reminder emails."
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:164
+#: includes/admin/class-emails-settings.php:155
 msgid "Test Cron Execution"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:186
-#: includes/admin/class-emails-settings.php:306
+#: includes/admin/class-emails-settings.php:177
+#: includes/fqi3-config-functions.php:204
 msgid "Go to the site"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:193
+#: includes/admin/class-emails-settings.php:184
 msgid "Email CTA link"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:204
+#: includes/admin/class-emails-settings.php:195
 msgid "Email CTA Label"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:211
+#: includes/admin/class-emails-settings.php:202
 msgid "Link Text Color"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:218
+#: includes/admin/class-emails-settings.php:209
 msgid "Link Background Color"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:236
+#: includes/admin/class-emails-settings.php:227
 msgid "Send Test Email"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:262
+#: includes/admin/class-emails-settings.php:253
 msgid "Email sending is disabled."
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:269
+#: includes/admin/class-emails-settings.php:260
 msgid "Test email has been sent."
 msgstr ""
 
-#: includes/admin/class-general-settings.php:58
+#: includes/admin/class-general-settings.php:45
 msgid "Delete data on uninstall"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:65
+#: includes/admin/class-general-settings.php:52
 msgid "Social sharing of results"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:72
+#: includes/admin/class-general-settings.php:59
 msgid "Disable statistics"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:79
+#: includes/admin/class-general-settings.php:66
 msgid "Link to the sales page"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:86
+#: includes/admin/class-general-settings.php:73
 msgid "Number of free trials per day"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:93
+#: includes/admin/class-general-settings.php:80
 msgid "Number of questions per quiz"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:112
+#: includes/admin/class-general-settings.php:99
 msgid "Check this to delete data on uninstall"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:130
+#: includes/admin/class-general-settings.php:117
 msgid "Disable social sharing of results"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:132
+#: includes/admin/class-general-settings.php:119
 msgid "Note: It is an option only available for logged in users. Check this to disable the social sharing feature for users."
 msgstr ""
 
-#: includes/admin/class-general-settings.php:151
+#: includes/admin/class-general-settings.php:138
 msgid "Disable results statistics"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:153
+#: includes/admin/class-general-settings.php:140
 msgid "Check this option to disable saving statistics to the database and displaying them to the user.<br>Note: Saving statistics to the database and displaying frontend statistics are options valid only for member users."
 msgstr ""
 
-#: includes/admin/class-general-settings.php:176
+#: includes/admin/class-general-settings.php:163
 msgid "Choose the page to link to for sales."
 msgstr ""
 
-#: includes/admin/class-general-settings.php:190
+#: includes/admin/class-general-settings.php:177
 msgid "Number of free trials per day:"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:193
+#: includes/admin/class-general-settings.php:180
 msgid "times a day"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:196
+#: includes/admin/class-general-settings.php:183
 msgid "Specify how many free trials are allowed per day (default is 3)."
 msgstr ""
 
-#: includes/admin/class-general-settings.php:211
+#: includes/admin/class-general-settings.php:198
 msgid "Number of questions per quiz:"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:214
+#: includes/admin/class-general-settings.php:201
 msgid "questions per quiz"
 msgstr ""
 
-#: includes/admin/class-general-settings.php:217
+#: includes/admin/class-general-settings.php:204
 msgid "Minimum 4 questions"
 msgstr ""
 
-#: includes/admin/class-import-export.php:31
-#: includes/admin/class-import-export.php:42
+#: includes/admin/class-import-export.php:32
 msgid "Questions"
 msgstr ""
 
-#: includes/admin/class-import-export.php:32
-#: includes/admin/class-import-export.php:46
-#: includes/admin/class-statistics.php:107
+#: includes/admin/class-import-export.php:36
+#: includes/admin/class-statistics.php:138
 msgid "Levels"
 msgstr ""
 
-#: includes/admin/class-import-export.php:33
-#: includes/admin/class-import-export.php:54
-msgid "Performance"
-msgstr ""
-
-#: includes/admin/class-import-export.php:34
-#: includes/admin/class-import-export.php:58
-msgid "Advanced Stats"
-msgstr ""
-
-#: includes/admin/class-import-export.php:35
-#: includes/admin/class-import-export.php:50
+#: includes/admin/class-import-export.php:40
 msgid "Badges"
 msgstr ""
 
-#: includes/admin/class-import-export.php:36
-#: includes/admin/class-view-questions.php:114
-msgid "Options"
+#: includes/admin/class-import-export.php:44
+msgid "Performance"
 msgstr ""
 
-#: includes/admin/class-import-export.php:80
+#: includes/admin/class-import-export.php:48
+msgid "Advanced Stats"
+msgstr ""
+
+#: includes/admin/class-import-export.php:70
 msgid "Data successfully imported."
 msgstr ""
 
-#: includes/admin/class-import-export.php:103
+#: includes/admin/class-import-export.php:93
 msgid "Import/Export Data"
 msgstr ""
 
-#: includes/admin/class-import-export.php:108
+#: includes/admin/class-import-export.php:98
 msgid "Export Data"
 msgstr ""
 
-#: includes/admin/class-import-export.php:111
+#: includes/admin/class-import-export.php:101
 msgid "Select the data you want to export:"
 msgstr ""
 
-#: includes/admin/class-import-export.php:114
+#: includes/admin/class-import-export.php:104
 msgid "Please select at least one export option."
 msgstr ""
 
-#: includes/admin/class-import-export.php:119
+#: includes/admin/class-import-export.php:109
 msgid "Select All"
 msgstr ""
 
-#: includes/admin/class-import-export.php:138
+#: includes/admin/class-import-export.php:128
 msgid "Export for specific user (optional):"
 msgstr ""
 
-#: includes/admin/class-import-export.php:141
+#: includes/admin/class-import-export.php:131
 msgid "All Users"
 msgstr ""
 
-#: includes/admin/class-import-export.php:155
+#: includes/admin/class-import-export.php:145
 msgid "Export"
 msgstr ""
 
-#: includes/admin/class-import-export.php:164
+#: includes/admin/class-import-export.php:154
 msgid "Import Data"
 msgstr ""
 
-#: includes/admin/class-import-export.php:167
+#: includes/admin/class-import-export.php:157
 msgid "Select the JSON file to import:"
 msgstr ""
 
-#: includes/admin/class-import-export.php:174
+#: includes/admin/class-import-export.php:164
 msgid "Maximum file size: 10MB. JSON format only."
 msgstr ""
 
-#: includes/admin/class-import-export.php:181
+#: includes/admin/class-import-export.php:171
 msgid "Import"
 msgstr ""
 
-#: includes/admin/class-import-export.php:413
+#: includes/admin/class-import-export.php:343
 msgid "Insufficient permissions for data export."
 msgstr ""
 
-#: includes/admin/class-import-export.php:417
-#: includes/admin/class-import-export.php:452
+#: includes/admin/class-import-export.php:347
+#: includes/admin/class-import-export.php:382
 #: includes/FQI3_PeriodicStatistics.php:277
 msgid "Security verification failed."
 msgstr ""
 
-#: includes/admin/class-import-export.php:448
+#: includes/admin/class-import-export.php:378
 msgid "Insufficient permissions for data import."
 msgstr ""
 
-#: includes/admin/class-import-export.php:464
+#: includes/admin/class-import-export.php:394
 msgid "File upload failed."
 msgstr ""
 
 #. Translators: %d indicates the maximum upload limit.
-#: includes/admin/class-import-export.php:472
+#: includes/admin/class-import-export.php:402
 msgid "File size exceeds maximum limit of %d MB."
 msgstr ""
 
-#: includes/admin/class-import-export.php:476
+#: includes/admin/class-import-export.php:406
 msgid "Invalid file type. JSON files only."
 msgstr ""
 
-#: includes/admin/class-import-export.php:493
+#: includes/admin/class-import-export.php:423
 msgid "Invalid JSON file."
 msgstr ""
 
-#: includes/admin/class-import-export.php:521
+#: includes/admin/class-import-export.php:451
 msgid "Invalid import data: No valid data sections found."
 msgstr ""
 
 #. Translators: %s is the error message.
-#: includes/admin/class-import-export.php:588
+#: includes/admin/class-import-export.php:528
 msgid "Import failed: %s"
 msgstr ""
 
@@ -902,7 +925,7 @@ msgid "The achievement value that triggered the badge award."
 msgstr ""
 
 #: includes/admin/class-infos.php:305
-#: includes/fqi3-config-functions.php:97
+#: includes/fqi3-config-functions.php:99
 msgid "Changelog and User Guide"
 msgstr ""
 
@@ -1023,15 +1046,15 @@ msgstr ""
 msgid "Add a level"
 msgstr ""
 
-#: includes/admin/class-levels-settings.php:274
+#: includes/admin/class-levels-settings.php:245
 msgid "Beginner"
 msgstr ""
 
-#: includes/admin/class-levels-settings.php:275
+#: includes/admin/class-levels-settings.php:246
 msgid "Intermediate"
 msgstr ""
 
-#: includes/admin/class-levels-settings.php:276
+#: includes/admin/class-levels-settings.php:247
 msgid "Advance"
 msgstr ""
 
@@ -1043,62 +1066,62 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
-#: includes/admin/class-statistics.php:48
-#: includes/fqi3-config-functions.php:73
+#: includes/admin/class-statistics.php:56
+#: includes/fqi3-config-functions.php:75
 msgid "Statistics"
 msgstr ""
 
-#: includes/admin/class-statistics.php:51
+#: includes/admin/class-statistics.php:59
 msgid "Refresh Statistics"
 msgstr ""
 
-#: includes/admin/class-statistics.php:69
+#: includes/admin/class-statistics.php:85
 msgid "Color codes:"
 msgstr ""
 
-#: includes/admin/class-statistics.php:105
+#: includes/admin/class-statistics.php:136
 msgid "User ID"
 msgstr ""
 
-#: includes/admin/class-statistics.php:106
+#: includes/admin/class-statistics.php:137
 msgid "Username"
 msgstr ""
 
-#: includes/admin/class-statistics.php:108
+#: includes/admin/class-statistics.php:139
 msgid "Awards / Badges"
 msgstr ""
 
-#: includes/admin/class-statistics.php:120
+#: includes/admin/class-statistics.php:161
 msgid "No user statistics available yet."
 msgstr ""
 
-#: includes/admin/class-statistics.php:151
+#: includes/admin/class-statistics.php:211
 #: includes/FQI3_Awards.php:485
 #: includes/FQI3_Statistics.php:596
 msgid "N/A"
 msgstr ""
 
 #. translators: %s is the number of quizzes
-#: includes/admin/class-statistics.php:166
+#: includes/admin/class-statistics.php:226
 msgid "%s quiz"
 msgid_plural "%s quizzes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/admin/class-statistics.php:192
+#: includes/admin/class-statistics.php:267
 msgid "No badges awarded yet!"
 msgstr ""
 
-#: includes/admin/class-statistics.php:193
+#: includes/admin/class-statistics.php:268
 msgid "This user has not yet earned a badge."
 msgstr ""
 
 #. translators: %s is the date the badge was awarded
-#: includes/admin/class-statistics.php:212
+#: includes/admin/class-statistics.php:295
 msgid "earned at %s"
 msgstr ""
 
-#: includes/admin/class-statistics.php:267
+#: includes/admin/class-statistics.php:371
 msgid "Deleted User"
 msgstr ""
 
@@ -1128,6 +1151,10 @@ msgstr ""
 msgid "Instructions for the question"
 msgstr ""
 
+#: includes/admin/class-view-questions.php:114
+msgid "Options"
+msgstr ""
+
 #: includes/admin/class-view-questions.php:115
 msgid "Answer"
 msgstr ""
@@ -1152,7 +1179,7 @@ msgstr ""
 #: includes/admin/class-view-questions.php:278
 #: includes/admin/class-view-questions.php:388
 #: includes/admin/class-view-questions.php:602
-#: templates/question-form.php:48
+#: templates/question-form.php:61
 msgid "Free"
 msgstr ""
 
@@ -1211,47 +1238,47 @@ msgstr ""
 msgid "Export Error"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:49
+#: includes/fqi3-config-functions.php:51
 msgid "View Questions"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:57
+#: includes/fqi3-config-functions.php:59
 msgid "Add Question"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:65
+#: includes/fqi3-config-functions.php:67
 msgid "Edit Question"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:89
+#: includes/fqi3-config-functions.php:91
 msgid "Import/Export"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:140
+#: includes/fqi3-config-functions.php:142
 msgid "General Settings"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:145
+#: includes/fqi3-config-functions.php:147
 msgid "Levels Settings"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:150
+#: includes/fqi3-config-functions.php:152
 msgid "Access Control"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:155
+#: includes/fqi3-config-functions.php:157
 msgid "Emails Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:160
+#: includes/fqi3-config-functions.php:162
 msgid "Content Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:165
+#: includes/fqi3-config-functions.php:167
 msgid "Badges Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:170
+#: includes/fqi3-config-functions.php:172
 msgid "API Options"
 msgstr ""
 
@@ -1681,33 +1708,37 @@ msgstr ""
 msgid "Good answer"
 msgstr ""
 
-#: templates/question-form.php:34
+#: templates/question-form.php:47
 msgid "What level?"
 msgstr ""
 
-#: templates/question-form.php:57
+#: templates/question-form.php:70
 msgid "Question:"
 msgstr ""
 
-#: templates/question-form.php:67
+#: templates/question-form.php:80
 msgid "Instructions for the question:"
 msgstr ""
 
-#: templates/question-form.php:77
+#: templates/question-form.php:90
 msgid "Possible answers:"
 msgstr ""
 
-#. translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3.
-#: templates/question-form.php:84
+#. translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
+#: templates/question-form.php:97
 msgid "Answer choice %d:"
 msgstr ""
 
-#: templates/question-form.php:98
+#: templates/question-form.php:115
+msgid "Add Answer Option"
+msgstr ""
+
+#: templates/question-form.php:124
 msgid "Select the correct answer:"
 msgstr ""
 
 #. translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
-#: templates/question-form.php:116
+#: templates/question-form.php:140
 msgid "Answer choice %d"
 msgstr ""
 

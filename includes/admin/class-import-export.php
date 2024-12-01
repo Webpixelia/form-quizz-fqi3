@@ -26,16 +26,6 @@ class FQI3_Import_Export_Page {
         add_action('admin_post_fqi3_import_data', [$this, 'handle_import_data']);
     }
 
-    public static function or_get_allowed_export_types(): array {
-        return [
-            'questions' => __('Questions', 'form-quizz-fqi3'),
-            'levels' => __('Levels', 'form-quizz-fqi3'),
-            'performance' => __('Performance', 'form-quizz-fqi3'),
-            'advanced_stats' => __('Advanced Stats', 'form-quizz-fqi3'),
-            'badges' => __('Badges', 'form-quizz-fqi3'),
-            'options' => __('Options', 'form-quizz-fqi3')
-        ];
-    }
     public static function get_allowed_export_types(): array {
         return [
             'questions' => [
@@ -115,7 +105,7 @@ class FQI3_Import_Export_Page {
                     </div>
                 <?php endif; ?>
                 <div class="form-check form-switch">
-                    <input type="checkbox" id="selectAll" class="form-check-input">
+                    <input type="checkbox" id="selectAll" class="form-check-input" data-dependency="choice-user-container">
                     <label for="selectAll" class="form-check-label"><?php _e('Select All', 'form-quizz-fqi3'); ?></label>
                 </div>
                 <hr>
@@ -202,6 +192,9 @@ class FQI3_Import_Export_Page {
         // Validate export types
         $selected_export_types = $this->validate_export_types();
 
+        // Initialize $user_id to avoid undefined variable notice
+        $user_id = null;
+
         // Types to check
         $user_specific_types = ['performance', 'advanced_stats'];
 
@@ -241,79 +234,6 @@ class FQI3_Import_Export_Page {
      * @param array $selected_types
      * @return array
      */
-    private function or_collect_export_data(array $selected_types, $user_id = null): array {
-        global $wpdb;
-        $export_data = [];
-
-        foreach ($selected_types as $type) {
-            switch ($type) {
-                case 'questions':
-                    $table_name = $this->backend->get_quiz_table_name();
-                    $questions = $wpdb->get_results("SELECT * FROM $table_name", ARRAY_A);
-                    $export_data['questions'] = array_map(function($q) {
-                        unset($q['id']);
-                        return $q;
-                    }, $questions);
-                    break;
-
-                case 'levels':
-                    $export_data['levels'] = get_option('fqi3_quiz_levels', []);
-                    break;
-
-                case 'badges':
-                    $export_data['badges'] = get_option('fqi3_badges', []);
-                    break;
-
-                case 'performance':
-                    $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
-    
-                    $query = "SELECT * FROM $table_name";
-                    if (!is_null($user_id)) {
-                        $query .= $wpdb->prepare(" WHERE user_id = %d", $user_id);
-                    }
-    
-                    // Récupérer les données
-                    $performance_data = $wpdb->get_results($query, ARRAY_A);
-
-                    $export_data['performance'] = $performance_data;
-                    break;
-
-                case 'advanced_stats':
-                    $table_name = $wpdb->prefix . FQI3_TABLE_PERIODIC_STATISTICS;
-                    
-                    $query = "SELECT * FROM $table_name";
-                    
-                    $where_conditions = [];
-                    
-                    if (!is_null($user_id)) {
-                        $where_conditions[] = $wpdb->prepare("user_id = %d", $user_id);
-                    }
-                    
-                    // Other conditions if becessary
-                    // Example : filter by period
-                    // $where_conditions[] = $wpdb->prepare("period_type = %s", 'weekly');
-                    
-                    if (!empty($where_conditions)) {
-                        $query .= " WHERE " . implode(" AND ", $where_conditions);
-                    }
-                    
-                    $query .= " ORDER BY created_at DESC"; // Sort by date DESC
-                    // $query .= " LIMIT 10"; // Limit to 10 results
-                    
-                    // Récupérer les données
-                    $performance_data = $wpdb->get_results($query, ARRAY_A);
-                    
-                    $export_data['advanced_stats'] = $performance_data;
-                    break;
-
-                case 'options':
-                    $export_data['options'] = get_option('fqi3_options', []);
-                    break;
-            }
-        }
-
-        return $export_data;
-    }
     private function collect_export_data(array $selected_types, $user_id = null): array {
         global $wpdb;
     
@@ -359,7 +279,12 @@ class FQI3_Import_Export_Page {
             $query .= $wpdb->prepare(" WHERE user_id = %d", $user_id);
         }
     
-        return $wpdb->get_results($query, ARRAY_A);
+        $results = $wpdb->get_results($query, ARRAY_A);
+
+        return array_map(function($row) {
+            unset($row['entry_id']);
+            return $row;
+        }, $results);
     }
     
     private function export_advanced_stats($user_id = null): array {
@@ -378,7 +303,12 @@ class FQI3_Import_Export_Page {
     
         $query .= " ORDER BY created_at DESC";
     
-        return $wpdb->get_results($query, ARRAY_A);
+        $results = $wpdb->get_results($query, ARRAY_A);
+
+        return array_map(function($row) {
+            unset($row['entry_id']);
+            return $row;
+        }, $results);
     }
     
     private function export_options(): array {
@@ -558,6 +488,16 @@ class FQI3_Import_Export_Page {
                 update_option('fqi3_options', $sanitized_data['options']);
             }
 
+            // Import performance data
+            if (isset($sanitized_data['performance'])) {
+                $this->import_performance($sanitized_data['performance']);
+            }
+
+            // Import advanced stats data
+            if (isset($sanitized_data['advanced_stats'])) {
+                $this->import_advanced_stats($sanitized_data['advanced_stats']);
+            }
+
             // Generate operation report
             $report_filename = $this->generate_operation_report('import', $sanitized_data);
 
@@ -610,16 +550,91 @@ class FQI3_Import_Export_Page {
 
         foreach (array_chunk($questions, $batch_size) as $batch) {
             foreach ($batch as $question) {
-                $wpdb->insert(
+                $result = $wpdb->insert(
                     $table_name,
                     [
-                        'niveau' => sanitize_text_field($question['niveau']),
-                        'q' => sanitize_textarea_field($question['q']),
-                        'q2' => sanitize_textarea_field($question['q2'] ?? ''),
-                        'options' => maybe_serialize($question['options'] ?? []),
-                        'answer' => sanitize_text_field($question['answer'])
+                        'niveau'    => $question['niveau'],
+                        'q'         => $question['q'],
+                        'q2'        => $question['q2'],
+                        'options'   => $question['options'],
+                        'answer'    => $question['answer']
                     ]
                 );
+                if ($result === false) {
+                    throw new \Exception('Failed to insert question: ' . $wpdb->last_error);
+                }
+            }
+        }
+    }
+
+    /**
+     * Import performance data
+     *
+     * @param array $performance_data
+     */
+    private function import_performance(array $performance_data): void {
+        global $wpdb;
+        $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
+        $batch_size = 100;
+
+        // Truncate existing performance data
+        $wpdb->query("TRUNCATE TABLE $table_name");
+
+        foreach (array_chunk($performance_data, $batch_size) as $batch) {
+            foreach ($batch as $performance_entry) {
+                $result = $wpdb->insert(
+                    $table_name,
+                    [
+                        'user_id'                  => $performance_entry['user_id'],
+                        'level'                    => $performance_entry['level'],
+                        'total_quizzes'            => $performance_entry['total_quizzes'],
+                        'total_questions_answered' => $performance_entry['total_questions_answered'],
+                        'total_good_answers'       => $performance_entry['total_good_answers'],
+                        'success_rate'             => $performance_entry['success_rate'],
+                        'best_score'               => $performance_entry['best_score'],
+                        'last_updated'             => $performance_entry['last_updated']
+                    ]
+                );
+                if ($result === false) {
+                    throw new \Exception('Failed to insert stats: ' . $wpdb->last_error);
+                }
+            }
+        }
+    }
+
+    /**
+     * Import advanced stats data
+     *
+     * @param array $advanced_stats_data
+     */
+    private function import_advanced_stats(array $advanced_stats_data): void {
+        global $wpdb;
+        $table_name = $wpdb->prefix . FQI3_TABLE_PERIODIC_STATISTICS;
+        $batch_size = 100;
+
+        // Truncate existing advanced stats data
+        $wpdb->query("TRUNCATE TABLE $table_name");
+
+        foreach (array_chunk($advanced_stats_data, $batch_size) as $batch) {
+            foreach ($batch as $stats_entry) {
+                $result = $wpdb->insert(
+                    $table_name,
+                    [
+                        'user_id'                    => $stats_entry['user_id'],
+                        'period_type'                => $stats_entry['period_type'],
+                        'period_start'               => $stats_entry['period_start'],
+                        'period_end'                 => $stats_entry['period_end'],
+                        'total_quizzes'              => $stats_entry['total_quizzes'],
+                        'total_questions_answered'   => $stats_entry['total_questions_answered'],
+                        'total_good_answers'         => $stats_entry['total_good_answers'],
+                        'success_rate'               => $stats_entry['success_rate'],
+                        'best_score'                 => $stats_entry['best_score'],
+                        'created_at'                 => $stats_entry['created_at'],
+                    ]
+                );
+                if ($result === false) {
+                    throw new \Exception('Failed to insert advanced stats entry: ' . $wpdb->last_error);
+                }
             }
         }
     }
@@ -703,13 +718,29 @@ class FQI3_Import_Export_Page {
         return $backup_path;
     }
 
+    private function sanitize_levels($data): array {
+        return [
+            'fqi3_quiz_levels_name' => array_map(function ($name) {
+                return sanitize_text_field($name); // Sanitize text fields
+            }, $data['levels']['fqi3_quiz_levels_name'] ?? []),
+    
+            'fqi3_quiz_levels_label' => array_map(function ($label) {
+                return sanitize_text_field($label); // Sanitize text fields
+            }, $data['levels']['fqi3_quiz_levels_label'] ?? []),
+    
+            'fqi3_quiz_levels_is_free' => array_map(function ($is_free) {
+                return intval($is_free); // Sanitize checkboxes (ensure they are integers)
+            }, $data['levels']['fqi3_quiz_levels_is_free'] ?? []),
+        ];
+    }
+
     /**
      * Validate and sanitize import data
      *
      * @param array $data Raw import data
      * @return array Sanitized import data
      */
-    private function sanitize_import_data(array $data): array {
+    private function or_sanitize_import_data(array $data): array {
         $sanitized_data = [];
 
         // Sanitize questions
@@ -719,26 +750,272 @@ class FQI3_Import_Export_Page {
                     'niveau' => sanitize_text_field($question['niveau'] ?? ''),
                     'q' => sanitize_textarea_field($question['q'] ?? ''),
                     'q2' => sanitize_textarea_field($question['q2'] ?? ''),
-                    'options' => is_array($question['options']) ? 
-                        array_map('sanitize_text_field', $question['options']) : 
-                        [],
+                    'options' => maybe_serialize($question['options']),
                     'answer' => sanitize_text_field($question['answer'] ?? '')
                 ];
             }, $data['questions']);
         }
 
-        // Sanitize levels, badges, and options similarly
-        $sanitizable_keys = ['levels', 'badges', 'options'];
-        foreach ($sanitizable_keys as $key) {
-            if (isset($data[$key])) {
-                $sanitized_data[$key] = array_map(function($value) {
-                    return is_string($value) ? sanitize_text_field($value) : $value;
-                }, $data[$key]);
+        // Sanitize levels
+        if (isset($data['levels'])) {
+            $sanitized_data['levels'] = [
+                'fqi3_quiz_levels_name' => array_map(function ($name) {
+                    return sanitize_text_field($name);
+                }, $data['levels']['fqi3_quiz_levels_name'] ?? []),
+        
+                'fqi3_quiz_levels_label' => array_map(function ($label) {
+                    return sanitize_text_field($label);
+                }, $data['levels']['fqi3_quiz_levels_label'] ?? []),
+        
+                'fqi3_quiz_levels_is_free' => array_map(function ($is_free) {
+                    return intval($is_free);
+                }, $data['levels']['fqi3_quiz_levels_is_free'] ?? []),
+            ];
+        }
+
+        // Sanitize badges
+        if (isset($data['badges'])) {
+            $sanitized_data['badges'] = [
+                'fqi3_disable_badges' => intval($data['badges']['fqi3_disable_badges'] ?? 0),
+                'fqi3_disable_badges_legend' => intval($data['badges']['fqi3_disable_badges_legend'] ?? 0),
+        
+                'fqi3_quizzes_completed_thresholds' => array_map(function ($threshold) {
+                    return intval($threshold);
+                }, $data['badges']['fqi3_quizzes_completed_thresholds'] ?? []),
+        
+                'fqi3_quizzes_completed_badge_names' => array_map(function ($name) {
+                    return sanitize_text_field($name);
+                }, $data['badges']['fqi3_quizzes_completed_badge_names'] ?? []),
+        
+                'fqi3_quizzes_completed_badge_images' => array_map(function ($image) {
+                    return intval($image); // Les IDs des images sont des entiers
+                }, $data['badges']['fqi3_quizzes_completed_badge_images'] ?? []),
+        
+                'fqi3_success_rate_thresholds' => array_map(function ($threshold) {
+                    return intval($threshold);
+                }, $data['badges']['fqi3_success_rate_thresholds'] ?? []),
+        
+                'fqi3_success_rate_badge_names' => array_map(function ($name) {
+                    return sanitize_text_field($name);
+                }, $data['badges']['fqi3_success_rate_badge_names'] ?? []),
+        
+                'fqi3_success_rate_badge_images' => array_map(function ($image) {
+                    return intval($image); // Les IDs des images sont des entiers
+                }, $data['badges']['fqi3_success_rate_badge_images'] ?? []),
+        
+                'fqi3_min_quizzes_for_success_rate' => intval($data['badges']['fqi3_min_quizzes_for_success_rate'] ?? 0),
+            ];
+        }
+
+        // Sanitize stats
+        if (isset($data['performance'])) {
+            $sanitized_data['performance'] = array_map(function($performance_entry) {
+                return [
+                    'user_id'                  => intval($performance_entry['user_id']),
+                    'level'                    => sanitize_text_field($performance_entry['level']),
+                    'total_quizzes'            => intval($performance_entry['total_quizzes']),
+                    'total_questions_answered' => intval($performance_entry['total_questions_answered']),
+                    'total_good_answers'       => intval($performance_entry['total_good_answers']),
+                    'success_rate'             => floatval($performance_entry['success_rate']),
+                    'best_score'               => floatval($performance_entry['best_score']),
+                    'last_updated'             => sanitize_text_field($performance_entry['last_updated'])
+                ];
+            }, $data['performance']);
+        }
+
+        // Sanitize advanced stats
+        if (isset($data['advanced_stats'])) {
+            $sanitized_data['advanced_stats'] = array_map(function($stats_entry) {
+                return [
+                    'user_id'                   => intval($stats_entry['user_id']),
+                    'period_type'               => in_array($stats_entry['period_type'], ['weekly', 'monthly']) ? $stats_entry['period_type'] : 'weekly',
+                    'period_start'              => sanitize_text_field($stats_entry['period_start']),
+                    'period_end'                => sanitize_text_field($stats_entry['period_end']),
+                    'total_quizzes'             => intval($stats_entry['total_quizzes'] ?? 0),
+                    'total_questions_answered'  => intval($stats_entry['total_questions_answered'] ?? 0),
+                    'total_good_answers'        => intval($stats_entry['total_good_answers'] ?? 0),
+                    'success_rate'              => floatval($stats_entry['success_rate'] ?? 0.0),
+                    'best_score'                => isset($stats_entry['best_score']) ? floatval($stats_entry['best_score']) : null,
+                    'created_at'                => !empty($stats_entry['created_at']) ? sanitize_text_field($stats_entry['created_at']) : current_time('mysql')
+                ];
+            }, $data['advanced_stats']);
+        }
+
+        // Sanitize options
+        if (isset($data['options'])) {
+            $sanitized_data['options'] = [];
+    
+            foreach ($data['options'] as $key => $value) {
+                switch (true) {
+                    case is_string($value): // Pour les champs texte
+                        $sanitized_data['options'][$key] = sanitize_text_field($value);
+                        break;
+                    
+                    case is_int($value): // Pour les champs nombre
+                        $sanitized_data['options'][$key] = intval($value);
+                        break;
+                    
+                    case is_bool($value): // Pour les cases à cocher
+                        $sanitized_data['options'][$key] = $value ? 1 : 0;
+                        break;
+                    
+                    case preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value): // Pour les couleurs hexadécimales
+                        $sanitized_data['options'][$key] = sanitize_hex_color($value);
+                        break;
+                    
+                    case preg_match('/^\d{2}:\d{2}$/', $value): // Pour les heures
+                        $sanitized_data['options'][$key] = sanitize_text_field($value);
+                        break;
+                    
+                    default:
+                        // Pour les cas par défaut (par exemple, pour les arrays ou objets)
+                        $sanitized_data['options'][$key] = sanitize_text_field($value);
+                        break;
+                }
             }
         }
 
         return $sanitized_data;
     }
+    private function sanitize_import_data(array $data): array {
+        $sanitized_data = [];
+    
+        // Loop through the data keys and sanitize based on the type of data
+        foreach ($data as $key => $value) {
+            switch ($key) {
+                case 'questions':
+                    $sanitized_data['questions'] = array_map(function($question) {
+                        return [
+                            'niveau' => sanitize_text_field($question['niveau'] ?? ''),
+                            'q' => sanitize_textarea_field($question['q'] ?? ''),
+                            'q2' => sanitize_textarea_field($question['q2'] ?? ''),
+                            'options' => maybe_serialize($question['options']),
+                            'answer' => sanitize_text_field($question['answer'] ?? '')
+                        ];
+                    }, $value);
+                    break;
+    
+                case 'levels':
+                    $sanitized_data['levels'] = [
+                        'fqi3_quiz_levels_name' => array_map(function ($name) {
+                            return sanitize_text_field($name);
+                        }, $value['fqi3_quiz_levels_name'] ?? []),
+    
+                        'fqi3_quiz_levels_label' => array_map(function ($label) {
+                            return sanitize_text_field($label);
+                        }, $value['fqi3_quiz_levels_label'] ?? []),
+    
+                        'fqi3_quiz_levels_is_free' => array_map(function ($is_free) {
+                            return intval($is_free);
+                        }, $value['fqi3_quiz_levels_is_free'] ?? []),
+                    ];
+                    break;
+    
+                case 'badges':
+                    $sanitized_data['badges'] = [
+                        'fqi3_disable_badges' => intval($value['fqi3_disable_badges'] ?? 0),
+                        'fqi3_disable_badges_legend' => intval($value['fqi3_disable_badges_legend'] ?? 0),
+                        'fqi3_quizzes_completed_thresholds' => array_map(function ($threshold) {
+                            return intval($threshold);
+                        }, $value['fqi3_quizzes_completed_thresholds'] ?? []),
+    
+                        'fqi3_quizzes_completed_badge_names' => array_map(function ($name) {
+                            return sanitize_text_field($name);
+                        }, $value['fqi3_quizzes_completed_badge_names'] ?? []),
+    
+                        'fqi3_quizzes_completed_badge_images' => array_map(function ($image) {
+                            return intval($image); // Les IDs des images sont des entiers
+                        }, $value['fqi3_quizzes_completed_badge_images'] ?? []),
+    
+                        'fqi3_success_rate_thresholds' => array_map(function ($threshold) {
+                            return intval($threshold);
+                        }, $value['fqi3_success_rate_thresholds'] ?? []),
+    
+                        'fqi3_success_rate_badge_names' => array_map(function ($name) {
+                            return sanitize_text_field($name);
+                        }, $value['fqi3_success_rate_badge_names'] ?? []),
+    
+                        'fqi3_success_rate_badge_images' => array_map(function ($image) {
+                            return intval($image); // Les IDs des images sont des entiers
+                        }, $value['fqi3_success_rate_badge_images'] ?? []),
+    
+                        'fqi3_min_quizzes_for_success_rate' => intval($value['fqi3_min_quizzes_for_success_rate'] ?? 0),
+                    ];
+                    break;
+    
+                case 'performance':
+                    $sanitized_data['performance'] = array_map(function($performance_entry) {
+                        return [
+                            'user_id'                  => intval($performance_entry['user_id']),
+                            'level'                    => sanitize_text_field($performance_entry['level']),
+                            'total_quizzes'            => intval($performance_entry['total_quizzes']),
+                            'total_questions_answered' => intval($performance_entry['total_questions_answered']),
+                            'total_good_answers'       => intval($performance_entry['total_good_answers']),
+                            'success_rate'             => floatval($performance_entry['success_rate']),
+                            'best_score'               => floatval($performance_entry['best_score']),
+                            'last_updated'             => sanitize_text_field($performance_entry['last_updated'])
+                        ];
+                    }, $value);
+                    break;
+    
+                case 'advanced_stats':
+                    $sanitized_data['advanced_stats'] = array_map(function($stats_entry) {
+                        return [
+                            'user_id'                   => intval($stats_entry['user_id']),
+                            'period_type'               => in_array($stats_entry['period_type'], ['weekly', 'monthly']) ? $stats_entry['period_type'] : 'weekly',
+                            'period_start'              => sanitize_text_field($stats_entry['period_start']),
+                            'period_end'                => sanitize_text_field($stats_entry['period_end']),
+                            'total_quizzes'             => intval($stats_entry['total_quizzes'] ?? 0),
+                            'total_questions_answered'  => intval($stats_entry['total_questions_answered'] ?? 0),
+                            'total_good_answers'        => intval($stats_entry['total_good_answers'] ?? 0),
+                            'success_rate'              => floatval($stats_entry['success_rate'] ?? 0.0),
+                            'best_score'                => isset($stats_entry['best_score']) ? floatval($stats_entry['best_score']) : null,
+                            'created_at'                => !empty($stats_entry['created_at']) ? sanitize_text_field($stats_entry['created_at']) : current_time('mysql')
+                        ];
+                    }, $value);
+                    break;
+    
+                case 'options':
+                    $sanitized_data['options'] = [];
+                    foreach ($value as $key => $option_value) {
+                        switch (true) {
+                            case is_string($option_value): // Pour les champs texte
+                                $sanitized_data['options'][$key] = sanitize_text_field($option_value);
+                                break;
+    
+                            case is_int($option_value): // Pour les champs nombre
+                                $sanitized_data['options'][$key] = intval($option_value);
+                                break;
+    
+                            case is_bool($option_value): // Pour les cases à cocher
+                                $sanitized_data['options'][$key] = $option_value ? 1 : 0;
+                                break;
+    
+                            case preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $option_value): // Pour les couleurs hexadécimales
+                                $sanitized_data['options'][$key] = sanitize_hex_color($option_value);
+                                break;
+    
+                            case preg_match('/^\d{2}:\d{2}$/', $option_value): // Pour les heures
+                                $sanitized_data['options'][$key] = sanitize_text_field($option_value);
+                                break;
+    
+                            default:
+                                $sanitized_data['options'][$key] = sanitize_text_field($option_value); // Par défaut
+                                break;
+                        }
+                    }
+                    break;
+    
+                // Ajoutez d'autres cas si nécessaire pour d'autres sections
+                default:
+                    // Si l'option n'est pas gérée explicitement, on ne la sanitise pas ou on fait un traitement par défaut.
+                    break;
+            }
+        }
+    
+        return $sanitized_data;
+    }
+    
 
     /**
      * Generate import/export report

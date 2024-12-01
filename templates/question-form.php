@@ -13,11 +13,24 @@
  * with a nonce field to prevent CSRF attacks.
  * 
  * @package Form Quiz FQI3
- * @since 2.0.0
+ * @since 2.0.0 Initial release
+ * @since 2.1.0 Add option to set the number of answer choices for questions
  */
+
+// Initial setup and data preparation
+$allOptions = fqi3_get_options();
+$rtlClass = isset($allOptions['fqi3_rtl_mode']) && $allOptions['fqi3_rtl_mode'] == 1 ? "rtl-mode" : '';
+
+// Dynamic calculation of the number of responses
+$num_answers = $is_edit && !empty($options) 
+    ? min(count($options), MAX_ANSWERS_COUNT) 
+    : DEFAULT_ANSWERS_COUNT;
+
+// Resetting the flag for required inputs
+$first = true;
 ?>
 <form id="<?php echo $is_edit ? 'editQuestionForm' : 'ajouterQuestionForm'; ?>" 
-      class="<?php echo $is_edit ? 'editQuestionForm' : 'ajouterQuestionForm'; ?>" 
+      class="<?php echo $is_edit ? 'editQuestionForm' : 'ajouterQuestionForm'; ?> <?php echo esc_attr($rtlClass); ?>" 
       action="<?php echo esc_url(admin_url('admin-post.php')); ?>" 
       method="post" 
       accept-charset="UTF-8">
@@ -75,49 +88,59 @@
     <!-- Answer options -->
     <div class="field-question">
         <label class="mb-3"><?php _e('Possible answers:', 'form-quizz-fqi3'); ?></label>
-        <ul>
-        <?php for ($i = 1; $i <= 4; $i++) : ?>
-            <li>
-                <label for="reponse<?php echo $i; ?>">
-                    <?php 
-                    // translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3.
-                    echo sprintf(__('Answer choice %d:', 'form-quizz-fqi3'), $i); ?>
-                </label>
-                <input type="text" 
-                    id="reponse<?php echo $i; ?>" 
-                    name="reponse<?php echo $i; ?>" 
-                    value="<?php echo esc_attr(isset($options[$i - 1]) ? $options[$i - 1] : ''); ?>" 
-                    required>
-            </li>
-        <?php endfor; ?>
+        <ul id="answer-options-container">
+            <?php for ($i = 1; $i <= $num_answers; $i++) : ?>
+                <li class="answer-option">
+                    <label for="reponse<?php echo $i; ?>">
+                        <?php 
+                        // translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
+                        echo sprintf(__('Answer choice %d:', 'form-quizz-fqi3'), $i); ?>
+                    </label>
+                    <input type="text"
+                        id="reponse<?php echo $i; ?>"
+                        name="reponse[]"
+                        value="<?php echo esc_attr(isset($options[$i - 1]) ? $options[$i - 1] : ''); ?>"
+                        required>
+                    <?php if ($i > DEFAULT_ANSWERS_COUNT) : ?>
+                        <button type="button" class="remove-answer-option btn btn-danger"><?php esc_html_e('Remove Answer Option', 'form-quizz-fqi3'); ?></button>
+                    <?php endif; ?>
+                </li>
+            <?php endfor; ?>
         </ul>
+        
+        <?php if ($num_answers < MAX_ANSWERS_COUNT) : ?>
+            <button type="button" id="add-answer-option" 
+                    class="btn btn-success" 
+                    data-max-answers="<?php echo MAX_ANSWERS_COUNT; ?>">
+                <?php esc_html_e('Add Answer Option', 'form-quizz-fqi3'); ?>
+            </button>
+        <?php endif; ?>
     </div>
+
 
     <!-- Correct answer selection -->
     <div class="field-question">
-        <label class="field-question-label" for="reponseCorrecte"><?php _e('Select the correct answer:', 'form-quizz-fqi3'); ?></label>
-        <div class="field-question-answers">
-            <?php
-            $first = true;
-            $num_answers = 4; 
-            for ($i = 0; $i < $num_answers; $i++) {
+        <label class="field-question-label" for="reponseCorrecte">
+            <?php _e('Select the correct answer:', 'form-quizz-fqi3'); ?>
+        </label>
+        <div class="field-question-answers" id="correct-answer-container">
+            <?php for ($i = 0; $i < $num_answers; $i++) { 
                 $id = "reponseCorrecte" . ($i + 1);
                 $value = $i;
                 ?>
-                <label for="<?php echo esc_attr($id); ?>">
-                    <input type="radio" 
-                           id="<?php echo esc_attr($id); ?>" 
-                           name="reponseCorrecte" 
-                           value="<?php echo esc_attr($value); ?>" 
-                           <?php if ($first) { echo 'required'; $first = false; } ?> 
-                           <?php if ($is_edit) checked($question->answer, $value); ?>>
+                <label for="<?php echo esc_attr($id); ?>" class="correct-answer-option">
+                    <input type="radio"
+                            id="<?php echo esc_attr($id); ?>"
+                            name="reponseCorrecte"
+                            value="<?php echo esc_attr($value); ?>"
+                            <?php if ($first) { echo 'required'; $first = false; } ?>
+                            <?php if ($is_edit) checked($question->answer, $value); ?>>
                     <?php 
                     // translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
-                    echo esc_html(sprintf(__('Answer choice %d', 'form-quizz-fqi3'), $i + 1)); ?>
+                    echo esc_html(sprintf(__('Answer choice %d', 'form-quizz-fqi3'), $i + 1)); 
+                    ?>
                 </label>
-                <?php
-            }
-            ?>
+            <?php } ?>
         </div>
     </div>
 

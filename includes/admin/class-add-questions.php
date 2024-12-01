@@ -111,7 +111,7 @@ class FQI3_Add_Questions_Page {
      * 
      * @return array|\WP_Error Sanitized data or WP_Error on failure
      */
-    private function validate_and_sanitize_input(): array|\WP_Error {
+    private function or_validate_and_sanitize_input(): array|\WP_Error {
         $data = [];
         
         foreach (self::VALIDATION_RULES as $field => $rules) {
@@ -155,6 +155,84 @@ class FQI3_Add_Questions_Page {
             );
         }
 
+        return $data;
+    }
+    private function validate_and_sanitize_input(): array|\WP_Error {
+        $data = [];
+        
+        foreach (self::VALIDATION_RULES as $field => $rules) {
+            if (!isset($_POST[$field]) && $rules['required']) {
+                return new \WP_Error(
+                    'missing_field',
+                    // Translators: %s indicates the name of the required field missing.
+                    sprintf(__('Field %s is required', 'form-quizz-fqi3'), $field)
+                );
+            }
+        }
+    
+        $data['niveau'] = $this->sanitize_unicode_text('niveau', 50);
+        $data['questionA'] = $this->sanitize_unicode_text('questionA', 500);
+        $data['questionB'] = $this->sanitize_unicode_text('questionB', 500);
+    
+        $data['reponses'] = [];
+        $max_answers = 10; // Maximum in JavaScript
+        $min_answers = 4;  // Minimum of answers
+    
+        $submitted_answers = $_POST['reponse'] ?? [];
+    
+        if (count($submitted_answers) < $min_answers) {
+            return new \WP_Error(
+                'insufficient_answers',
+                // Translators: %d indicates the minimum answers required.
+                sprintf(__('At least %d answers are required', 'form-quizz-fqi3'), $min_answers)
+            );
+        }
+    
+        if (count($submitted_answers) > $max_answers) {
+            return new \WP_Error(
+                'too_many_answers',
+                // Translators: %d indicates the maximum answers authorized.
+                sprintf(__('Maximum %d answers are allowed', 'form-quizz-fqi3'), $max_answers)
+            );
+        }
+    
+        foreach ($submitted_answers as $index => $answer) {
+            // Créer un faux champ pour utiliser la méthode sanitize_unicode_text existante
+            $_POST['reponse'] = $answer;
+            $sanitized_answer = $this->sanitize_unicode_text('reponse', 255);
+            
+            if (empty($sanitized_answer)) {
+                return new \WP_Error(
+                    'invalid_answer',
+                    // Translators: %d indicates the number of the field answer.
+                    sprintf(__('Answer %d cannot be empty', 'form-quizz-fqi3'), $index + 1)
+                );
+            }
+            
+            $data['reponses'][] = $sanitized_answer;
+        }
+    
+        $correct_answer = filter_input(
+            INPUT_POST,
+            'reponseCorrecte',
+            FILTER_VALIDATE_INT,
+            [
+                'options' => [
+                    'min_range' => 0, 
+                    'max_range' => count($data['reponses']) - 1
+                ]
+            ]
+        );
+    
+        if ($correct_answer === false || $correct_answer === null) {
+            return new \WP_Error(
+                'invalid_correct_answer',
+                __('Invalid correct answer selection', 'form-quizz-fqi3')
+            );
+        }
+    
+        $data['reponseCorrecte'] = $correct_answer;
+    
         return $data;
     }
 
