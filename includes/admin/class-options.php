@@ -32,8 +32,8 @@ if ( ! class_exists( 'FQI3_Option_Page' ) ) :
             $sections = $settings['sections'];
             $plugin_page_slugs = fqi3_get_admin_pages();
             ?>
-            <div class="wrap">
-                <h2 class="page-title"><?php echo esc_html__('Form Quizz FQI3 Settings', 'form-quizz-fqi3'); ?></h2>
+            <div class="wrap container-fluid">
+                <h2 class="wp-heading-inline page-title"><?php echo esc_html__('Form Quizz FQI3 Settings', 'form-quizz-fqi3'); ?></h2>
 
                 <?php settings_errors(); ?>
 

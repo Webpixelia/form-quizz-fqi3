@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Quizz FQI3 2.1.0\n"
+"Project-Id-Version: Form Quizz FQI3 2.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-12-01T16:21:23+00:00\n"
+"POT-Creation-Date: 2024-12-05T09:24:15+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: form-quizz-fqi3\n"
@@ -75,7 +75,7 @@ msgstr ""
 
 #: form-quizz-fqi3.php:438
 #: includes/admin/class-import-export.php:52
-#: includes/fqi3-config-functions.php:83
+#: includes/fqi3-config-functions.php:91
 msgid "Settings"
 msgstr ""
 
@@ -108,8 +108,8 @@ msgid "Select an answer before moving on to the next question."
 msgstr ""
 
 #: form-quizz-fqi3.php:527
-#: includes/admin/class-view-questions.php:112
-#: templates/partials/quiz-results.php:28
+#: includes/admin/class-view-questions.php:113
+#: templates/partials/quiz-results.php:40
 msgid "Question"
 msgstr ""
 
@@ -127,15 +127,27 @@ msgid "I just finished the quiz on %1$s and I answered %2$s of %3$s questions co
 msgstr ""
 
 #: includes/admin/class-access-control-settings.php:52
-msgid "This feature allows specific roles with at least the capability to publish posts to access the question management (viewing, editing, and deleting questions). However, access to plugin settings is restricted to administrators only."
+msgid "This access control system allows to define granular roles and permissions for different functionalities of the platform"
 msgstr ""
 
 #: includes/admin/class-access-control-settings.php:61
 msgid "Who can manage questions?"
 msgstr ""
 
-#: includes/admin/class-access-control-settings.php:112
+#: includes/admin/class-access-control-settings.php:68
+msgid "Grant premium features to administrators?"
+msgstr ""
+
+#: includes/admin/class-access-control-settings.php:105
+msgid "This feature allows specific roles with at least the capability to publish posts to access the question management (viewing, editing, and deleting questions). However, access to plugin settings is restricted to administrators only."
+msgstr ""
+
+#: includes/admin/class-access-control-settings.php:122
 msgid "Please note: The Administrator role cannot be disabled and always has access to plugin settings."
+msgstr ""
+
+#: includes/admin/class-access-control-settings.php:138
+msgid "Check to grant premium features to administrators"
 msgstr ""
 
 #: includes/admin/class-add-questions.php:45
@@ -150,35 +162,32 @@ msgstr ""
 #. Translators: %s indicates the name of the required field missing.
 #: includes/admin/class-add-questions.php:122
 #: includes/admin/class-add-questions.php:168
-#: includes/admin/class-edit-questions.php:174
-#: includes/admin/class-edit-questions.php:248
+#: includes/admin/class-edit-questions.php:169
 msgid "Field %s is required"
 msgstr ""
 
 #. Translators: %d indicates the number of the field answer.
 #: includes/admin/class-add-questions.php:138
 #: includes/admin/class-add-questions.php:208
-#: includes/admin/class-edit-questions.php:222
-#: includes/admin/class-edit-questions.php:314
+#: includes/admin/class-edit-questions.php:235
 msgid "Answer %d cannot be empty"
 msgstr ""
 
 #: includes/admin/class-add-questions.php:154
 #: includes/admin/class-add-questions.php:230
-#: includes/admin/class-edit-questions.php:197
-#: includes/admin/class-edit-questions.php:289
+#: includes/admin/class-edit-questions.php:210
 msgid "Invalid correct answer selection"
 msgstr ""
 
 #. Translators: %d indicates the minimum answers required.
 #: includes/admin/class-add-questions.php:187
-#: includes/admin/class-edit-questions.php:269
+#: includes/admin/class-edit-questions.php:190
 msgid "At least %d answers are required"
 msgstr ""
 
 #. Translators: %d indicates the maximum answers authorized.
 #: includes/admin/class-add-questions.php:195
-#: includes/admin/class-edit-questions.php:276
+#: includes/admin/class-edit-questions.php:197
 msgid "Maximum %d answers are allowed"
 msgstr ""
 
@@ -368,43 +377,142 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:67
+#: includes/admin/class-dashboard.php:38
+msgid "Premium members"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:39
+msgid "Subscribers"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:57
+msgid "Latest registrants"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:63
+#: includes/admin/class-view-questions.php:276
+msgid "All"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:92
+msgid "Overview of the questions"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:99
+#: includes/admin/class-view-questions.php:112
+#: includes/FQI3_Statistics.php:544
+#: includes/FQI3_Statistics.php:879
+msgid "Level"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:100
+#: includes/admin/class-view-questions.php:111
+msgid "Access"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:101
+msgid "Number of questions"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:106
+#: includes/admin/class-view-questions.php:424
+#: includes/admin/class-view-questions.php:637
+msgid "Premium"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:106
+#: includes/admin/class-view-questions.php:313
+#: includes/admin/class-view-questions.php:424
+#: includes/admin/class-view-questions.php:637
+#: templates/question-form.php:61
+msgid "Free"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:125
+msgid "List of badges"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:132
+#: includes/FQI3_Awards.php:481
+msgid "Badge Type"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:133
+msgid "Names"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:134
+msgid "Thresholds"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:135
+msgid "Unit"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:176
+msgid "Need help?"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:179
+msgid "Need help setting up Form Quizz FQI3 or have any questions about the plugin?"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:181
+msgid "Contact the Developer"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:212
+msgid "No users found."
+msgstr ""
+
+#: includes/admin/class-dashboard.php:220
+msgid "Name"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:221
+msgid "Email"
+msgstr ""
+
+#: includes/admin/class-dashboard.php:222
+msgid "Register Date"
+msgstr ""
+
+#: includes/admin/class-edit-questions.php:62
 #: templates/question-form.php:150
 msgid "Edit question"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:101
+#: includes/admin/class-edit-questions.php:96
 #: includes/admin/class-emails-settings.php:264
 msgid "Security check failed."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:136
+#: includes/admin/class-edit-questions.php:131
 msgid "Question not found."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:155
+#: includes/admin/class-edit-questions.php:150
 msgid "Error: Question options not found or invalid."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:184
-#: includes/admin/class-edit-questions.php:258
+#: includes/admin/class-edit-questions.php:179
+#: includes/admin/class-view-questions.php:548
 msgid "Invalid question ID"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:230
-#: includes/admin/class-edit-questions.php:322
+#: includes/admin/class-edit-questions.php:243
 msgid "Failed to encode answers"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:390
+#: includes/admin/class-edit-questions.php:311
 msgid "Failed to update question."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:417
+#: includes/admin/class-edit-questions.php:338
 msgid "Invalid question ID. Please choose the question to modify in the question consultation page."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:421
+#: includes/admin/class-edit-questions.php:342
 msgid "View questions"
 msgstr ""
 
@@ -446,7 +554,7 @@ msgid "Test Cron Execution"
 msgstr ""
 
 #: includes/admin/class-emails-settings.php:177
-#: includes/fqi3-config-functions.php:204
+#: includes/fqi3-config-functions.php:212
 msgid "Go to the site"
 msgstr ""
 
@@ -555,7 +663,7 @@ msgid "Questions"
 msgstr ""
 
 #: includes/admin/class-import-export.php:36
-#: includes/admin/class-statistics.php:138
+#: includes/admin/class-statistics.php:148
 msgid "Levels"
 msgstr ""
 
@@ -925,7 +1033,7 @@ msgid "The achievement value that triggered the badge award."
 msgstr ""
 
 #: includes/admin/class-infos.php:305
-#: includes/fqi3-config-functions.php:99
+#: includes/fqi3-config-functions.php:107
 msgid "Changelog and User Guide"
 msgstr ""
 
@@ -1067,7 +1175,7 @@ msgid "Save settings"
 msgstr ""
 
 #: includes/admin/class-statistics.php:56
-#: includes/fqi3-config-functions.php:75
+#: includes/fqi3-config-functions.php:83
 msgid "Statistics"
 msgstr ""
 
@@ -1075,53 +1183,65 @@ msgstr ""
 msgid "Refresh Statistics"
 msgstr ""
 
-#: includes/admin/class-statistics.php:85
+#: includes/admin/class-statistics.php:64
+msgid "Info"
+msgstr ""
+
+#: includes/admin/class-statistics.php:68
+msgid "On this page, only Premium users appear. Administrators can be displayed if the option has been enabled for testing purposes."
+msgstr ""
+
+#: includes/admin/class-statistics.php:95
 msgid "Color codes:"
 msgstr ""
 
-#: includes/admin/class-statistics.php:136
+#: includes/admin/class-statistics.php:146
 msgid "User ID"
 msgstr ""
 
-#: includes/admin/class-statistics.php:137
+#: includes/admin/class-statistics.php:147
 msgid "Username"
 msgstr ""
 
-#: includes/admin/class-statistics.php:139
+#: includes/admin/class-statistics.php:149
 msgid "Awards / Badges"
 msgstr ""
 
-#: includes/admin/class-statistics.php:161
+#: includes/admin/class-statistics.php:171
 msgid "No user statistics available yet."
 msgstr ""
 
-#: includes/admin/class-statistics.php:211
+#: includes/admin/class-statistics.php:187
+msgid "Admin"
+msgstr ""
+
+#: includes/admin/class-statistics.php:233
 #: includes/FQI3_Awards.php:485
 #: includes/FQI3_Statistics.php:596
 msgid "N/A"
 msgstr ""
 
 #. translators: %s is the number of quizzes
-#: includes/admin/class-statistics.php:226
+#: includes/admin/class-statistics.php:248
 msgid "%s quiz"
 msgid_plural "%s quizzes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/admin/class-statistics.php:267
+#: includes/admin/class-statistics.php:289
 msgid "No badges awarded yet!"
 msgstr ""
 
-#: includes/admin/class-statistics.php:268
+#: includes/admin/class-statistics.php:290
 msgid "This user has not yet earned a badge."
 msgstr ""
 
 #. translators: %s is the date the badge was awarded
-#: includes/admin/class-statistics.php:295
+#: includes/admin/class-statistics.php:317
 msgid "earned at %s"
 msgstr ""
 
-#: includes/admin/class-statistics.php:371
+#: includes/admin/class-statistics.php:393
 msgid "Deleted User"
 msgstr ""
 
@@ -1133,152 +1253,159 @@ msgstr ""
 msgid "Add a question"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:109
+#: includes/admin/class-view-questions.php:110
+#: includes/admin/class-view-questions.php:122
 msgid "ID"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:110
-msgid "Access"
-msgstr ""
-
-#: includes/admin/class-view-questions.php:111
-#: includes/FQI3_Statistics.php:544
-#: includes/FQI3_Statistics.php:879
-msgid "Level"
-msgstr ""
-
-#: includes/admin/class-view-questions.php:113
+#: includes/admin/class-view-questions.php:114
 msgid "Instructions for the question"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:114
+#: includes/admin/class-view-questions.php:115
 msgid "Options"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:115
+#: includes/admin/class-view-questions.php:116
 msgid "Answer"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:116
+#: includes/admin/class-view-questions.php:117
 msgid "Action"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:117
-#: includes/admin/class-view-questions.php:403
+#: includes/admin/class-view-questions.php:118
+#: includes/admin/class-view-questions.php:439
 msgid "Edit"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:244
-msgid "All"
+#: includes/admin/class-view-questions.php:146
+msgid "Delete Confirmation"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:273
+#: includes/admin/class-view-questions.php:151
+msgid "Are you sure you want to delete this question?"
+msgstr ""
+
+#: includes/admin/class-view-questions.php:154
+msgid "Cancel"
+msgstr ""
+
+#: includes/admin/class-view-questions.php:155
+msgid "Delete question"
+msgstr ""
+
+#: includes/admin/class-view-questions.php:308
 msgid "All Levels"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:278
-#: includes/admin/class-view-questions.php:388
-#: includes/admin/class-view-questions.php:602
-#: templates/question-form.php:61
-msgid "Free"
-msgstr ""
-
-#: includes/admin/class-view-questions.php:286
+#: includes/admin/class-view-questions.php:321
 msgid "Search questions..."
 msgstr ""
 
-#: includes/admin/class-view-questions.php:288
+#: includes/admin/class-view-questions.php:323
 msgid "Filter"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:306
+#: includes/admin/class-view-questions.php:341
 msgid "Export CSV"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:321
+#: includes/admin/class-view-questions.php:358
 msgid "Page"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:323
+#: includes/admin/class-view-questions.php:360
 msgid "of"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:337
+#: includes/admin/class-view-questions.php:376
 msgid "Previous"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:338
+#: includes/admin/class-view-questions.php:377
 #: includes/FQI3_Frontend.php:163
 msgid "Next"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:388
-#: includes/admin/class-view-questions.php:602
-msgid "Premium"
-msgstr ""
-
-#: includes/admin/class-view-questions.php:398
+#: includes/admin/class-view-questions.php:434
 msgid "Delete"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:454
+#: includes/admin/class-view-questions.php:489
 msgid "Show Options"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:493
-#: includes/admin/class-view-questions.php:607
+#: includes/admin/class-view-questions.php:530
+#: includes/admin/class-view-questions.php:642
 msgid "Unknown"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:619
+#: includes/admin/class-view-questions.php:542
+msgid "You do not have the necessary permissions to perform this action."
+msgstr ""
+
+#: includes/admin/class-view-questions.php:557
+msgid "Question deleted successfully"
+msgstr ""
+
+#: includes/admin/class-view-questions.php:559
+msgid "Failed to delete question"
+msgstr ""
+
+#: includes/admin/class-view-questions.php:654
 msgid "No questions found for export"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:632
+#: includes/admin/class-view-questions.php:667
 msgid "Export Error"
 msgstr ""
 
 #: includes/fqi3-config-functions.php:51
-msgid "View Questions"
+msgid "Dashboard"
 msgstr ""
 
 #: includes/fqi3-config-functions.php:59
-msgid "Add Question"
+msgid "View Questions"
 msgstr ""
 
 #: includes/fqi3-config-functions.php:67
+msgid "Add Question"
+msgstr ""
+
+#: includes/fqi3-config-functions.php:75
 msgid "Edit Question"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:91
+#: includes/fqi3-config-functions.php:99
 msgid "Import/Export"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:142
+#: includes/fqi3-config-functions.php:150
 msgid "General Settings"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:147
+#: includes/fqi3-config-functions.php:155
 msgid "Levels Settings"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:152
+#: includes/fqi3-config-functions.php:160
 msgid "Access Control"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:157
+#: includes/fqi3-config-functions.php:165
 msgid "Emails Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:162
+#: includes/fqi3-config-functions.php:170
 msgid "Content Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:167
+#: includes/fqi3-config-functions.php:175
 msgid "Badges Options"
 msgstr ""
 
-#: includes/fqi3-config-functions.php:172
+#: includes/fqi3-config-functions.php:180
 msgid "API Options"
 msgstr ""
 
@@ -1343,10 +1470,6 @@ msgstr ""
 msgid "List of existing badges"
 msgstr ""
 
-#: includes/FQI3_Awards.php:481
-msgid "Badge Type"
-msgstr ""
-
 #: includes/FQI3_Awards.php:482
 msgid "How to get it"
 msgstr ""
@@ -1360,7 +1483,7 @@ msgstr ""
 msgid "You need to %s"
 msgstr ""
 
-#: includes/FQI3_Backend.php:439
+#: includes/FQI3_Backend.php:372
 msgid "Questions per page"
 msgstr ""
 
@@ -1692,20 +1815,24 @@ msgstr ""
 msgid "Documentation"
 msgstr ""
 
-#: templates/partials/quiz-results.php:23
+#: templates/partials/quiz-results.php:35
 msgid "Incorrect answers"
 msgstr ""
 
-#: templates/partials/quiz-results.php:24
+#: templates/partials/quiz-results.php:36
 msgid "Here is the list of questions that you did not answer correctly and that you could rework"
 msgstr ""
 
-#: templates/partials/quiz-results.php:29
+#: templates/partials/quiz-results.php:41
 msgid "Your answer"
 msgstr ""
 
-#: templates/partials/quiz-results.php:30
+#: templates/partials/quiz-results.php:42
 msgid "Good answer"
+msgstr ""
+
+#: templates/partials/quiz-results.php:54
+msgid "Download the table"
 msgstr ""
 
 #: templates/question-form.php:47

@@ -25,6 +25,7 @@ class FQI3_Backend {
     private static ?self $instance = null;
 
     // Private properties for pages and quiz levels
+    private FQI3_Dashboard_Page $dashboard_page;
     private FQI3_View_Questions_Page $view_questions_page;
     private FQI3_Add_Questions_Page $add_questions_page;
     private FQI3_Edit_Questions_Page $edit_questions_page;
@@ -83,6 +84,7 @@ class FQI3_Backend {
             'class-levels-settings',
             'class-api-settings',
             // Pages Admin
+            'class-dashboard',
             'class-view-questions',
             'class-add-questions',
             'class-edit-questions',
@@ -103,9 +105,8 @@ class FQI3_Backend {
     private function setup_hooks(): void
     {
         add_action('wp_loaded', [$this, 'initialize_levels']);
-        add_action('wp_loaded', [$this, 'initialize_view_questions_page']);
+        add_action('wp_loaded', [$this, 'create_view_questions_components']);
         add_action('admin_init', [$this, 'initialize_settings']);
-        //add_action('wp_ajax_fqi3_save_options', [$this, 'handle_save_options']);
         add_action('admin_menu', [$this, 'add_menu_pages']);
         add_action('admin_notices', [$this, 'display_admin_header']);
         add_action('in_admin_footer', [$this, 'display_admin_footer']);
@@ -114,74 +115,6 @@ class FQI3_Backend {
         add_filter('set_screen_option_fqi3_items_per_page', [$this, 'save_screen_options'], 10, 3);
         add_action('load-form-quizz-fqi3_page_' . $this->get_view_questions_slug(), [$this, 'screen_options']);
     }
-
-    // Test ajax 
-    /*public function handle_save_options() {
-        try {
-            // Vérification du nonce
-            if (!check_ajax_referer('fqi3_settings_nonce', 'security', false)) {
-                wp_send_json_error(['message' => 'Nonce invalide']);
-                return;
-            }
-    
-            if (!current_user_can('manage_options')) {
-                wp_send_json_error(['message' => 'Permissions insuffisantes']);
-                return;
-            }
-    
-            // Récupérer les données organisées
-            $options = $_POST['options'] ?? [];
-            
-            // Vérifier que les données sont dans le bon format
-            if (!is_array($options)) {
-                wp_send_json_error(['message' => 'Format de données invalide']);
-                return;
-            }
-    
-            $updated = false;
-    
-            // Traiter et sauvegarder les options générales
-            if (isset($options['fqi3_options']) && is_array($options['fqi3_options'])) {
-                $sanitized_options = $this->sanitize_fqi3_settings($options['fqi3_options']);
-                $updated = update_option('fqi3_options', $sanitized_options) || $updated;
-            }
-    
-            // Traiter et sauvegarder les badges
-            if (isset($options['fqi3_badges']) && is_array($options['fqi3_badges'])) {
-                $sanitized_badges = FQI3_Badges_Settings::sanitize_badges_options($options['fqi3_badges']);
-                $updated = update_option('fqi3_badges', $sanitized_badges) || $updated;
-            }
-    
-            // Traiter et sauvegarder les niveaux
-            if (isset($options['fqi3_quiz_levels']) && is_array($options['fqi3_quiz_levels'])) {
-                $sanitized_levels = FQI3_Levels_Settings::sanitize_levels_options($options['fqi3_quiz_levels']);
-                $updated = update_option('fqi3_quiz_levels', $sanitized_levels) || $updated;
-            }
-    
-            // Traiter et sauvegarder les rôles
-            if (isset($options['fqi3_access_roles']) && is_array($options['fqi3_access_roles'])) {
-                $sanitized_roles = FQI3_Access_Control_Settings::sanitize_roles($options['fqi3_access_roles']);
-                $updated = update_option('fqi3_access_roles', $sanitized_roles) || $updated;
-            }
-    
-            if ($updated) {
-                wp_send_json_success([
-                    'message' => 'Options sauvegardées avec succès',
-                    'updated' => true
-                ]);
-            } else {
-                wp_send_json_success([
-                    'message' => 'Aucune modification n\'a été nécessaire',
-                    'updated' => false
-                ]);
-            }
-    
-        } catch (\Exception $e) {
-            wp_send_json_error([
-                'message' => 'Erreur lors de la sauvegarde: ' . $e->getMessage()
-            ]);
-        }
-    }*/
 
     /**
      * Initializes the quiz levels by retrieving them from the configuration function.
@@ -198,16 +131,16 @@ class FQI3_Backend {
     }
 
     /**
-     * Initializes the quiz levels by retrieving them from the configuration function.
-     * 
-     * This method assigns the result of the `fqi3_get_free_quiz_levels` function to the `$levelsQuiz` property.
-     * It is called during the `wp_loaded` hook to ensure that all WordPress components are fully loaded
-     * before initializing the levels.
-     * 
-     * @since 1.2.2
-     */
-    public function initialize_view_questions_page(): void
+    * Prepares components for the questions view.
+    *
+    * Instantiates the dashboard and question view pages
+    * passing them the current instance and quiz levels.
+    * 
+    * @since 1.2.2
+    */
+    public function create_view_questions_components(): void
     {
+        $this->dashboard_page = new FQI3_Dashboard_Page($this, $this->get_levels_quiz());
         $this->view_questions_page = new FQI3_View_Questions_Page($this, $this->get_levels_quiz());
     }
 
@@ -450,11 +383,14 @@ class FQI3_Backend {
      * Returns the roles that are allowed to manage questions. If no roles are selected, it defaults to allowing only administrators.
      * 
      * @return array An array of allowed roles.
-     * @since 1.1.0
+     * @since 1.1.0 Initial release
+     * @since 2.2.0 Reflects the change of the structure of the 'fqi3_access_roles' option.
      */
     private function get_allowed_roles(): array {
         $roles = get_option('fqi3_access_roles', []);
-        return $roles ?: ['administrator'];
+        $allowed_roles = isset($roles['fqi3_access_roles_admin']) ? $roles['fqi3_access_roles_admin'] : ['administrator'];
+
+        return $allowed_roles;
     }
 
     /**
@@ -488,6 +424,52 @@ class FQI3_Backend {
      */
     public function get_levels_quiz(): array {
         return $this->levelsQuiz;
+    }
+
+    /**
+     * Counts the number of questions by level in a given table.
+     *
+     * This method retrieves the count of questions for each specified level 
+     * in a WordPress database table.
+     *
+     * @param string $table_name Name of the table to count questions in
+     * @param array  $levels     Array of levels to count
+     * @param string|null $additional_condition Optional additional SQL condition to filter results
+     *
+     * @return array An associative array where keys are levels and values are question counts
+     *               Example: ['easy' => 10, 'medium' => 5, 'hard' => 3]
+     *
+     * @global wpdb $wpdb Global WordPress database management object
+     *
+     * @throws wpdb_exception If a SQL query error occurs
+     *
+     * @example 
+     * $questions_counts = $this->backend->get_questions_count_by_level(
+     *     'wp_fqi3_questions', 
+     *     ['easy', 'medium', 'hard']
+     * );
+     * 
+     * @since 1.6.0 Initial release
+     * @since 2.1.1 Condition param added and method migrated from FQI3_View_Questions_Page class
+    */
+    public function get_questions_count_by_level(string $table_name, array $levels, ?string $additional_condition = null): array {
+        global $wpdb;
+        $questions_count = [];
+        
+        foreach ($levels as $level) {
+            $query = $wpdb->prepare(
+                "SELECT COUNT(*) FROM $table_name WHERE niveau = %s",
+                $level
+            );
+            
+            if ($additional_condition) {
+                $query .= " AND " . $additional_condition;
+            }
+            
+            $questions_count[$level] = $wpdb->get_var($query);
+        }
+        
+        return $questions_count;
     }
 }
 

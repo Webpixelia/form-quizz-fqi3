@@ -344,6 +344,18 @@ input[type="hidden"] {
     text-align: unset;
 }
 
+/* Dashboard Page */
+.fit-row td:not(:has(ul)) {
+    width: fit-content;
+    white-space: nowrap;
+}
+#badges-table tbody tr {
+    vertical-align: middle;
+}
+#badges-table tbody tr td ul {
+    margin-bottom: 0;
+}
+
 /* Styles pour la navigation verticale des onglets */
 i.bi {
     margin-right: 5px;

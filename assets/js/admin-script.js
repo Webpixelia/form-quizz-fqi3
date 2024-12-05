@@ -29,12 +29,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 noticeContainer: '.fqi3-notices',
                 loaderContainer: '.loader',
                 selectAll: '#selectAll',
-                exportCheckboxes: '.export-options .form-check-input', 
+                exportCheckboxes: '.export-options .form-check-input',
+                userTabs: '#userTabs button',
+                userRows: '.user-row',
             };
 
             this.initializeEventListeners();
             this.activateDefaultTab();
             this.initAnswerOptionsManagement();
+            this.initUserTabFilter();
         }
 
         setupSelectAllCheckbox(selectAllSelector, checkboxSelector) {
@@ -227,29 +230,42 @@ document.addEventListener('DOMContentLoaded', () => {
             const button = event.target;
             const questionId = button.dataset.id;
 
-            if (!confirm("Désirez-vous supprimer cette question ?")) return;
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+            const confirmDeleteButton = document.getElementById('confirmDeleteBtn');
+            
+            // Ouvre la modale
+            modal.show();
 
-            try {
-                const response = await fetch(ajaxurl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams({
-                        action: 'delete_question',
-                        id: questionId
-                    })
-                });
+            confirmDeleteButton.onclick = async function () {
+                try {
+                    const response = await fetch(ajaxurl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            action: 'delete_question',
+                            id: questionId
+                        })
+                    });
 
-                const data = await response.json();
-                if (data.success) {
-                    button.closest('tr').remove();
-                } else {
-                    alert(`Erreur : ${data.data}`);
+                    const data = await response.json();
+                    if (data.success) {
+                        button.closest('tr').remove();
+                    } else {
+                        alert(`Erreur : ${data.data}`);
+                    }
+                    modal.hide();
+                } catch (error) {
+                    console.error('Deletion error:', error);
+                    modal.hide();
                 }
-            } catch (error) {
-                console.error('Deletion error:', error);
-            }
+            };
+
+            // Ferme la modale si l'utilisateur clique sur "Annuler"
+            document.querySelector('.btn-secondary').onclick = function () {
+                modal.hide();
+            };
         }
 
         initializeShortcodeCopy() {
@@ -443,12 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     while (currentCorrectOptions.length > currentOptions) {
                         correctAnswerContainer.removeChild(currentCorrectOptions[currentCorrectOptions.length - 1]);
                     }
-                    /*while (currentCorrectOptions.length > currentOptions) {
-                        const lastOption = currentCorrectOptions[currentCorrectOptions.length - 1];
-                        if (lastOption && lastOption.parentNode === correctAnswerContainer) {
-                            correctAnswerContainer.removeChild(lastOption);
-                        }
-                    }*/
                     
                     // Ajouter de nouvelles options si nécessaire
                     for (let i = currentCorrectOptions.length; i < currentOptions; i++) {
@@ -565,6 +575,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Initialisation
                 updateCorrectAnswerOptions();
             }
+        }
+
+        initUserTabFilter() {
+            const tabs = document.querySelectorAll(this.selectors.userTabs);
+            const rows = document.querySelectorAll(this.selectors.userRows);
+
+            if (!tabs.length || !rows.length) return;
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    tabs.forEach(otherTab => otherTab.classList.remove('active'));
+
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+
+                    const targetRole = tab.getAttribute('data-bs-target').replace('#', '');
+
+                    rows.forEach(row => {
+                        // Show all rows if "all" is selected
+                        if (targetRole === 'all') {
+                            row.style.display = '';
+                        } else {
+                            // Show only rows matching the role
+                            row.style.display = row.dataset.role === targetRole ? '' : 'none';
+                        }
+                    });
+                });
+            });
+
+            // Simulate click on first tab to initialize filter
+            const firstTab = document.querySelector('#all-tab');
+            if (firstTab) firstTab.click();
         }
     }
 

@@ -301,8 +301,8 @@ if ( ! class_exists( 'FQI3_Infos_Page' ) ) :
          */
         public function render_infos_page(): void {
             ?>
-            <div class="wrap">
-                <h2 class="page-title"><?php _e('Changelog and User Guide', 'form-quizz-fqi3'); ?></h2>
+            <div class="wrap container-fluid">
+                <h2 class="wp-heading-inline page-title"><?php _e('Changelog and User Guide', 'form-quizz-fqi3'); ?></h2>
                 
                 <?php
                 $this->render_user_guide_section();

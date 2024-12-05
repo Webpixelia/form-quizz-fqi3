@@ -50,9 +50,7 @@
                                         <?php foreach ($type_badge['thresholds'] as $threshold): ?>
                                             <td align="center">
                                                 <?php
-                                                echo $threshold . ' ' .
-                                                    esc_html($threshold ?? $na) . ' ' .
-                                                    esc_html($type_badge['unity'] ?? '');
+                                                echo esc_html($threshold ?? $na) . ' ' . esc_html($type_badge['unity'] ?? '');
                                                 ?>
                                             </td>
                                         <?php endforeach; ?>

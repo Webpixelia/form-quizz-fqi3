@@ -52,12 +52,22 @@ class FQI3_Statistics_Page {
     public function render_statistics_page(): void {     
         ?>
         <div class="wrap container-fluid mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-1">
                 <h2 class="page-title"><?php _e('Statistics', 'form-quizz-fqi3'); ?></h2>
                 <button type="button" class="btn btn-success refresh-stats">
                     <i class="bi bi-arrow-clockwise text-light me-3"></i>
                     <?php _e('Refresh Statistics', 'form-quizz-fqi3'); ?>
                 </button>
+            </div>
+            <div class="mb-4">
+                <button class="btn btn-info btn-sm fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="bi bi-info-circle"></i> <?php _e('Info', 'form-quizz-fqi3'); ?>
+                </button>
+                <div class="collapse" id="collapseExample">
+                    <div class="card card-body">
+                        <?php _e('On this page, only Premium users appear. Administrators can be displayed if the option has been enabled for testing purposes.', 'form-quizz-fqi3'); ?>
+                    </div>
+                </div>
             </div>
             
             <?php $this->render_performance_legend(); ?>
@@ -86,7 +96,7 @@ class FQI3_Statistics_Page {
             <ul class="list-group list-group-horizontal-sm">
                 <?php foreach (self::PERFORMANCE_LEVELS as $level => $data): ?>
                     <li class="list-group-item d-flex align-items-center">
-                        <span class="badge <?php echo esc_attr($data['class']); ?> p-1">
+                        <span class="badge <?php echo esc_attr($data['class']); ?> text-dark p-1">
                             <?php echo esc_html(ucfirst(str_replace('_', ' ', $level))); ?>
                         </span>
                     </li>
@@ -162,10 +172,22 @@ class FQI3_Statistics_Page {
                     </td>
                 </tr>
             <?php else: ?>
-                <?php foreach ($user_stats as $user_id => $user): ?>
+                <?php 
+                    foreach ($user_stats as $user_id => $user): 
+                    if (!fqi3_userHasAnyRole($user_id, fqi3_getUserPremiumRoles())) {
+                        continue;
+                    }
+                    ?>
                     <tr>
                         <td><?php echo esc_html($user_id); ?></td>
-                        <td><?php echo esc_html($user['username']); ?></td>
+                        <td>
+                            <?php echo esc_html($user['username']); ?>
+                            <?php if (user_can($user_id, 'administrator')) : ?>
+                            <span class="badge bg-danger-subtle border border-danger text-dark p-1 badge-xs">
+                                <?php echo _e('Admin', 'form-quizz-fqi3'); ?>
+                            </span>
+                            <?php endif; ?>
+                        </td>
                         <td><?php $this->render_user_levels($user, $arrayLevels); ?></td>
                         <td><?php $this->render_user_badges($user_id); ?></td>
                     </tr>
@@ -215,7 +237,7 @@ class FQI3_Statistics_Page {
         <div class="list-group-item">
             <div class="d-flex justify-content-between align-items-center">
                 <span><?php echo esc_html($level_data['label']); ?></span>
-                <span class="badge <?php echo esc_attr($performance_class); ?> rounded-pill">
+                <span class="badge <?php echo esc_attr($performance_class); ?> text-dark rounded-pill">
                     <?php
                      // Translators: 1: Success rate percentage, 2: Number of quizzes
                     echo esc_html(sprintf(

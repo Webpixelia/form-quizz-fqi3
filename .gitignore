@@ -1,0 +1,55 @@
+# MacOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# macOS resource fork files
+*.rsrc
+
+# PHP Composer dependencies
+/vendor/
+composer.lock
+
+# Node.js dependencies (if applicable)
+node_modules/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.bak
+*.pid
+*.seed
+*.sublime-project
+*.sublime-workspace
+
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# PHPUnit
+phpunit.xml
+phpunit.xml.dist
+
+# Backup files
+*.orig
+*.save
+
+# Ignored autoload files
+autoload_classmap.php
+autoload_static.php
+
+# Git-specific files
+*.rej
+*.patch

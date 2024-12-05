@@ -2,17 +2,17 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Quizz FQI3\n"
+"Project-Id-Version: Form Quizz FQI3 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
 "POT-Creation-Date: 2024-12-05T09:24:15+00:00\n"
-"PO-Revision-Date: 2024-12-05 10:24+0100\n"
+"PO-Revision-Date: 2024-12-05 10:25+0100\n"
 "Last-Translator: \n"
-"Language-Team: Jonathan Webpixelia <contact@webpixelia.com>\n"
-"Language: fr\n"
+"Language-Team: \n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.5\n"
 "X-Domain: form-quizz-fqi3\n"
 
@@ -25,8 +25,8 @@ msgstr "Form Quizz FQI3"
 #: form-quizz-fqi3.php
 msgid "A plugin to create and manage free quizzes with premium features."
 msgstr ""
-"Un plugin pour créer et gérer des quiz gratuits avec des fonctionnalités "
-"premiers."
+"Un plugin para crear y gestionar cuestionarios gratuitos con características "
+"premium."
 
 #. Author of the plugin
 #: form-quizz-fqi3.php
@@ -44,89 +44,88 @@ msgid ""
 "Form Quizz FQI3 requires PHP version %2$s or higher. Your current version is "
 "%1$s."
 msgstr ""
-"Le formulaire Quizz FQI3 nécessite la version PHP %2$s ou supérieure. Votre "
-"version actuelle est %1$s."
+"Form Quizz FQI3 requiere PHP versión %2$s o superior. Su versión actual es "
+"%1$s."
 
 #: form-quizz-fqi3.php:381
 msgid "Are you sure you want to revoke the API token?"
-msgstr "Êtes-vous sûr de vouloir révoquer le jeton API ?"
+msgstr "¿Está seguro de que desea revocar el token de API?"
 
 #: form-quizz-fqi3.php:382
 msgid "Unable to copy the shortcode. Please try again."
-msgstr "Impossible de copier le code court. Veuillez réessayer."
+msgstr "No se pudo copiar el código corto. Por favor, intente de nuevo."
 
 #: form-quizz-fqi3.php:383
 msgid "Insert image"
-msgstr "Insérer une image"
+msgstr "Insertar imagen"
 
 #: form-quizz-fqi3.php:384
 msgid "Use this image"
-msgstr "Utiliser cette image"
+msgstr "Usar esta imagen"
 
 #: form-quizz-fqi3.php:385
 msgid "Upload image"
-msgstr "Télécharger l’image"
+msgstr "Subir imagen"
 
 #: form-quizz-fqi3.php:386
 msgid "Answer choice"
-msgstr "Choix de réponse"
+msgstr "Opción de respuesta"
 
 #: form-quizz-fqi3.php:387 templates/question-form.php:105
 msgid "Remove Answer Option"
-msgstr "Supprimer l’option de réponse"
+msgstr "Eliminar opción de respuesta"
 
 #: form-quizz-fqi3.php:388
 msgid "You must have at least 4 answer options."
-msgstr "Vous devez avoir au moins 4 options de réponse."
+msgstr "Debe tener al menos 4 opciones de respuesta."
 
 #: form-quizz-fqi3.php:438 includes/admin/class-import-export.php:52
 #: includes/fqi3-config-functions.php:91
 msgid "Settings"
-msgstr "Réglages"
+msgstr "Configuración"
 
 #: form-quizz-fqi3.php:441 templates/header.php:27
 msgid "Support"
-msgstr "Support"
+msgstr "Soporte"
 
 #: form-quizz-fqi3.php:519
 msgid "Please select a level before starting the quiz."
-msgstr "Sélectionne un niveau avant de commencer le quiz."
+msgstr "Por favor, seleccione un nivel antes de comenzar el cuestionario."
 
 #. Translators: %s is the limit number of quiz per day
 #: form-quizz-fqi3.php:521
 msgid ""
 "You have reached the limit of %s quizzes per day as a free logged in user."
 msgstr ""
-"Vous avez atteint la limite de %s quiz par jour en tant qu’utilisateur "
-"connecté gratuitement."
+"Ha alcanzado el límite de %s cuestionarios por día como usuario gratuito "
+"registrado."
 
 #. Translators: %1$s is the number of correct answer if singular, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
 #: form-quizz-fqi3.php:523
 msgid "You have %1$s correct answer on %2$s. (%3$s%) for the %4$s level"
-msgstr "Vous avez %1$s réponse correcte sur %2$s. (%3$s%) pour le niveau %4$s"
+msgstr "Tiene %1$s respuesta correcta de %2$s. (%3$s%) para el nivel %4$s"
 
 #. Translators: %1$s is the number of correct answers if plural, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
 #: form-quizz-fqi3.php:525
 msgid "You have %1$s correct answers on %2$s. (%3$s%) for the %4$s level"
-msgstr ""
-"Vous avez %1$s réponses correctes sur %2$s. (%3$s%) pour le niveau %4$s"
+msgstr "Tiene %1$s respuestas correctas de %2$s. (%3$s%) para el nivel %4$s"
 
 #: form-quizz-fqi3.php:526
 msgid "Select an answer before moving on to the next question."
-msgstr "Sélectionne une réponse avant de passer à la question suivante."
+msgstr "Seleccione una respuesta antes de pasar a la siguiente pregunta."
 
 #: form-quizz-fqi3.php:527 includes/admin/class-view-questions.php:113
 #: templates/partials/quiz-results.php:40
 msgid "Question"
-msgstr "Question"
+msgstr "Pregunta"
 
 #: form-quizz-fqi3.php:528
 msgid "on"
-msgstr "sur"
+msgstr "en"
 
 #: form-quizz-fqi3.php:529
 msgid "Oops! Your time is up! Feel free to try again."
-msgstr "Oups ! Votre temps est écoulé! N’hésite pas à réessayer."
+msgstr "¡Ups! ¡Se ha acabado el tiempo! No dude en intentarlo de nuevo."
 
 #. Translators: %1$s is the URL site, %2$s is  the number of correct answers, %3$s is the total number of questions, %3$s is the percentage of correct answers
 #: form-quizz-fqi3.php:531
@@ -134,24 +133,24 @@ msgid ""
 "I just finished the quiz on %1$s and I answered %2$s of %3$s questions "
 "correctly; that's %4$s%. Try it too; it's free!"
 msgstr ""
-"Je viens de terminer le quiz sur %1$s et j’ai répondu correctement à %2$s "
-"des %3$s questions ; soit %4$s%. Essayez-le aussi, c’est gratuit !"
+"Acabo de terminar el cuestionario en %1$s y respondí %2$s de %3$s preguntas "
+"correctamente; eso es %4$s%. ¡Pruébalo tú también; es gratis!"
 
 #: includes/admin/class-access-control-settings.php:52
 msgid ""
 "This access control system allows to define granular roles and permissions "
 "for different functionalities of the platform"
 msgstr ""
-"Ce système de contrôle d’accès permet de définir des rôles et des "
-"autorisations granulaires pour différentes fonctionnalités de la plateforme"
+"Este sistema de control de acceso permite definir funciones y permisos "
+"granulares para las distintas funcionalidades de la plataforma"
 
 #: includes/admin/class-access-control-settings.php:61
 msgid "Who can manage questions?"
-msgstr "Qui peut gérer les questions ?"
+msgstr ""
 
 #: includes/admin/class-access-control-settings.php:68
 msgid "Grant premium features to administrators?"
-msgstr "Accorder les fonctionnalités Premium aux administrateurs ?"
+msgstr ""
 
 #: includes/admin/class-access-control-settings.php:105
 msgid ""
@@ -160,122 +159,115 @@ msgid ""
 "questions). However, access to plugin settings is restricted to "
 "administrators only."
 msgstr ""
-"Cette fonctionnalité permet à des rôles spécifiques ayant au moins la "
-"capacité de publier des messages d’accéder à la gestion des questions "
-"(affichage, modification et suppression des questions). Cependant, l’accès "
-"aux paramètres du plugin est limité aux administrateurs uniquement."
+"Esta función permite a determinados roles con al menos la capacidad de "
+"publicar entradas acceder a la gestión de preguntas (ver, editar y eliminar "
+"preguntas). Sin embargo, el acceso a la configuración del plugin está "
+"restringido únicamente a los administradores."
 
 #: includes/admin/class-access-control-settings.php:122
 msgid ""
 "Please note: The Administrator role cannot be disabled and always has access "
 "to plugin settings."
 msgstr ""
-"Attention : le rôle d’administrateur ne peut pas être désactivé et a "
-"toujours accès aux paramètres du plugin."
+"Nota: El rol de Administrador no puede ser desactivado y siempre tiene "
+"acceso a la configuración del plugin."
 
 #: includes/admin/class-access-control-settings.php:138
 msgid "Check to grant premium features to administrators"
 msgstr ""
-"Cochez cette case pour accorder les fonctionnalités Premium aux "
-"administrateurs"
+"Marque esta casilla para conceder funciones premium a los administradores"
 
 #: includes/admin/class-add-questions.php:45 templates/question-form.php:150
 msgid "Add question"
-msgstr "Ajouter une question"
+msgstr ""
 
 #: includes/admin/class-add-questions.php:77
 msgid "Security check failed"
-msgstr "Le contrôle de sécurité a échoué"
+msgstr ""
 
 #. Translators: %s indicates the name of the required field missing.
 #: includes/admin/class-add-questions.php:122
 #: includes/admin/class-add-questions.php:168
 #: includes/admin/class-edit-questions.php:169
 msgid "Field %s is required"
-msgstr "Le champ \"%s\" est obligatoire"
+msgstr ""
 
 #. Translators: %d indicates the number of the field answer.
 #: includes/admin/class-add-questions.php:138
 #: includes/admin/class-add-questions.php:208
 #: includes/admin/class-edit-questions.php:235
 msgid "Answer %d cannot be empty"
-msgstr "La réponse %d ne peut pas être vide"
+msgstr ""
 
 #: includes/admin/class-add-questions.php:154
 #: includes/admin/class-add-questions.php:230
 #: includes/admin/class-edit-questions.php:210
 msgid "Invalid correct answer selection"
-msgstr "Sélection de la bonne réponse invalide"
+msgstr ""
 
 #. Translators: %d indicates the minimum answers required.
 #: includes/admin/class-add-questions.php:187
 #: includes/admin/class-edit-questions.php:190
 msgid "At least %d answers are required"
-msgstr "Au moins %d réponses sont requises"
+msgstr ""
 
 #. Translators: %d indicates the maximum answers authorized.
 #: includes/admin/class-add-questions.php:195
 #: includes/admin/class-edit-questions.php:197
 msgid "Maximum %d answers are allowed"
-msgstr "Un maximum de %d réponses est autorisé"
+msgstr ""
 
 #: includes/admin/class-add-questions.php:254
 msgid "Error encoding answers"
-msgstr "Réponses à l'encodage des erreurs"
+msgstr ""
 
 #: includes/admin/class-add-questions.php:273
 msgid "Database error occurred while inserting the question"
 msgstr ""
-"Une erreur de base de données s'est produite lors de l'insertion de la "
-"question"
 
 #: includes/admin/class-api-settings.php:44
 msgid "Enable API Rest"
-msgstr "Activer API Rest"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:51
 msgid "API Token"
-msgstr "Jeton API"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:64
 msgid "Allow access to plugin data via the REST API"
-msgstr "Permettre l'accès aux données du plugin via l'API REST"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:83
 msgid "Generate Token"
-msgstr "Générer un jeton"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:85
 msgid "Revoke Token"
-msgstr "Révoquer le jeton"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:88
 msgid "Click the button to generate a new API token."
-msgstr "Cliquez sur le bouton pour générer un nouveau jeton API."
+msgstr ""
 
 #: includes/admin/class-api-settings.php:93
 msgid "Show/Hide Token"
-msgstr "Afficher/Masquer le jeton"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:94
 msgid "Copy token"
-msgstr "Copier le jeton"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:97
 msgid "The generated token will appear above. Click Save Settings to store it."
 msgstr ""
-"Le jeton généré apparaîtra ci-dessus. Cliquez sur Enregistrer les paramètres "
-"pour le stocker."
 
 #: includes/admin/class-api-settings.php:98
 msgid "Note:"
-msgstr "Note:"
+msgstr ""
 
 #: includes/admin/class-api-settings.php:98
 msgid "Do not share your API token and ensure it is stored securely."
 msgstr ""
-"Ne partagez pas votre jeton API et assurez-vous qu’il est stocké en toute "
-"sécurité."
 
 #. translators: Guide page URL
 #: includes/admin/class-api-settings.php:102
@@ -283,63 +275,62 @@ msgid ""
 "The API documentation can be found <a href=\"%s#api_doc\" target=\"_blank\" "
 "rel=\"noopener noreferrer\">here</a>."
 msgstr ""
-"La documentation de l’API peut être consultée <a href=\"%s#api_doc\" "
-"target=\"_blank\" rel=\"noopener noreferrer\">ici</a>."
 
 #: includes/admin/class-badges-settings.php:55
 #: includes/admin/class-badges-settings.php:99
 msgid "Disable badges"
-msgstr "Désactiver les badges"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:62
 #: includes/admin/class-badges-settings.php:121
 msgid "Disable badges legend"
-msgstr "Désactiver la légende des badges"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:69
 #: includes/admin/class-badges-settings.php:240
 msgid "Quiz Completion Badge Level"
-msgstr "Badge Niveau d’achèvement de quiz"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:76
 #: includes/admin/class-badges-settings.php:273
 msgid "Success Rate Badge Level"
-msgstr "Badge Niveau du taux de réussite"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:101
 msgid "Check this to disable the badges system."
-msgstr "Cochez cette case pour désactiver le système de badges."
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:102
 msgid ""
 "Please note that this option only works if statistics are not disabled in "
 "general settings."
 msgstr ""
-"Veuillez noter que cette option ne fonctionne que si les statistiques ne "
-"sont pas désactivées dans les paramètres généraux."
+"Tenga en cuenta que esta opción sólo funciona si las estadísticas no están "
+"desactivadas en los ajustes generales."
 
 #: includes/admin/class-badges-settings.php:123
 msgid ""
 "Check this to disable the display of the badges legend below the user earned "
 "badges display section."
 msgstr ""
-"Cochez cette case pour désactiver l'affichage de la légende des badges sous "
-"la section d'affichage des badges gagnés par l'utilisateur."
+"Seleccione esta opción para desactivar la visualización de la leyenda de "
+"insignias debajo de la sección de visualización de insignias ganadas por el "
+"usuario."
 
 #: includes/admin/class-badges-settings.php:155
 #: includes/admin/class-badges-settings.php:198 includes/FQI3_Awards.php:484
 msgid "Threshold:"
-msgstr "Seuil:"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:161
 #: includes/admin/class-badges-settings.php:204
 msgid "Badge Name:"
-msgstr "Nom du badge:"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:167
 #: includes/admin/class-badges-settings.php:210
 msgid "Badge Image:"
-msgstr "Image de badge :"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:172
 #: includes/admin/class-badges-settings.php:176
@@ -347,68 +338,64 @@ msgstr "Image de badge :"
 #: includes/admin/class-emails-settings.php:126
 #: includes/admin/class-emails-settings.php:130
 msgid "Remove Image"
-msgstr "Supprimer l’image"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:175
 #: includes/admin/class-badges-settings.php:211
 #: includes/admin/class-emails-settings.php:129
 msgid "Upload Image"
-msgstr "Télécharger l’image"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:183
 #: includes/admin/class-badges-settings.php:217
 msgid "Remove this badge"
-msgstr "Supprimer ce badge"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:190
 msgid "Add a badge"
-msgstr "Ajouter un badge"
+msgstr ""
 
 #: includes/admin/class-badges-settings.php:269
 msgid "Minimum quizzes completed to start assigning success rate badges:"
 msgstr ""
-"Nombre minimum de questionnaires terminés pour commencer à attribuer des "
-"badges de taux de réussite :"
 
 #: includes/admin/class-content-settings.php:45
 msgid "RTL mode for table"
-msgstr "Mode RTL pour tableau"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:67
 msgid "Enable RTL (Right-to-Left) mode"
-msgstr "Activer le mode RTL (de droite à gauche)"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:69
 msgid ""
 "Check this to activate RTL layout for languages like Arabic or Hebrew for "
 "the question overview table."
 msgstr ""
-"Cochez cette case pour activer la disposition RTL pour des langues comme "
-"l’arabe ou l’hébreu pour le tableau de synthèse des questions."
 
 #: includes/admin/class-content-settings.php:83
 msgid "Title/Description Pre Form Text"
-msgstr "Titre/Description avant le formulaire de quiz"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:88
 msgid "Title/Description Pre Form Color"
-msgstr "Titre/Description d’avant formulaire"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:93
 msgid "Top Question Text Color"
-msgstr "Couleur du texte de x sur y questions"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:98
 msgid "Top Question Background Color"
-msgstr "Couleur du fond de x sur y questions"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:103
 msgid "Button Text Color"
-msgstr "Couleur de texte du bouton"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:108
 msgid "Button Background Color"
-msgstr "Couleur du fond du bouton"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:146
 #: includes/admin/class-content-settings.php:157
@@ -417,7 +404,7 @@ msgstr "Couleur du fond du bouton"
 #: includes/admin/class-emails-settings.php:204
 #: includes/admin/class-emails-settings.php:211
 msgid "Default:"
-msgstr "Valeur par défaut:"
+msgstr ""
 
 #: includes/admin/class-content-settings.php:147
 #: includes/admin/class-content-settings.php:158
@@ -426,266 +413,257 @@ msgstr "Valeur par défaut:"
 #: includes/admin/class-emails-settings.php:205
 #: includes/admin/class-emails-settings.php:212
 msgid "Reset"
-msgstr "Réinitialiser"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:38
 msgid "Premium members"
-msgstr "Membres Premium"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:39
 msgid "Subscribers"
-msgstr "Abonnés"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:57
 msgid "Latest registrants"
-msgstr "Derniers inscrits"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:63
 #: includes/admin/class-view-questions.php:276
 msgid "All"
-msgstr "Tous"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:92
 msgid "Overview of the questions"
-msgstr "Vue globale des questions"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:99
 #: includes/admin/class-view-questions.php:112 includes/FQI3_Statistics.php:544
 #: includes/FQI3_Statistics.php:879
 msgid "Level"
-msgstr "Niveau"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:100
 #: includes/admin/class-view-questions.php:111
 msgid "Access"
-msgstr "Accès"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:101
 msgid "Number of questions"
-msgstr "Nombre de questions"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:106
 #: includes/admin/class-view-questions.php:424
 #: includes/admin/class-view-questions.php:637
 msgid "Premium"
-msgstr "Premium"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:106
 #: includes/admin/class-view-questions.php:313
 #: includes/admin/class-view-questions.php:424
 #: includes/admin/class-view-questions.php:637 templates/question-form.php:61
 msgid "Free"
-msgstr "Gratuit"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:125
 msgid "List of badges"
-msgstr "Liste des badges"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:132 includes/FQI3_Awards.php:481
 msgid "Badge Type"
-msgstr "Type du badge"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:133
 msgid "Names"
-msgstr "Noms"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:134
 msgid "Thresholds"
-msgstr "Seuils"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:135
 msgid "Unit"
-msgstr "Unité"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:176
 msgid "Need help?"
-msgstr "Besoin d’aide ?"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:179
 msgid ""
 "Need help setting up Form Quizz FQI3 or have any questions about the plugin?"
 msgstr ""
-"Besoin d’aide pour configurer Form Quiz FQI3 ou vous avez des questions sur "
-"le plugin ?"
 
 #: includes/admin/class-dashboard.php:181
 msgid "Contact the Developer"
-msgstr "Contacter le développeur"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:212
 msgid "No users found."
-msgstr "Aucun utilisateur trouvé."
+msgstr ""
 
 #: includes/admin/class-dashboard.php:220
 msgid "Name"
-msgstr "Nom"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:221
 msgid "Email"
-msgstr "Email"
+msgstr ""
 
 #: includes/admin/class-dashboard.php:222
 msgid "Register Date"
-msgstr "Date d’inscription"
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:62 templates/question-form.php:150
 msgid "Edit question"
-msgstr "Modifier la question"
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:96
 #: includes/admin/class-emails-settings.php:264
 msgid "Security check failed."
-msgstr "Échec du test de sécurité."
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:131
 msgid "Question not found."
-msgstr "Question non trouvée."
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:150
 msgid "Error: Question options not found or invalid."
 msgstr ""
-"Erreur : Les options de la question n'ont pas été trouvées ou ne sont pas "
-"valides."
 
 #: includes/admin/class-edit-questions.php:179
 #: includes/admin/class-view-questions.php:548
 msgid "Invalid question ID"
-msgstr "ID de la question invalide"
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:243
 msgid "Failed to encode answers"
-msgstr "Impossible d’encoder les réponses"
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:311
 msgid "Failed to update question."
-msgstr "Échec de la mise à jour de la question."
+msgstr ""
 
 #: includes/admin/class-edit-questions.php:338
 msgid ""
 "Invalid question ID. Please choose the question to modify in the question "
 "consultation page."
 msgstr ""
-"ID de question invalide. Choisissez la question à modifier dans la page de "
-"consultation des question."
 
 #: includes/admin/class-edit-questions.php:342
 msgid "View questions"
-msgstr "Voir les questions"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:50
 msgid "Disable email notification"
-msgstr "Désactiver les notifications par email"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:57
 msgid "Upload Email Image"
-msgstr "Télécharger l’image de l’email"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:64
 msgid "Email Send Hour"
-msgstr "Heure d'envoi de l’email"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:71
 msgid "Email CTA settings"
-msgstr "Paramètres du CTA de l’e-mails"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:78
 msgid "Send Test Email to WP admin"
-msgstr "Envoyer un e-mail de test à l’administrateur WordPress"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:101
 msgid "Disable email notifications"
-msgstr "Désactiver les notifications par e-mail"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:104
 msgid "Check this to disable the email notifications."
-msgstr "Cochez cette case pour désactiver les notifications par e-mail."
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:148
 #: includes/admin/class-emails-settings.php:150
 msgid "Select the time (HH:MM) for sending reminder emails."
-msgstr "Sélectionnez l’heure (HH:MM) d’envoi des e-mails de rappel."
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:155
 msgid "Test Cron Execution"
-msgstr "Tester l’exécution de Cron"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:177
 #: includes/fqi3-config-functions.php:212
 msgid "Go to the site"
-msgstr "Visitez le site"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:184
 msgid "Email CTA link"
-msgstr "Lien CTA de l’e-mail"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:195
 msgid "Email CTA Label"
-msgstr "Texte du CTA de l’e-mail"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:202
 msgid "Link Text Color"
-msgstr "Couleur de texte du bouton"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:209
 msgid "Link Background Color"
-msgstr "Couleur de fond du bouton"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:227
 msgid "Send Test Email"
-msgstr "Envoyer un email test"
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:253
 msgid "Email sending is disabled."
-msgstr "L’envoi d’e-mails est désactivé."
+msgstr ""
 
 #: includes/admin/class-emails-settings.php:260
 msgid "Test email has been sent."
-msgstr "L’email test a été envoyé."
+msgstr ""
 
 #: includes/admin/class-general-settings.php:45
 msgid "Delete data on uninstall"
-msgstr "Supprimer les données lors de la désinstallation"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:52
 msgid "Social sharing of results"
-msgstr "Partage social des résultats"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:59
 msgid "Disable statistics"
-msgstr "Désactiver les statistiques"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:66
 msgid "Link to the sales page"
-msgstr "Lien vers la page de vente"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:73
 msgid "Number of free trials per day"
-msgstr "Nombre d'essais gratuits par jour"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:80
 msgid "Number of questions per quiz"
-msgstr "Nombre de questions par quiz"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:99
 msgid "Check this to delete data on uninstall"
-msgstr "Coche ceci pour supprimer les données lors de la désinstallation"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:117
 msgid "Disable social sharing of results"
-msgstr "Désactiver le partage social des résultats"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:119
 msgid ""
 "Note: It is an option only available for logged in users. Check this to "
 "disable the social sharing feature for users."
 msgstr ""
-"Remarque : Cette option n'est disponible que pour les utilisateurs "
-"connectés. Cochez cette case pour désactiver la fonction de partage social "
-"pour les utilisateurs."
 
 #: includes/admin/class-general-settings.php:138
 msgid "Disable results statistics"
-msgstr "Désactiver les statistiques de résultats"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:140
 msgid ""
@@ -693,201 +671,186 @@ msgid ""
 "displaying them to the user.<br>Note: Saving statistics to the database and "
 "displaying frontend statistics are options valid only for member users."
 msgstr ""
-"Cochez cette option pour désactiver l'enregistrement des statistiques dans "
-"la base de données et leur affichage pour l'utilisateur.<br>Remarque : "
-"L'enregistrement des statistiques dans la base de données et l'affichage des "
-"statistiques sur le site sont des options valables uniquement pour les "
-"utilisateurs membres."
 
 #: includes/admin/class-general-settings.php:163
 msgid "Choose the page to link to for sales."
-msgstr "Choisissez la page vers laquelle créer un lien pour les ventes."
+msgstr ""
 
 #: includes/admin/class-general-settings.php:177
 msgid "Number of free trials per day:"
-msgstr "Nombre d’essais gratuits par jour :"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:180
 msgid "times a day"
-msgstr "fois par jour"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:183
 msgid "Specify how many free trials are allowed per day (default is 3)."
 msgstr ""
-"Spécifiez le nombre d’essais gratuits autorisés par jour (la valeur par "
-"défaut est 3)."
 
 #: includes/admin/class-general-settings.php:198
 msgid "Number of questions per quiz:"
-msgstr "Nombre de questions par quiz :"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:201
 msgid "questions per quiz"
-msgstr "questions par quiz"
+msgstr ""
 
 #: includes/admin/class-general-settings.php:204
 msgid "Minimum 4 questions"
-msgstr "Minimum 4 questions"
+msgstr ""
 
 #: includes/admin/class-import-export.php:32
 msgid "Questions"
-msgstr "Questions"
+msgstr ""
 
 #: includes/admin/class-import-export.php:36
 #: includes/admin/class-statistics.php:148
 msgid "Levels"
-msgstr "Niveaux"
+msgstr ""
 
 #: includes/admin/class-import-export.php:40
 msgid "Badges"
-msgstr "Badges"
+msgstr ""
 
 #: includes/admin/class-import-export.php:44
 msgid "Performance"
-msgstr "Performances"
+msgstr ""
 
 #: includes/admin/class-import-export.php:48
 msgid "Advanced Stats"
-msgstr "Statistiques Avancées"
+msgstr ""
 
 #: includes/admin/class-import-export.php:70
 msgid "Data successfully imported."
-msgstr "Données importées avec succès."
+msgstr ""
 
 #: includes/admin/class-import-export.php:93
 msgid "Import/Export Data"
-msgstr "Importer/Exporter des données"
+msgstr ""
 
 #: includes/admin/class-import-export.php:98
 msgid "Export Data"
-msgstr "Exporter des données"
+msgstr ""
 
 #: includes/admin/class-import-export.php:101
 msgid "Select the data you want to export:"
-msgstr "Sélectionnez les données que vous souhaitez exporter :"
+msgstr ""
 
 #: includes/admin/class-import-export.php:104
 msgid "Please select at least one export option."
-msgstr "Veuillez sélectionner au moins une option d’exportation."
+msgstr ""
 
 #: includes/admin/class-import-export.php:109
 msgid "Select All"
-msgstr "Tout sélectionner"
+msgstr ""
 
 #: includes/admin/class-import-export.php:128
 msgid "Export for specific user (optional):"
-msgstr "Exporter pour un utilisateur spécifique (facultatif) :"
+msgstr ""
 
 #: includes/admin/class-import-export.php:131
 msgid "All Users"
-msgstr "Tous les utilisateurs"
+msgstr ""
 
 #: includes/admin/class-import-export.php:145
 msgid "Export"
-msgstr "Exporter"
+msgstr ""
 
 #: includes/admin/class-import-export.php:154
 msgid "Import Data"
-msgstr "Importer des données"
+msgstr ""
 
 #: includes/admin/class-import-export.php:157
 msgid "Select the JSON file to import:"
-msgstr "Sélectionnez le fichier JSON à importer :"
+msgstr ""
 
 #: includes/admin/class-import-export.php:164
 msgid "Maximum file size: 10MB. JSON format only."
-msgstr "Taille maximale du fichier : 10 Mo. Format JSON uniquement."
+msgstr ""
 
 #: includes/admin/class-import-export.php:171
 msgid "Import"
-msgstr "Importer"
+msgstr ""
 
 #: includes/admin/class-import-export.php:343
 msgid "Insufficient permissions for data export."
-msgstr "Autorisations insuffisantes pour l’exportation des données."
+msgstr ""
 
 #: includes/admin/class-import-export.php:347
 #: includes/admin/class-import-export.php:382
 #: includes/FQI3_PeriodicStatistics.php:277
 msgid "Security verification failed."
-msgstr "La vérification de sécurité a échoué."
+msgstr ""
 
 #: includes/admin/class-import-export.php:378
 msgid "Insufficient permissions for data import."
-msgstr "Autorisations insuffisantes pour l’importation de données."
+msgstr ""
 
 #: includes/admin/class-import-export.php:394
 msgid "File upload failed."
-msgstr "Le téléchargement du fichier a échoué."
+msgstr ""
 
 #. Translators: %d indicates the maximum upload limit.
 #: includes/admin/class-import-export.php:402
 msgid "File size exceeds maximum limit of %d MB."
-msgstr "La taille du fichier dépasse la limite maximale de %d Mo."
+msgstr ""
 
 #: includes/admin/class-import-export.php:406
 msgid "Invalid file type. JSON files only."
-msgstr "Type de fichier non valide. Fichiers JSON uniquement."
+msgstr ""
 
 #: includes/admin/class-import-export.php:423
 msgid "Invalid JSON file."
-msgstr "Fichier JSON non valide."
+msgstr ""
 
 #: includes/admin/class-import-export.php:451
 msgid "Invalid import data: No valid data sections found."
 msgstr ""
-"Données d’importation non valides : aucune section de données valide trouvée."
 
 #. Translators: %s is the error message.
 #: includes/admin/class-import-export.php:528
 msgid "Import failed: %s"
-msgstr "Échec de l’importation : %s"
+msgstr ""
 
 #: includes/admin/class-infos.php:50
 msgid "Display detailed user statistics across posts, pages, or widgets."
 msgstr ""
-"Affiche des statistiques détaillées sur les utilisateurs dans les articles, "
-"les pages ou les widgets."
 
 #: includes/admin/class-infos.php:51
 msgid ""
 "Show the number of remaining free quiz attempts with a user-friendly message."
 msgstr ""
-"Affiche le nombre de tentatives de quiz libres restantes avec un message "
-"convivial."
 
 #: includes/admin/class-infos.php:52
 msgid "Display comparative statistics between users."
-msgstr "Affiche les statistiques comparatives entre les utilisateurs."
+msgstr ""
 
 #: includes/admin/class-infos.php:53
 msgid "Renders the quiz form."
-msgstr "Affiche le formulaire de quiz."
+msgstr ""
 
 #: includes/admin/class-infos.php:54
 msgid "Display the badges awarded to the currently logged-in user."
-msgstr "Affiche les badges attribués à l'utilisateur actuellement connecté."
+msgstr ""
 
 #: includes/admin/class-infos.php:55
 msgid ""
 "Display the periodic statistics (weekly and monthly) of a user, including "
 "success rates and quiz performance by level."
 msgstr ""
-"Affichez les statistiques périodiques (hebdomadaires et mensuelles) d’un "
-"utilisateur, y compris les taux de réussite et les performances au quiz par "
-"niveau."
 
 #: includes/admin/class-infos.php:63 templates/form-manually-save-stats.php:8
 msgid "New"
-msgstr "Nouveau"
+msgstr ""
 
 #: includes/admin/class-infos.php:71
 msgid "Questions & Levels:"
-msgstr "Questions & Niveaux :"
+msgstr ""
 
 #: includes/admin/class-infos.php:73
 msgid "Get All Questions:"
-msgstr "Obtenir tous les questions :"
+msgstr ""
 
 #: includes/admin/class-infos.php:75
 msgid ""
@@ -896,136 +859,122 @@ msgid ""
 "the text of the question in different languages, available options, and the "
 "correct answer."
 msgstr ""
-"Cette API récupère toutes les questions des quiz. Elle renvoie une liste de "
-"questions contenant des informations sur chaque question, notamment le "
-"niveau, le texte de la question dans différentes langues, les options "
-"disponibles et la bonne réponse."
 
 #: includes/admin/class-infos.php:77
 msgid "The unique identifier of the question."
-msgstr "L’identifiant unique de la question."
+msgstr ""
 
 #: includes/admin/class-infos.php:78
 msgid "The level of the question (e.g., \"beginner\", \"intermediate\")."
-msgstr "The level of the question (e.g., « beginner », « intermediate »)."
+msgstr ""
 
 #: includes/admin/class-infos.php:79
 msgid "The text of the question in the primary language."
-msgstr "Le texte de la question dans la langue principale."
+msgstr ""
 
 #: includes/admin/class-infos.php:80
 msgid "The text of the question in an alternate language."
-msgstr "Le texte de la question dans une autre langue."
+msgstr ""
 
 #: includes/admin/class-infos.php:81
 msgid "A JSON string array of available options for the question."
-msgstr "Un tableau de chaînes JSON d’options disponibles pour la question."
+msgstr ""
 
 #: includes/admin/class-infos.php:82
 msgid "The index of the correct answer in the options array (zero-based)."
 msgstr ""
-"L’index de la réponse correcte dans le tableau d’options (de base zéro)."
 
 #: includes/admin/class-infos.php:104
 msgid "Get Question by ID:"
-msgstr "Obtenir le question par son identifiant :"
+msgstr ""
 
 #: includes/admin/class-infos.php:108
 msgid "Get Questions by Level:"
-msgstr "Obtenez les questions par niveau:"
+msgstr ""
 
 #: includes/admin/class-infos.php:112
 msgid "Get All Quiz Levels:"
-msgstr "Obtenez tous les niveaux du quiz :"
+msgstr ""
 
 #: includes/admin/class-infos.php:114
 msgid ""
 "This API retrieves all available levels for quizzes. It returns a list of "
 "levels, including their names, labels, and whether they are free or paid."
 msgstr ""
-"Cette API récupère tous les niveaux disponibles pour les quiz. Elle renvoie "
-"une liste de niveaux, y compris leurs noms, leurs libellés et leur caractère "
-"gratuit ou payant."
 
 #: includes/admin/class-infos.php:116
 msgid "The unique identifier for the level (e.g., \"beginner\")."
-msgstr "L’identifiant unique du niveau (par exemple, « débutant »)."
+msgstr ""
 
 #: includes/admin/class-infos.php:117
 msgid "The display name of the level (e.g., \"Beginner\")."
-msgstr "Le nom d’affichage du niveau (par exemple, « Débutant »)."
+msgstr ""
 
 #: includes/admin/class-infos.php:118
 msgid "A boolean indicating whether the level is free (true) or paid (false)."
 msgstr ""
-"Un booléen indiquant si le niveau est gratuit (true) ou payant (false)."
 
 #: includes/admin/class-infos.php:154
 msgid "Get Quiz Level by Name:"
-msgstr "Obtenir le niveau du quiz par nom :"
+msgstr ""
 
 #: includes/admin/class-infos.php:158
 msgid "Get Quiz Levels by Type:"
-msgstr "Obtenir le niveau du quiz par type :"
+msgstr ""
 
 #: includes/admin/class-infos.php:165
 msgid "Get User Performance:"
-msgstr "Obtenir les performances de l'utilisateur :"
+msgstr ""
 
 #: includes/admin/class-infos.php:167
 msgid ""
 "This API retrieves the performance metrics for a specific user, including "
 "their quiz attempts and success rates across different levels."
 msgstr ""
-"Cette API récupère les mesures de performance d’un utilisateur spécifique, y "
-"compris ses tentatives de quiz et ses taux de réussite à différents niveaux."
 
 #: includes/admin/class-infos.php:169
 msgid "The unique identifier for the performance entry."
-msgstr "L’identifiant unique de l’entrée de performance."
+msgstr ""
 
 #: includes/admin/class-infos.php:170
 msgid "The identifier of the user whose performance is being retrieved."
-msgstr "L’identifiant de l’utilisateur dont la performance est récupérée."
+msgstr ""
 
 #: includes/admin/class-infos.php:171
 msgid "The quiz level for which the performance is recorded."
-msgstr "Le niveau du quiz pour lequel la performance est enregistrée."
+msgstr ""
 
 #: includes/admin/class-infos.php:172
 msgid "The total number of quizzes attempted by the user at this level."
-msgstr "Le nombre total de quiz tentés par l’utilisateur à ce niveau."
+msgstr ""
 
 #: includes/admin/class-infos.php:173
 msgid "The total number of questions answered by the user at this level."
 msgstr ""
-"Le nombre total de questions auxquelles l’utilisateur a répondu à ce niveau."
 
 #: includes/admin/class-infos.php:174
 msgid "The total number of correct answers provided by the user."
-msgstr "Le nombre total de réponses correctes fournies par l’utilisateur."
+msgstr ""
 
 #: includes/admin/class-infos.php:175
 msgid "The percentage of correct answers."
-msgstr "Le pourcentage de réponses correctes."
+msgstr ""
 
 #: includes/admin/class-infos.php:176
 msgid "The highest score achieved by the user in quizzes at this level."
 msgstr ""
-"Le score le plus élevé obtenu par l’utilisateur dans les quiz à ce niveau."
 
 #: includes/admin/class-infos.php:177
 msgid "The date and time when the performance data was last updated."
 msgstr ""
-"La date et l’heure de la dernière mise à jour des données de performance."
 
 #: includes/admin/class-infos.php:205
 msgid "Get User Badges:"
-msgstr "Obtenir les badges de l'utilisateur :"
+msgstr ""
 
 #: includes/admin/class-infos.php:209
 msgid "Update User Performance:"
-msgstr "Mettre à jour les performances de l'utilisateur:"
+msgstr ""
 
 #: includes/admin/class-infos.php:211
 msgid ""
@@ -1034,81 +983,60 @@ msgid ""
 "success rates, and best scores for the user, along with the timestamp of the "
 "last update."
 msgstr ""
-"Cette API met à jour ou insère des mesures de performances pour un "
-"utilisateur spécifique à un niveau de quiz particulier. Les données incluent "
-"les tentatives de quiz, les réponses correctes, les taux de réussite et les "
-"meilleurs scores de l’utilisateur, ainsi que l’horodatage de la dernière "
-"mise à jour."
 
 #: includes/admin/class-infos.php:213
 msgid ""
 "The unique identifier for the user whose performance is being updated. This "
 "is a required parameter."
 msgstr ""
-"Identifiant unique de l’utilisateur dont les performances sont mises à jour. "
-"Il s’agit d’un paramètre obligatoire."
 
 #: includes/admin/class-infos.php:214
 msgid ""
 "The quiz level (e.g., \"beginner\", \"intermediate\", \"advanced\") for "
 "which the performance is being recorded. This is a required parameter."
 msgstr ""
-"Le niveau du quiz (par exemple, « débutant », « intermédiaire », « avancé ») "
-"pour lequel la performance est enregistrée. Il s’agit d’un paramètre "
-"obligatoire."
 
 #: includes/admin/class-infos.php:215
 msgid ""
 "The total number of quizzes attempted by the user at the specified level. "
 "This is a required parameter."
 msgstr ""
-"Nombre total de quiz tentés par l’utilisateur au niveau spécifié. Il s’agit "
-"d’un paramètre obligatoire."
 
 #: includes/admin/class-infos.php:216
 msgid ""
 "The total number of questions answered by the user at the specified level. "
 "This is a required parameter."
 msgstr ""
-"Nombre total de questions auxquelles l’utilisateur a répondu au niveau "
-"spécifié. Il s’agit d’un paramètre obligatoire."
 
 #: includes/admin/class-infos.php:217
 msgid ""
 "The total number of correct answers provided by the user at the specified "
 "level. This is a required parameter."
 msgstr ""
-"Nombre total de réponses correctes fournies par l’utilisateur au niveau "
-"spécifié. Il s’agit d’un paramètre obligatoire."
 
 #: includes/admin/class-infos.php:218
 msgid ""
 "The percentage of correct answers calculated as (total good answers / total "
 "questions answered) * 100. This is a required parameter."
 msgstr ""
-"Le pourcentage de réponses correctes calculé comme (total des bonnes "
-"réponses / total des questions répondues) * 100. Il s’agit d’un paramètre "
-"obligatoire."
 
 #: includes/admin/class-infos.php:219
 msgid ""
 "The highest score achieved by the user at the specified level. This is a "
 "required parameter."
 msgstr ""
-"Le score le plus élevé atteint par l’utilisateur au niveau spécifié. Il "
-"s’agit d’un paramètre obligatoire."
 
 #: includes/admin/class-infos.php:236
 msgid "Get Badge Settings:"
-msgstr "Obtenir les paramètres du badge :"
+msgstr ""
 
 #: includes/admin/class-infos.php:240
 msgid "Get Specific Badge Type Settings:"
-msgstr "Obtenir les paramètres spécifiques du type de badge :"
+msgstr ""
 
 #: includes/admin/class-infos.php:245
 msgid "Get All Users Badges:"
-msgstr "Obtenez les badges de tous les utilisateurs :"
+msgstr ""
 
 #: includes/admin/class-infos.php:247
 msgid ""
@@ -1116,186 +1044,170 @@ msgid ""
 "containing information about each user who has received one or more badges, "
 "along with details about those badges."
 msgstr ""
-"Cette API récupère tous les badges attribués aux utilisateurs. Elle renvoie "
-"une liste de badges contenant des informations sur chaque utilisateur ayant "
-"reçu un ou plusieurs badges, ainsi que des détails sur ces badges."
 
 #: includes/admin/class-infos.php:249
 msgid "(optional) The page number to retrieve. Defaults to the first page."
 msgstr ""
-"(facultatif) Le numéro de page à récupérer. La valeur par défaut est la "
-"première page."
 
 #: includes/admin/class-infos.php:250
 msgid ""
 "(optional) The number of badges to return per page. Defaults to 10 badges."
 msgstr ""
-"(facultatif) Le nombre de badges à renvoyer par page. La valeur par défaut "
-"est 10 badges."
 
 #: includes/admin/class-infos.php:253
 msgid "The unique identifier of the badge/user association in the database."
 msgstr ""
-"L’identifiant unique de l’association badge/utilisateur dans la base de "
-"données."
 
 #: includes/admin/class-infos.php:255
 msgid "An object containing information about the user:"
-msgstr "Un objet contenant des informations sur l’utilisateur :"
+msgstr ""
 
 #: includes/admin/class-infos.php:257
 msgid "The user identifier."
-msgstr "L’identifiant de l’utilisateur."
+msgstr ""
 
 #: includes/admin/class-infos.php:258
 msgid "The display name of the user."
-msgstr "Le nom d’affichage de l’utilisateur."
+msgstr ""
 
 #: includes/admin/class-infos.php:259
 msgid "The user's email address."
-msgstr "L’adresse e-mail de l’utilisateur."
+msgstr ""
 
 #: includes/admin/class-infos.php:263
 msgid "An object containing details about the badge:"
-msgstr "Un objet contenant des détails sur le badge :"
+msgstr ""
 
 #: includes/admin/class-infos.php:265
 msgid ""
 "The type of badge (e.g., \"completion-badge\" or \"success-rate-badge\")."
 msgstr ""
-"Le type de badge (par exemple, « completion-badge » ou « success-rate-"
-"badge »)."
 
 #: includes/admin/class-infos.php:266
 msgid "The name of the badge."
-msgstr "Le nom du badge."
+msgstr ""
 
 #: includes/admin/class-infos.php:267
 msgid "The threshold required to earn the badge, or null if not applicable."
-msgstr "Le seuil requis pour obtenir le badge, ou nul si non applicable."
+msgstr ""
 
 #: includes/admin/class-infos.php:268
 msgid "The ID of the image associated with the badge."
-msgstr "L’ID de l’image associée au badge."
+msgstr ""
 
 #: includes/admin/class-infos.php:269
 msgid "The URL of the badge image, or null if not available."
-msgstr "L’URL de l’image du badge, ou null si non disponible."
+msgstr ""
 
 #: includes/admin/class-infos.php:272
 msgid "The date the badge was awarded."
-msgstr "La date à laquelle le badge a été attribué."
+msgstr ""
 
 #: includes/admin/class-infos.php:273
 msgid "The achievement value that triggered the badge award."
-msgstr "La valeur de réussite qui a déclenché l’attribution du badge."
+msgstr ""
 
 #: includes/admin/class-infos.php:305 includes/fqi3-config-functions.php:107
 msgid "Changelog and User Guide"
-msgstr "Guide et changelog"
+msgstr ""
 
 #: includes/admin/class-infos.php:322
 msgid "User Guide"
-msgstr "Guide d'utilisation"
+msgstr ""
 
 #: includes/admin/class-infos.php:324
 msgid "Here you can find the user guide for the plugin."
-msgstr "Vous trouverez ici le guide d'utilisation du plugin."
+msgstr ""
 
 #: includes/admin/class-infos.php:326
 msgid "Available Shortcodes:"
-msgstr "Shortcodes disponibles :"
+msgstr ""
 
 #: includes/admin/class-infos.php:342
 msgid "Copy shortcode"
-msgstr "Copier le shortcode"
+msgstr ""
 
 #: includes/admin/class-infos.php:358
 msgid "API Documentation:"
-msgstr "Documentation de l'API :"
+msgstr ""
 
 #: includes/admin/class-infos.php:362
 msgid ""
 "The plugin provides a REST API for accessing quiz data. Below are the "
 "available routes:"
 msgstr ""
-"Le plugin fournit une API REST pour accéder aux données du quiz. Vous "
-"trouverez ci-dessous les itinéraires disponibles :"
 
 #: includes/admin/class-infos.php:364
 msgid "Available Routes:"
-msgstr "Routes disponibles :"
+msgstr ""
 
 #: includes/admin/class-infos.php:380
 msgid "API Description"
-msgstr "Description de l’API"
+msgstr ""
 
 #: includes/admin/class-infos.php:387
 msgid "Query Parameters"
-msgstr "Paramètres de la requête"
+msgstr ""
 
 #: includes/admin/class-infos.php:401
 msgid "Response"
-msgstr "Réponse"
+msgstr ""
 
 #: includes/admin/class-infos.php:403
 msgid ""
 "The response is an array of objects containing the following informations:"
 msgstr ""
-"La réponse est un tableau d’objets contenant les informations suivantes :"
 
 #: includes/admin/class-infos.php:416
 msgid "Example Response"
-msgstr "Exemple de réponse"
+msgstr ""
 
 #: includes/admin/class-infos.php:427
 msgid "Example Request:"
-msgstr "Exemple de requête :"
+msgstr ""
 
 #: includes/admin/class-infos.php:430
 msgid "Response Format:"
-msgstr "Format de réponse:"
+msgstr ""
 
 #: includes/admin/class-infos.php:431
 msgid ""
 "Responses are returned in JSON format and contain either the requested data "
 "or appropriate error messages."
 msgstr ""
-"Les réponses sont renvoyées au format JSON et contiennent soit les données "
-"demandées, soit les messages d'erreur appropriés."
 
 #: includes/admin/class-infos.php:478
 msgid "Changelog"
-msgstr "Journal des modifications"
+msgstr ""
 
 #: includes/admin/class-infos.php:500
 msgid "Changelog file is not readable."
-msgstr "Le fichier changelog n’est pas lisible."
+msgstr ""
 
 #: includes/admin/class-infos.php:505
 msgid "Failed to read changelog file."
-msgstr "Échec de la lecture du fichier journal des modifications."
+msgstr ""
 
 #: includes/admin/class-infos.php:523
 msgid "No changelog section found."
-msgstr "Aucune section de journal des modifications trouvée."
+msgstr ""
 
 #: includes/admin/class-infos.php:532
 msgid "No version entries found."
-msgstr "Aucune entrée de version trouvée."
+msgstr ""
 
 #: includes/admin/class-infos.php:557
 msgid "No changelog entries found."
-msgstr "Aucune entrée du journal des modifications trouvée."
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:56
 msgid "Set Quiz Levels"
-msgstr "Définir les niveaux du quiz"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:98
 #: includes/admin/class-levels-settings.php:132
 msgid "Level ID:"
-msgstr "ID de niveau:"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:101
 #: includes/admin/class-levels-settings.php:135
@@ -1304,677 +1216,657 @@ msgid ""
 "requirements: Use lowercase letters only and no spaces or accents; hyphens "
 "(-) are allowed."
 msgstr ""
-"Vos données seront automatiquement formatées pour s'assurer qu'elles "
-"répondent aux exigences : Utilisez uniquement des lettres minuscules, sans "
-"espaces ni accents ; les traits d'union (-) sont autorisés."
 
 #: includes/admin/class-levels-settings.php:106
 #: includes/admin/class-levels-settings.php:140
 msgid "Level Name:"
-msgstr "Nom du niveau:"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:112
 #: includes/admin/class-levels-settings.php:146
 msgid "Is Free?"
-msgstr "Est-il gratuit ?"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:117
 #: includes/admin/class-levels-settings.php:151
 msgid "Remove this level"
-msgstr "Supprimer ce niveau"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:124
 msgid "Add a level"
-msgstr "Ajouter un niveau"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:245
 msgid "Beginner"
-msgstr "Débutant"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:246
 msgid "Intermediate"
-msgstr "Intermédiaire"
+msgstr ""
 
 #: includes/admin/class-levels-settings.php:247
 msgid "Advance"
-msgstr "Avancé"
+msgstr ""
 
 #: includes/admin/class-options.php:36
 msgid "Form Quizz FQI3 Settings"
-msgstr "Réglages Form Quizz FQI3"
+msgstr ""
 
 #: includes/admin/class-options.php:98
 msgid "Save settings"
-msgstr "Enregistrer les paramètres"
+msgstr ""
 
 #: includes/admin/class-statistics.php:56 includes/fqi3-config-functions.php:83
 msgid "Statistics"
-msgstr "Statistiques"
+msgstr ""
 
 #: includes/admin/class-statistics.php:59
 msgid "Refresh Statistics"
-msgstr "Actualiser les statistiques"
+msgstr ""
 
 #: includes/admin/class-statistics.php:64
 msgid "Info"
-msgstr "Info"
+msgstr ""
 
 #: includes/admin/class-statistics.php:68
 msgid ""
 "On this page, only Premium users appear. Administrators can be displayed if "
 "the option has been enabled for testing purposes."
 msgstr ""
-"Dans cette page, n’apparait que les utilisateurs Premium. Les "
-"administrateurs peuvent être affichés si l’option a été activée à des fins "
-"de test."
 
 #: includes/admin/class-statistics.php:95
 msgid "Color codes:"
-msgstr "Codes de couleur :"
+msgstr ""
 
 #: includes/admin/class-statistics.php:146
 msgid "User ID"
-msgstr "ID de l’utilisateur"
+msgstr ""
 
 #: includes/admin/class-statistics.php:147
 msgid "Username"
-msgstr "Nom d’utilisateur"
+msgstr ""
 
 #: includes/admin/class-statistics.php:149
 msgid "Awards / Badges"
-msgstr "Récompenses / Badges"
+msgstr ""
 
 #: includes/admin/class-statistics.php:171
 msgid "No user statistics available yet."
-msgstr "Aucune statistique utilisateur n’est encore disponible."
+msgstr ""
 
 #: includes/admin/class-statistics.php:187
 msgid "Admin"
-msgstr "Admin"
+msgstr ""
 
 #: includes/admin/class-statistics.php:233 includes/FQI3_Awards.php:485
 #: includes/FQI3_Statistics.php:596
 msgid "N/A"
-msgstr "N/A"
+msgstr ""
 
 #. translators: %s is the number of quizzes
 #: includes/admin/class-statistics.php:248
 msgid "%s quiz"
 msgid_plural "%s quizzes"
-msgstr[0] "%s quiz"
-msgstr[1] "%s quiz"
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/admin/class-statistics.php:289
 msgid "No badges awarded yet!"
-msgstr "Aucun badge n’a encore été attribué !"
+msgstr ""
 
 #: includes/admin/class-statistics.php:290
 msgid "This user has not yet earned a badge."
-msgstr "Cet utilisateur n’a pas encore obtenu de badge."
+msgstr ""
 
 #. translators: %s is the date the badge was awarded
 #: includes/admin/class-statistics.php:317
 msgid "earned at %s"
-msgstr "attribué le %s"
+msgstr ""
 
 #: includes/admin/class-statistics.php:393
 msgid "Deleted User"
-msgstr "Utilisateur supprimé"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:76
 msgid "Viewing questions"
-msgstr "Affichage des questions"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:79
 msgid "Add a question"
-msgstr "Ajouter une question"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:110
 #: includes/admin/class-view-questions.php:122
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:114
 msgid "Instructions for the question"
-msgstr "Instructions pour la question"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:115
 msgid "Options"
-msgstr "Options"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:116
 msgid "Answer"
-msgstr "Réponse"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:117
 msgid "Action"
-msgstr "Action"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:118
 #: includes/admin/class-view-questions.php:439
 msgid "Edit"
-msgstr "Modifier"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:146
 msgid "Delete Confirmation"
-msgstr "Confirmation de suppression"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:151
 msgid "Are you sure you want to delete this question?"
-msgstr "Êtes-vous certain de vouloir supprimer cette question ?"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:154
 msgid "Cancel"
-msgstr "Annuler"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:155
 msgid "Delete question"
-msgstr "Supprimer la question"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:308
 msgid "All Levels"
-msgstr "Tous les niveaux"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:321
 msgid "Search questions..."
-msgstr "Rechercher des questions…"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:323
 msgid "Filter"
-msgstr "Fltrer"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:341
 msgid "Export CSV"
-msgstr "Exporter au format CSV"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:358
 msgid "Page"
-msgstr "Page"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:360
 msgid "of"
-msgstr "sur"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:376
 msgid "Previous"
-msgstr "Précédent"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:377 includes/FQI3_Frontend.php:163
 msgid "Next"
-msgstr "Suivant"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:434
 msgid "Delete"
-msgstr "Supprimer"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:489
 msgid "Show Options"
-msgstr "Afficher Options"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:530
 #: includes/admin/class-view-questions.php:642
 msgid "Unknown"
-msgstr "Inconnue"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:542
 msgid "You do not have the necessary permissions to perform this action."
 msgstr ""
-"Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
-"action."
 
 #: includes/admin/class-view-questions.php:557
 msgid "Question deleted successfully"
-msgstr "Question supprimée avec succès"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:559
 msgid "Failed to delete question"
-msgstr "Échec de la suppression de la question"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:654
 msgid "No questions found for export"
-msgstr "Aucune question n'a été trouvée pour l’export"
+msgstr ""
 
 #: includes/admin/class-view-questions.php:667
 msgid "Export Error"
-msgstr "Erreur d’exportation"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:51
 msgid "Dashboard"
-msgstr "Tableau de bord"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:59
 msgid "View Questions"
-msgstr "Voir les questions"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:67
 msgid "Add Question"
-msgstr "Ajouter une question"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:75
 msgid "Edit Question"
-msgstr "Modifier la question"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:99
 msgid "Import/Export"
-msgstr "Import / Export"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:150
 msgid "General Settings"
-msgstr "Réglages généraux"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:155
 msgid "Levels Settings"
-msgstr "Réglages des niveaux"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:160
 msgid "Access Control"
-msgstr "Contrôle d'accès"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:165
 msgid "Emails Options"
-msgstr "Options Emails"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:170
 msgid "Content Options"
-msgstr "Options de contenu"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:175
 msgid "Badges Options"
-msgstr "Options Badges"
+msgstr ""
 
 #: includes/fqi3-config-functions.php:180
 msgid "API Options"
-msgstr "Options de l'API"
+msgstr ""
 
 #: includes/FQI3_Api.php:136
 msgid "Token successfully revoked."
-msgstr "Jeton révoqué avec succès."
+msgstr ""
 
 #: includes/FQI3_Api.php:260
 msgid "Database error occurred"
-msgstr "Une erreur de base de données s’est produite"
+msgstr ""
 
 #: includes/FQI3_Api.php:312
 msgid "Failed to retrieve quiz: "
-msgstr "Impossible de récupérer le questionnaire : "
+msgstr ""
 
 #: includes/FQI3_Api.php:365
 msgid "Failed to retrieve quizzes due to a database error"
 msgstr ""
-"Impossible de récupérer les questionnaires en raison d’une erreur de base de "
-"données"
 
 #: includes/FQI3_Api.php:415
 msgid "An error occurred while retrieving user badges."
 msgstr ""
-"Une erreur s’est produite lors de la récupération des badges utilisateur."
 
 #: includes/FQI3_Api.php:492
 msgid "Failed to retrieve performance data"
-msgstr "Impossible de récupérer les données de performances"
+msgstr ""
 
 #: includes/FQI3_Api.php:530
 msgid "Performance updated successfully"
-msgstr "Performances mises à jour avec succès"
+msgstr ""
 
 #: includes/FQI3_Api.php:536
 msgid "Failed to update performance"
-msgstr "Échec de la mise à jour des performances"
+msgstr ""
 
 #: includes/FQI3_Api.php:591
 msgid "Invalid badge type specified"
-msgstr "Type de badge spécifié non valide"
+msgstr ""
 
 #: includes/FQI3_Awards.php:450 includes/FQI3_Awards.php:455
 msgid "Completed Quizzes"
-msgstr "Quiz complétés"
+msgstr ""
 
 #: includes/FQI3_Awards.php:454
 msgid "achieve a specific number of quizzes"
-msgstr "atteindre un nombre spécifique de quiz"
+msgstr ""
 
 #: includes/FQI3_Awards.php:458 includes/FQI3_Statistics.php:184
 #: includes/FQI3_Statistics.php:188 includes/FQI3_Statistics.php:549
 msgid "Success Rate"
-msgstr "Taux de réussite"
+msgstr ""
 
 #. translators: %s is the number of quizzes that the user has completed to achieve a specific success rate.
 #: includes/FQI3_Awards.php:464
 msgid "have a specific success rate since a specific number of quizzes (%s)"
 msgstr ""
-"avoir un taux de réussite spécifique depuis un nombre spécifique de quiz (%s)"
 
 #: includes/FQI3_Awards.php:480
 msgid "List of existing badges"
-msgstr "Liste des badges existants"
+msgstr ""
 
 #: includes/FQI3_Awards.php:482
 msgid "How to get it"
-msgstr "Comment l’obtenir"
+msgstr ""
 
 #: includes/FQI3_Awards.php:483
 msgid "Badges versions"
-msgstr "Versions des badges"
+msgstr ""
 
 #. translators: %s represents the action or condition that needs to be fulfilled, e.g., 'complete a quiz' or 'reach a score.'
 #: includes/FQI3_Awards.php:487
 msgid "You need to %s"
-msgstr "Vous devez %s"
+msgstr ""
 
 #: includes/FQI3_Backend.php:372
 msgid "Questions per page"
-msgstr "Questions par page"
+msgstr ""
 
 #: includes/FQI3_Emails.php:160
 msgid "FQI3 Test Email"
-msgstr "Email de test de FQI3"
+msgstr ""
 
 #: includes/FQI3_Emails.php:176 templates/email-template.php:15
 msgid "Your Free Quiz Attempts Have Been Reset"
-msgstr "Vos tentatives de quiz gratuit ont été réinitialisées"
+msgstr ""
 
 #: includes/FQI3_Emails.php:216
 msgid "Hi"
-msgstr "Bonjour"
+msgstr ""
 
 #: includes/FQI3_Emails.php:218
 msgid ""
 "Your wait is over! <br><br> 24 hours have passed, so you have 3 free quizzes "
 "available again."
 msgstr ""
-"Votre attente est terminée ! <br><br> 24 heures se sont écoulées, vous avez "
-"donc à nouveau 3 quiz gratuits disponibles."
 
 #: includes/FQI3_Emails.php:223
 msgid "Hi admin! Your email sending test is successful."
-msgstr "Bonjour administrateur ! Votre test d’envoi d’email a réussi."
+msgstr ""
 
 #: includes/FQI3_Emails.php:226
 msgid "Hello, this is a generic message from the FQI3 plugin."
-msgstr "Bonjour, ceci est un message générique du plugin FQI3."
+msgstr ""
 
 #: includes/FQI3_Frontend.php:95
 msgid "Default Title"
-msgstr "Titre par défaut"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:101
 msgid "Choose your level:"
-msgstr "Choisissez votre niveau :"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:102
 msgid "As no logged user, you are only acces to:"
-msgstr "En tant qu’utilisateur non connecté, vous avez uniquement accès à :"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:159
 msgid "Start"
-msgstr "Commencer"
+msgstr ""
 
 #. translators: %s is the name or username of the user.
 #: includes/FQI3_Frontend.php:161
 msgid "Welcome, %s. Happy to see you again for some fun learning!"
 msgstr ""
-"Bienvenue, %s. Heureux de te revoir pour un moment d’apprentissage ludique !"
 
 #: includes/FQI3_Frontend.php:162
 msgid "Loading..."
-msgstr "Chargement en cours…"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:164
 msgid "Results"
-msgstr "Résultats"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:165
 msgid "Restart the quizz"
-msgstr "Redémarrer le quiz"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:166
 msgid "Sign Up to Access More Levels"
-msgstr "S'inscrire pour accéder à d'autres niveaux"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:167
 msgid "Go back to the start"
-msgstr "Revenir au début"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:168
 msgid "Share your results:"
-msgstr "Partagez vos résultats :"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:169
 msgid "Share on Facebook"
-msgstr "Partager sur Facebook"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:170
 msgid "Share on X"
-msgstr "Partager sur X"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:171
 msgid "Share on LinkedIn"
-msgstr "Partager sur LinkedIn"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:172
 msgid "Upgrade to our premium version to get unlimited access!"
-msgstr "Passe à notre version premium pour bénéficier d'un accès illimité !"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:173
 msgid "View Details and register"
-msgstr "Voir les détails et s’inscrire"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:174
 msgid "Do you want to activate a timer to complete the 10 questions?"
-msgstr "Voulez-vous activer un minuteur pour compléter les 10 questions ?"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:175
 msgid "How many minutes?"
-msgstr "Combien de minutes ?"
+msgstr ""
 
 #: includes/FQI3_Frontend.php:191
 msgid "You have reached your quiz limit for today."
-msgstr "Vous avez atteint votre limite de quiz pour aujourd'hui."
+msgstr ""
 
 #. translators: %s represents the level (e.g., 'beginner', 'intermediate', 'advanced') where no questions are found.
 #: includes/FQI3_Frontend.php:202
 msgid "No questions found in %s level."
-msgstr "Aucune question n'a été trouvée au niveau %s."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:142
 msgid "No data found for the specified period."
-msgstr "Aucune donnée trouvée pour la période spécifiée."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:176
 msgid "your advanced statistics"
-msgstr "vos statistiques avancées"
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:185
 msgid "Your advanced statistics"
-msgstr "Vos statistiques avancées"
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:201
 msgid ""
 "No advanced statistics yet but that shouldn't last long if you keep up your "
 "efforts by regularly completing quizzes."
 msgstr ""
-"Il n'y a pas encore de statistiques avancées, mais cela ne devrait pas durer "
-"longtemps si vous continuez à faire des efforts en répondant régulièrement "
-"aux quiz."
 
 #: includes/FQI3_PeriodicStatistics.php:254
 msgid "Monthly Statistics"
-msgstr "Statistiques mensuelles"
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:258
 msgid "Weekly Statistics"
-msgstr "Statistiques hebdomadaires"
+msgstr ""
 
 #. translators: %s: field name
 #: includes/FQI3_PeriodicStatistics.php:292
 msgid "Field %s is required."
-msgstr "Le champ %s est obligatoire."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:305
 msgid "Invalid user ID."
-msgstr "ID utilisateur non valide."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:313
 msgid "Invalid date format."
-msgstr "Format de date non valide."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:322
 msgid "End date must be after start date."
-msgstr "La date de fin doit être postérieure à la date de début."
+msgstr ""
 
 #. translators: %d: maximum number of days
 #: includes/FQI3_PeriodicStatistics.php:333
 msgid "Date range cannot exceed %d days."
-msgstr "La plage de dates ne peut pas dépasser %d jours."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:341
 msgid "End date cannot be in the future."
-msgstr "La date de fin ne peut pas être dans le futur."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:351
 msgid "Statistics recorded successfully for user."
-msgstr "Statistiques enregistrées avec succès pour l’utilisateur."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:383
 msgid "Invalid date format provided."
-msgstr "Format de date non valide fourni."
+msgstr ""
 
 #: includes/FQI3_PeriodicStatistics.php:387
 msgid "End date cannot be before start date."
-msgstr "La date de fin ne peut pas être antérieure à la date de début."
+msgstr ""
 
 #: includes/FQI3_Statistics.php:185
 msgid "Failure Rate"
-msgstr "Taux d’échec"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:209
 msgid "Statistics updated successfully"
-msgstr "Statistiques mises à jour avec succès"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:229
 msgid "User not logged in or does not have the required role"
-msgstr "L’utilisateur n’est pas connecté ou n’a pas le rôle requis"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:450
 msgid "No statistics found for your account."
-msgstr "Aucune statistique trouvée pour votre compte."
+msgstr ""
 
 #: includes/FQI3_Statistics.php:471
 msgid "this section"
-msgstr "cette section"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:477
 msgid ""
 "Statistics option disabled. For more details, please inquire with the "
 "administrator."
 msgstr ""
-"Option statistiques désactivée. Pour plus de détails, veuillez vous adresser "
-"à l'administrateur."
 
 #. translators: %s is the subject section in a shortcode
 #: includes/FQI3_Statistics.php:482
 msgid "If you want to access %s, you must be logged in."
-msgstr "Si vous voulez accéder à %s, vous devez être connecté."
+msgstr ""
 
 #. translators: %s is the subject section in a shortcode
 #: includes/FQI3_Statistics.php:487
 msgid "You must be a premium member to view %s."
-msgstr "Vous devez être un membre premium pour voir %s."
+msgstr ""
 
 #: includes/FQI3_Statistics.php:523
 msgid "Your statistics"
-msgstr "Vos statistiques"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:545
 msgid "Total Quizzes"
-msgstr "Total des quiz"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:546
 msgid "Total Questions Answered"
-msgstr "Nombre total de questions répondues"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:547
 msgid "Correct Answers"
-msgstr "Réponses correctes"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:548
 msgid "Overall average"
-msgstr "Moyenne générale"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:550
 msgid "Best Score"
-msgstr "Meilleur note"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:628
 msgid "Average Score"
-msgstr "Note moyenne"
+msgstr ""
 
 #. translators: %s is the number of quizzes completed.
 #: includes/FQI3_Statistics.php:753
 msgid "%s quiz completed"
 msgid_plural "%s quizzes completed"
-msgstr[0] "%s quiz complété"
-msgstr[1] "%s quiz complétés"
+msgstr[0] ""
+msgstr[1] ""
 
 #. translators: %s is the level (e.g., 'beginner', 'intermediate', 'advanced') where the action or achievement took place.
 #: includes/FQI3_Statistics.php:763
 msgid "in %s level"
-msgstr "au niveau %s"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:789
 msgid "No statistics"
-msgstr "Aucune statistique"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:875
 msgid "Comparative Statistics"
-msgstr "Statistiques comparatives"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:880
 msgid "Your Best Score"
-msgstr "Votre meilleur score"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:881
 msgid "The Best Overall Score"
-msgstr "Le meilleur score globale"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:889
 msgid "You do not have access to this feature"
-msgstr "Vous n'avez pas accès à cette fonctionnalité"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:890 includes/FQI3_Statistics.php:898
 msgid "No data yet"
-msgstr "Pas données pour le moment"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:958
 msgid "No badges found for your account."
-msgstr "Aucun badge n'a été trouvé pour votre compte."
+msgstr ""
 
 #: includes/FQI3_Statistics.php:974
 msgid "your badges"
-msgstr "vos badges"
+msgstr ""
 
 #: includes/FQI3_Statistics.php:1027
 msgid "Awarded badge"
 msgid_plural "Awarded badges"
-msgstr[0] "Badge gagné"
-msgstr[1] "Badges gagnés"
+msgstr[0] ""
+msgstr[1] ""
 
 #: includes/FQI3_Statistics.php:1043
 msgid "No badges awarded."
-msgstr "Aucun badge reçu."
+msgstr ""
 
 #: includes/FQI3_Statistics.php:1073
 msgid "Awarded on"
-msgstr "Attribué le"
+msgstr ""
 
 #. translators: %s: Template file name
 #: includes/FQI3_Template_Manager.php:49
 msgid "Template %s not found."
-msgstr "Modèle %s non trouvé."
+msgstr ""
 
 #: templates/email-template.php:48
 msgid "Thank you"
-msgstr "Merci"
+msgstr ""
 
 #. Translators: %1$s is the plugin name, %2$s is the URL of the developer, and %3$s is the developer's name.
 #: templates/footer.php:23
@@ -1982,320 +1874,95 @@ msgid ""
 "%1$s is developed and maintained by <a href=\"%2$s\" target=\"_blank\">%3$s</"
 "a>."
 msgstr ""
-"%1$s est développé et entretenu par <a href=\"%2$s\" target=\"_blank\">%3$s</"
-"a>."
 
 #: templates/form-manually-save-stats.php:8
 msgid "Manually Record Weekly Statistics"
-msgstr "Enregistrement manuel des statistiques hebdomadaires"
+msgstr ""
 
 #: templates/form-manually-save-stats.php:14
 msgid "User:"
-msgstr "Utilisateur :"
+msgstr ""
 
 #: templates/form-manually-save-stats.php:25
 msgid "Start Date:"
-msgstr "Date de début:"
+msgstr ""
 
 #: templates/form-manually-save-stats.php:29
 msgid "End Date:"
-msgstr "Date de fin:"
+msgstr ""
 
 #: templates/form-manually-save-stats.php:34
 msgid "Record Statistics"
-msgstr "Enregistrer les statistiques"
+msgstr ""
 
 #: templates/header.php:26
 msgid "Documentation"
-msgstr "Documentation"
+msgstr ""
 
 #: templates/partials/quiz-results.php:35
 msgid "Incorrect answers"
-msgstr "Réponses incorrectes"
+msgstr ""
 
 #: templates/partials/quiz-results.php:36
 msgid ""
 "Here is the list of questions that you did not answer correctly and that you "
 "could rework"
 msgstr ""
-"Voici la liste des questions auxquelles tu n’as pas correctement répondues "
-"et que tu pourrais retravailler"
 
 #: templates/partials/quiz-results.php:41
 msgid "Your answer"
-msgstr "Votre réponse"
+msgstr ""
 
 #: templates/partials/quiz-results.php:42
 msgid "Good answer"
-msgstr "Bonne réponse"
+msgstr ""
 
 #: templates/partials/quiz-results.php:54
 msgid "Download the table"
-msgstr "Télécharger le tableau"
+msgstr ""
 
 #: templates/question-form.php:47
 msgid "What level?"
-msgstr "Quel niveau ?"
+msgstr ""
 
 #: templates/question-form.php:70
 msgid "Question:"
-msgstr "Question :"
+msgstr ""
 
 #: templates/question-form.php:80
 msgid "Instructions for the question:"
-msgstr "Instructions pour la question :"
+msgstr ""
 
 #: templates/question-form.php:90
 msgid "Possible answers:"
-msgstr "Réponses possibles :"
+msgstr ""
 
 #. translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
 #: templates/question-form.php:97
 msgid "Answer choice %d:"
-msgstr "Choix de réponse %d :"
+msgstr ""
 
 #: templates/question-form.php:115
 msgid "Add Answer Option"
-msgstr "Ajouter une option de réponse"
+msgstr ""
 
 #: templates/question-form.php:124
 msgid "Select the correct answer:"
-msgstr "Sélectionne la bonne réponse:"
+msgstr ""
 
 #. translators: %d is the number of the answer choice (e.g., 0, 1, 2, 3).
 #: templates/question-form.php:140
 msgid "Answer choice %d"
-msgstr "Choix de réponse %d"
+msgstr ""
 
 #: templates/remaining-attempts.php:11
 msgid "MCQs / Day"
-msgstr "QCM / Jour"
+msgstr ""
 
 #: templates/remaining-attempts.php:13
 msgid "Unlimited MCQs"
-msgstr "QCM illimités"
+msgstr ""
 
 #: templates/remaining-attempts.php:31
 msgid "Upgrade to unlimited"
-msgstr "Passez à illimité"
-
-#, fuzzy
-#~| msgid "Questions"
-#~ msgid "Questions resume"
-#~ msgstr "Questions"
-
-#~ msgid "You do not have sufficient permissions to access this page."
-#~ msgstr ""
-#~ "Vous n’avez pas les autorisations suffisantes pour accéder à cette page."
-
-#~ msgid "Nonce verification failed. Please try again."
-#~ msgstr "La vérification du nonce a échoué. Veuillez réessayer."
-
-#~ msgid "Error reading JSON file."
-#~ msgstr "Erreur lors de la lecture du fichier JSON."
-
-#~ msgid "Editor"
-#~ msgstr "Éditeur"
-
-#~ msgid "Author"
-#~ msgstr "Auteur"
-
-#~ msgid "Default: Homepage"
-#~ msgstr "Valeur par défaut: Accueil"
-
-#~ msgid ""
-#~ "Please note that checking this option will result in irreversible "
-#~ "deletion of data and settings when uninstalling the plugin."
-#~ msgstr ""
-#~ "Cocher cette option entraînera une suppression irréversible des données "
-#~ "et des paramètres lors de la désinstallation du plugin."
-
-#~ msgid ""
-#~ "The response is an array of objects containing the following information "
-#~ "for each question:"
-#~ msgstr ""
-#~ "La réponse est un tableau d’objets contenant les informations suivantes "
-#~ "pour chaque question :"
-
-#~ msgid ""
-#~ "The response is an array of objects containing the following information "
-#~ "for each performance entry:"
-#~ msgstr ""
-#~ "La réponse est un tableau d’objets contenant les informations suivantes "
-#~ "pour chaque entrée de performance :"
-
-#~ msgid ""
-#~ "The percentage of correct answers calculated as (total good answers / "
-#~ "total questions answered) * 100."
-#~ msgstr ""
-#~ "Le pourcentage de réponses correctes est calculé comme (total des bonnes "
-#~ "réponses / total des questions répondues) * 100."
-
-#~ msgid ""
-#~ "The response will contain a message indicating the success or failure of "
-#~ "the operation, as well as any error details if applicable."
-#~ msgstr ""
-#~ "La réponse contiendra un message indiquant le succès ou l’échec de "
-#~ "l’opération, ainsi que les détails de l’erreur, le cas échéant."
-
-#~ msgid "Example Request"
-#~ msgstr "Exemple de requête"
-
-#~ msgid "Badges:"
-#~ msgstr "Badges:"
-
-#~ msgid ""
-#~ "The response is an array of objects containing the following information "
-#~ "for each badge:"
-#~ msgstr ""
-#~ "La réponse est un tableau d’objets contenant les informations suivantes "
-#~ "pour chaque badge :"
-
-#~ msgid "Failed to split changelog entries."
-#~ msgstr "Échec de la division des entrées du journal des modifications."
-
-#~ msgid "Very Good"
-#~ msgstr "Très bon"
-
-#~ msgid "Good"
-#~ msgstr "Bon"
-
-#~ msgid "Average"
-#~ msgstr "Moyen"
-
-#~ msgid "Poor"
-#~ msgstr "Faible"
-
-#~ msgid "Export CSV File Questions"
-#~ msgstr "Exporter les questions en CSV"
-
-#~ msgid "3 new <br> quizzes <br> available"
-#~ msgstr "3 nouveaux <br> quiz <br> disponibles"
-
-#~ msgid "See you soon."
-#~ msgstr "A très bientôt."
-
-#~ msgid "Restart at the same level"
-#~ msgstr "Redémarrer au même niveau"
-
-#~ msgid "your statistics"
-#~ msgstr "vos statistiques"
-
-#~ msgid "your comparative statistics"
-#~ msgstr "vos statistiques comparatives"
-
-#~ msgid "Missing API token."
-#~ msgstr "Jeton API manquant."
-
-#~ msgid "Invalid API token."
-#~ msgstr "Jeton API non valide."
-
-#~ msgid "Quiz not found"
-#~ msgstr "Quiz introuvable"
-
-#~ msgid "No badge settings found"
-#~ msgstr "Aucun paramètre de badge trouvé"
-
-#~ msgid "No quiz levels found"
-#~ msgstr "Aucun niveau de quiz trouvé"
-
-#~ msgid "Quiz level not found"
-#~ msgstr "Niveau de quiz non trouvé"
-
-#~ msgid "No quiz levels found for the specified type"
-#~ msgstr "Aucun niveau de quiz trouvé pour le type spécifié"
-
-#~ msgid "No export types selected."
-#~ msgstr "Aucun type d’exportation sélectionné."
-
-#~ msgid ""
-#~ "Option only available for members users. Check this to disable the "
-#~ "statistics feature for them."
-#~ msgstr ""
-#~ "Option disponible uniquement pour les utilisateurs membres. Cochez cette "
-#~ "case pour désactiver la fonctionnalité de statistiques pour eux."
-
-#~ msgid "Our statistics"
-#~ msgstr "Nos statistiques"
-
-#~ msgid "You must be logged in to view your statistics."
-#~ msgstr "Vous devez être connecté pour voir vos statistiques."
-
-#~ msgid "Question 2"
-#~ msgstr "Question 2"
-
-#~ msgid "Question (a):"
-#~ msgstr "Question (a):"
-
-#~ msgid "Question (b):"
-#~ msgstr "Question (b):"
-
-#~ msgid "Level Label:"
-#~ msgstr "Nom de niveau :"
-
-#, fuzzy
-#~| msgid "Intermediate"
-#~ msgid "Intermédiaire"
-#~ msgstr "Intermédiaire"
-
-#, fuzzy
-#~| msgid "Advance"
-#~ msgid "Avancé"
-#~ msgstr "Avancé"
-
-#~ msgid "Awards"
-#~ msgstr "Récompenses"
-
-#~ msgid "Title Color"
-#~ msgstr "Couleur du titre"
-
-#~ msgid "Description Color"
-#~ msgstr "Couleur de la description"
-
-#~ msgid "Title Text"
-#~ msgstr "Texte du titre"
-
-#~ msgid "RTL Mode"
-#~ msgstr "Mode RTL"
-
-#~ msgid "Options Form Quizz FQI3"
-#~ msgstr "Options de Form Quizz FQI3"
-
-#~ msgid "%d free attempts remaining"
-#~ msgstr "%d tentatives gratuites restantes"
-
-#~ msgid "Free Quiz i3raab"
-#~ msgstr "Free Quiz i3raab"
-
-#~ msgid "%1$s quizzes completed in %2$s level"
-#~ msgstr "%1$s quiz complétés dans le niveau %2$s"
-
-#~ msgid "Navigation: "
-#~ msgstr "Navigation: "
-
-#~ msgid "Choisissez votre niveau :"
-#~ msgstr "Choisissez votre niveau :"
-
-#~ msgid "Answer 1"
-#~ msgstr "Réponse 1"
-
-#~ msgid "Answer 2"
-#~ msgstr "Réponse 2"
-
-#~ msgid "Answer 3"
-#~ msgstr "Réponse 3"
-
-#~ msgid "Answer 4"
-#~ msgstr "Réponse 4"
-
-#~ msgid "What level? :"
-#~ msgstr "Quel niveau ?:"
-
-#~ msgid "Answer 2:"
-#~ msgstr "Réponse 2 :"
-
-#~ msgid "Answer 3:"
-#~ msgstr "Réponse 3 :"
-
-#~ msgid "Answer 4:"
-#~ msgstr "Réponse 4 :"
+msgstr ""

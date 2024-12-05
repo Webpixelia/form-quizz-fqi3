@@ -516,6 +516,20 @@ function storeIncorrectAnswer(questionIndex, question, selectedKey, correctKey) 
     sessionStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
 }
 
+/**
+* Displays incorrect answers in an HTML table.
+*
+* This function retrieves incorrect answers stored in the session,
+* and dynamically builds the table body with this data.
+*
+* - If incorrect answers exist, it creates one row per answer
+* with the question, the selected answer, and the correct answer.
+* - If no incorrect answers are present, it displays a congratulations message.
+* 
+* @function
+* @name showIncorrectAnswers
+* @requires sessionStorage
+*/
 function showIncorrectAnswers() {
     const storedIncorrectAnswers = JSON.parse(sessionStorage.getItem('incorrectAnswers')) || [];
     const tbody = document.querySelector('#incorrect-answers-table tbody');
@@ -541,6 +555,46 @@ function showIncorrectAnswers() {
             </tr>
         `;
     }
+}
+
+/**
+* Downloads the contents of the incorrect answers table in CSV format.
+*
+* This function:
+* - Selects all rows in the table (headers and data)
+* - Transforms each row into a formatted CSV string
+* - Creates a temporary download link
+* - Automatically triggers the download of the CSV file
+*
+* Features:
+* - Escapes quotes in cells
+* - Correctly encodes special characters
+* - Cleans up cell text (removes extra spaces)
+* 
+* @function
+* @name downloadTableAsCSV
+* @requires document.getElementById
+*/
+function downloadTableAsCSV() {
+    const table = document.getElementById("incorrect-answers-table");
+    const csv = [...table.querySelectorAll("tr")]
+        .map(row => 
+            [...row.querySelectorAll("td, th")]
+                .map(cell => `"${cell.textContent.trim().replace(/"/g, '""')}"`)
+                .join(",")
+        )
+        .join("\n");
+
+    const now = new Date();
+    const formattedDate = now.toISOString().replace(/[:T]/g, '-').split('.')[0];
+
+    const hiddenElement = document.createElement("a");
+    hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+    hiddenElement.download = "incorrect_answers_${formattedDate}.csv";
+    
+    document.body.appendChild(hiddenElement);
+    hiddenElement.click();
+    document.body.removeChild(hiddenElement);
 }
 
 

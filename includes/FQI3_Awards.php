@@ -442,7 +442,7 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
          * 
          * @return array Structured badges data
          */
-        private function prepare_badges_data(): array {
+        public function prepare_badges_data(): array {
             $badges_options = $this->get_cached_badges_options();
             
             return [

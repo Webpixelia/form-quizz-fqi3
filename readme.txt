@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.7.1
-Stable tag: 2.1.0
+Stable tag: 2.2.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -102,6 +102,14 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 7. Guide and Changelog page View
 
 == Changelog ==
+= 2.2.0 =
+* New: Added a dashboard page for a quick overview of key information.
+* Added: New option to include administrators in premium role features for testing purposes.
+* Added: Download by the user the "Incorrect Answers" table as a CSV file.
+* Modified: `fqi3_access_roles` database option structure
+* Improved: UI/UX with customizable, responsive modals for a more seamless question deletion confirmation.
+* Fixed: Display bug in the badge legend table
+
 = 2.1.0 =
 * Added: Option to set the number of answer choices for questions, with a range between 4 and 10.
 * Enhanced: RTL support for forms

@@ -40,7 +40,7 @@ class FQI3_Add_Questions_Page {
     public function render_add_question_page(): void {
         $error_messages = $this->get_error_messages();
         ?>
-        <div class="wrap">
+        <div class="wrap container-fluid">
             <h2 class="wp-heading-inline page-title">
                 <?php esc_html_e('Add question', 'form-quizz-fqi3'); ?>
             </h2>

@@ -169,7 +169,9 @@ button {font-family: inherit;}
 .btn-secondary {
     background-color: transparent;
     color: var(--color-bg-btn);
-    border-color: var(--color-bg-btn)
+    border-color: var(--color-bg-btn);
+    outline-width: 2px;
+    outline-style: solid;
 }
 
 .level-options {

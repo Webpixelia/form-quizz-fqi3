@@ -41,11 +41,6 @@ class FQI3_Edit_Questions_Page {
         'niveau' => ['required' => true, 'max_length' => 50],
         'questionA' => ['required' => true, 'max_length' => 500],
         'questionB' => ['required' => true, 'max_length' => 500],
-        /*'reponse1' => ['required' => true, 'max_length' => 255],
-        'reponse2' => ['required' => true, 'max_length' => 255],
-        'reponse3' => ['required' => true, 'max_length' => 255],
-        'reponse4' => ['required' => true, 'max_length' => 255],
-        'reponseCorrecte' => ['required' => true, 'type' => 'int', 'min' => 0, 'max' => 3]*/
         'reponse' => ['required' => true, 'max_length' => 255, 'min_count' => 4, 'max_count' => 10],
         'reponseCorrecte' => ['required' => true, 'type' => 'int', 'min' => 0]
     ];
@@ -62,8 +57,8 @@ class FQI3_Edit_Questions_Page {
         $question_id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
     
         ?>
-        <div class="wrap">
-            <h2 class="page-title">
+        <div class="wrap container-fluid">
+            <h2 class="wp-heading-inline page-title">
                 <?php _e('Edit question', 'form-quizz-fqi3'); ?>
             </h2>
         <?php 
@@ -165,80 +160,6 @@ class FQI3_Edit_Questions_Page {
      * @param array $post_data POST data
      * @return array|WP_Error Sanitized data or error
      */
-    private function or_validate_question_data(array $post_data): array|WP_Error {
-        // Check for required fields
-        foreach (self::VALIDATION_RULES as $field => $rules) {
-            if (!isset($post_data[$field]) && $rules['required']) {
-                return new WP_Error(
-                    'missing_field',
-                    sprintf(__('Field %s is required', 'form-quizz-fqi3'), $field)
-                );
-            }
-        }
-
-        // Validate question ID
-        $question_id = filter_var($post_data['question_id'], FILTER_VALIDATE_INT);
-        if (!$question_id) {
-            return new WP_Error(
-                'invalid_question_id',
-                __('Invalid question ID', 'form-quizz-fqi3')
-            );
-        }
-
-        // Validate correct answer
-        $reponseCorrecte = filter_var(
-            $post_data['reponseCorrecte'],
-            FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 0, 'max_range' => 3]]
-        );
-        if ($reponseCorrecte === false) {
-            return new WP_Error(
-                'invalid_correct_answer',
-                __('Invalid correct answer selection', 'form-quizz-fqi3')
-            );
-        }
-
-        try {
-            // Sanitize text fields with Unicode support
-            $sanitized_data = [
-                'id' => $question_id,
-                'niveau' => $this->sanitize_unicode_text($post_data['niveau'], self::VALIDATION_RULES['niveau']['max_length']),
-                'q' => $this->sanitize_unicode_text($post_data['questionA'], self::VALIDATION_RULES['questionA']['max_length']),
-                'q2' => $this->sanitize_unicode_text($post_data['questionB'], self::VALIDATION_RULES['questionB']['max_length']),
-                'answer' => $reponseCorrecte
-            ];
-
-            // Sanitize and validate answers
-            $answers = [];
-            for ($i = 1; $i <= 4; $i++) {
-                $answer = $this->sanitize_unicode_text(
-                    $post_data["reponse{$i}"], 
-                    self::VALIDATION_RULES["reponse{$i}"]['max_length']
-                );
-                
-                if (empty($answer)) {
-                    return new WP_Error(
-                        'invalid_answer',
-                        sprintf(__('Answer %d cannot be empty', 'form-quizz-fqi3'), $i)
-                    );
-                }
-                $answers[strval($i - 1)] = $answer;
-            }
-
-            $sanitized_data['options'] = json_encode($answers, JSON_UNESCAPED_UNICODE);
-            if ($sanitized_data['options'] === false) {
-                throw new \Exception(__('Failed to encode answers', 'form-quizz-fqi3'));
-            }
-
-            return $sanitized_data;
-
-        } catch (\Exception $e) {
-            return new WP_Error(
-                'validation_error',
-                $e->getMessage()
-            );
-        }
-    }
     private function validate_question_data(array $post_data): array|WP_Error {
         // Check for required fields
         foreach (self::VALIDATION_RULES as $field => $rules) {

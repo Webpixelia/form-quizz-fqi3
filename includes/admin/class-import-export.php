@@ -88,8 +88,8 @@ class FQI3_Import_Export_Page {
     public function render_import_export_page(): void {
         $users = get_users();
         ?>
-        <div class="wrap">
-        <h2 class="page-title">
+        <div class="wrap container-fluid">
+        <h2 class="wp-heading-inline page-title">
             <?php _e('Import/Export Data', 'form-quizz-fqi3'); ?>
         </h2>
         <div class="fqi3-section-options">

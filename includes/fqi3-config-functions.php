@@ -46,6 +46,14 @@ function fqi3_get_admin_pages() {
             'position' => 6,
             'restricted' => true
         ],
+        'dashboard' => [
+            'slug' => 'fqi3-dashboard',
+            'title' => __('Dashboard', 'form-quizz-fqi3'),
+            'capability' => 'edit_posts',
+            'property' => 'dashboard_page',
+            'callback' => 'render_dashboard_page',
+            'restricted' => true
+        ],
         'view_questions' => [
             'slug' => 'fqi3-view-quiz-questions',
             'title' => __('View Questions', 'form-quizz-fqi3'),
@@ -212,14 +220,22 @@ function fqi3_default_options() {
  *
  * This function returns an array of user roles that are considered premium.
  * It uses the constant ROLE_PREMIUM to ensure consistency in referencing the premium member role.
- * It can be used to check whether a user has the necessary role to access certain premium features.
+ * It includes the 'administrator' role if the 'fqi3_admin_premium_features' option is enabled.
  *
  * @return array List of premium user roles.
  * 
- * @since 1.3.0
+ * @since 1.3.0 Initial release
+ * @since 2.2.0 Added a new option to include 'administrator' in premium roles
  */
-function fqi3_getUserPremiumRoles() {
-    return [ROLE_PREMIUM, 'administrator'];
+function fqi3_getUserPremiumRoles(): array {
+    $options = get_option('fqi3_access_roles', []);
+    $premium_roles = [ROLE_PREMIUM];
+    if (isset($options['fqi3_admin_premium_features']) && $options['fqi3_admin_premium_features'] === '1') {
+        $premium_roles[] = 'administrator';
+    }
+
+    return $premium_roles;
+    //return [ROLE_PREMIUM, 'administrator'];
 }
 
 /**
@@ -232,7 +248,7 @@ function fqi3_getUserPremiumRoles() {
  * 
  * @since 1.3.0
  */
-function fqi3_userHasAnyRole($user_id, $roles) {
+function fqi3_userHasAnyRole(int $user_id, array $roles): bool {
     $user = get_user_by('id', $user_id);
     if (!$user) {
         return false;
