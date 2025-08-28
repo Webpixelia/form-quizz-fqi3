@@ -187,25 +187,32 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                     [
                         'title' => __('Update User Performance:', 'form-quizz-fqi3'),
                         'endpoint' => 'POST /wp-json/fqi3/v1/user/{user_id}/performance',
-                        'description' => __('This API updates or inserts performance metrics for a specific user at a particular quiz level. The data includes quiz attempts, correct answers, success rates, and best scores for the user, along with the timestamp of the last update.', 'form-quizz-fqi3'),
+                        'description' => __('This API updates or inserts performance metrics for a specific user at a particular quiz level. The request should include the level, correct answers, and total questions. The response returns a confirmation message along with the submitted data.', 'form-quizz-fqi3'),
+                        'request_fields' => [
+                            'level' => __('The quiz level (e.g., "beginner", "intermediate", "advanced"). Required.', 'form-quizz-fqi3'),
+                            'correct_answers' => __('The number of correct answers for this quiz attempt. Required.', 'form-quizz-fqi3'),
+                            'total_questions' => __('The total number of questions in this quiz attempt. Required.', 'form-quizz-fqi3'),
+                        ],
                         'response_fields' => [
-                            'user_id' => __('The unique identifier for the user whose performance is being updated. This is a required parameter.', 'form-quizz-fqi3'),
-                            'level' => __('The quiz level (e.g., "beginner", "intermediate", "advanced") for which the performance is being recorded. This is a required parameter.', 'form-quizz-fqi3'),
-                            'total_quizzes' => __('The total number of quizzes attempted by the user at the specified level. This is a required parameter.', 'form-quizz-fqi3'),
-                            'total_questions_answered' => __('The total number of questions answered by the user at the specified level. This is a required parameter.', 'form-quizz-fqi3'),
-                            'total_good_answers' => __('The total number of correct answers provided by the user at the specified level. This is a required parameter.', 'form-quizz-fqi3'),
-                            'success_rate' => __('The percentage of correct answers calculated as (total good answers / total questions answered) * 100. This is a required parameter.', 'form-quizz-fqi3'),
-                            'best_score' => __('The highest score achieved by the user at the specified level. This is a required parameter.', 'form-quizz-fqi3')
+                            'message' => __('Confirmation message indicating that the performance was updated successfully.', 'form-quizz-fqi3'),
+                            'data' => __('An object containing the submitted performance data.', 'form-quizz-fqi3'),
+                            'data.user_id' => __('The unique identifier for the user.', 'form-quizz-fqi3'),
+                            'data.level' => __('The quiz level for which the performance was submitted.', 'form-quizz-fqi3'),
+                            'data.correct_answers' => __('The number of correct answers submitted.', 'form-quizz-fqi3'),
+                            'data.total_questions' => __('The total number of questions submitted.', 'form-quizz-fqi3'),
                         ],
                         'example_response' => [
-                            [
+                            'message' => 'Performance updated successfully.',
+                            'data' => [
+                                "entry_id" => "9",
                                 "user_id" => "1",
-                                "level" => "beginner",
-                                "total_quizzes" => "111",
-                                "total_questions_answered" => "136",
-                                "total_good_answers" => "101",
-                                "success_rate" => "74.26",
-                                "best_score" => "100",
+                                "level" => "advance",
+                                "total_quizzes" => "7",
+                                "total_questions_answered" => "44",
+                                "total_good_answers" => "31",
+                                "success_rate" => "70.4545",
+                                "best_score" => "90",
+                                "last_updated" => "2025-08-28 19:22:50"
                             ]
                         ]
                     ]
@@ -580,6 +587,20 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                                                         <li>
                                                             <code><?php echo esc_html($param); ?></code>: 
                                                             <?php echo esc_html($param_description); ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <ul>
+                                            </details>
+                                        <?php endif; ?>
+
+                                        <?php if (!empty($endpoint['request_fields'])): ?>
+                                            <details>
+                                                <summary><?php _e('Request Fields', 'form-quizz-fqi3'); ?></summary>
+                                                <ul>
+                                                <?php foreach ($endpoint['request_fields'] as $field => $description): ?>
+                                                        <li>
+                                                            <code><?php echo esc_html($field); ?></code>: 
+                                                            <?php echo esc_html($description); ?>
                                                         </li>
                                                     <?php endforeach; ?>
                                                 <ul>

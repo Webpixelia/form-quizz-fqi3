@@ -183,7 +183,7 @@ class FQI3_Emails_Settings {
         echo '<div class="mb-3">';
         echo '<label for="fqi3_email_link_cta" class="form-label">' . esc_html__('Email CTA link', 'form-quizz-fqi3') . '</label>';
         echo '<select class="form-select form-select-sm" name="fqi3_options[fqi3_email_link_cta]" id="fqi3_email_link_cta">';
-        echo '<option value="" disabled selected>' . esc_html('Select a page', 'form-quizz-fqi3') . '</option>';
+        echo '<option value="" disabled selected>' . esc_html__('Select a page', 'form-quizz-fqi3') . '</option>';
         foreach ($pages as $page) {
             $selected = $page->ID == $selected_page ? 'selected' : '';
             echo '<option value="' . esc_attr($page->ID) . '" ' . esc_attr($selected) . '>' . esc_html($page->post_title) . '</option>';

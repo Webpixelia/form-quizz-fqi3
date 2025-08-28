@@ -131,7 +131,7 @@ class FQI3_General_Settings {
         $selected_page = isset($options['fqi3_sales_page']) ? $options['fqi3_sales_page'] : get_option('page_on_front');
 
         echo '<select class="form-select form-select-sm" name="fqi3_options[fqi3_sales_page]" id="fqi3_sales_page">';
-        echo '<option value="" disabled selected>' . esc_html('Select a page', 'form-quizz-fqi3') . '</option>';
+        echo '<option value="" disabled selected>' . esc_html__('Select a page', 'form-quizz-fqi3') . '</option>';
 
         foreach ($pages as $page) {
             $selected = $page->ID == $selected_page ? 'selected' : '';

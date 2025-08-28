@@ -316,7 +316,7 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
         }
 
         /**
-         * Vérifie si l'add-on a une dépendance active
+         * Check if an add-on has an active dependency
          *
          * @since 3.0.0
          * @param string $addon_slug
@@ -335,17 +335,17 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
         }
 
         /**
-         * Retourne la liste des add-ons actifs qui dépendent d'un add-on donné
+         * Get the list of active add-ons that depend on a given add-on
          *
          * @since 3.0.0
-         * @param string $addon_slug Le slug de l'add-on dont on veut connaître les dépendants
-         * @return array Liste des add-ons actifs qui dépendent de cet add-on
+         * @param string $addon_slug The slug of the add-on to check dependencies for
+         * @return array List of active add-ons that depend on this add-on
          */
         private function get_active_dependent_addons(string $addon_slug): array {
             $dependent_addons = [];
             
             foreach ($this->available_addons as $addon) {
-                // Vérifier si cet add-on dépend du slug donné et s'il est actif
+                // Check if this add-on depends on the given slug and is active
                 if (isset($addon['dependance']['slug']) && 
                     $addon['dependance']['slug'] === $addon_slug &&
                     $this->is_addon_active($addon['slug'])) {
@@ -361,11 +361,11 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
         }
 
         /**
-         * Vérifie si un add-on est actif
+         * Check if an add-on is active
          *
          * @since 3.0.0
-         * @param string $addon_slug Le slug de l'add-on à vérifier
-         * @return bool True si l'add-on est actif, false sinon
+         * @param string $addon_slug The slug of the add-on to check
+         * @return bool True if the add-on is active, false otherwise
          */
         private function is_addon_active(string $addon_slug): bool {
             $plugin_file = $addon_slug . '/' . $addon_slug . '.php';
@@ -373,19 +373,18 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
         }
 
         /**
-         * Vérifie si toutes les dépendances d'un add-on sont satisfaites
+         * Check if all dependencies of an add-on are satisfied
          *
          * @since 3.0.0
-         * @param array $addon L'add-on dont on veut vérifier les dépendances
-         * @return bool True si toutes les dépendances sont satisfaites, false sinon
+         * @param array $addon The add-on to check dependencies for
+         * @return bool True if all dependencies are satisfied, false otherwise
          */
         private function are_dependencies_satisfied(array $addon): bool {
-            // Si pas de dépendance, c'est ok
             if (empty($addon['dependance'])) {
                 return true;
             }
             
-            // Vérifier si la dépendance est active
+            // Check if the dependency is active
             $dependency_slug = $addon['dependance']['slug'];
             return $this->is_addon_active($dependency_slug);
         }

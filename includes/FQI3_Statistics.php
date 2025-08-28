@@ -229,14 +229,87 @@ if (!defined('ABSPATH')) {
                 throw new \Exception(__('User not logged in or does not have the required role', 'form-quizz-fqi3'));
             }
         }
+
+        /**
+        * Save user performance data to the database.
+        *
+        * @since 3.1.0
+        *
+        * @param int $user_id The ID of the user.
+        * @param string $level The level of the quiz.
+        * @param int $correct_answers The number of correct answers.
+        * @param int $total_questions The total number of questions.
+        * @return bool True if the data was saved successfully, false otherwise.
+        */
+        public function save_user_performance(int $user_id, string $level, int $correct_answers, int $total_questions): bool {
+            global $wpdb;
+            
+            try {
+                $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
+                
+                // Calculate score
+                $score = ($total_questions > 0) ? ($correct_answers / $total_questions) * 100 : 0;
+                
+                // Get existing stats
+                $existing_stats = $wpdb->get_row($wpdb->prepare(
+                    "SELECT * FROM $table_name WHERE user_id = %d AND level = %s",
+                    $user_id, $level
+                ));
+                
+                if ($wpdb->last_error) {
+                    throw new \Exception($wpdb->last_error);
+                }
+                
+                if ($existing_stats) {
+                    // Update existing stats
+                    $new_total_quizzes = $existing_stats->total_quizzes + 1;
+                    $new_total_good_answers = $existing_stats->total_good_answers + $correct_answers;
+                    $new_total_questions_answered = $existing_stats->total_questions_answered + $total_questions;
+                    
+                    $updated_data = [
+                        'total_quizzes' => $new_total_quizzes,
+                        'total_questions_answered' => $new_total_questions_answered,
+                        'total_good_answers' => $new_total_good_answers,
+                        'success_rate' => ($new_total_good_answers / max(1, $new_total_questions_answered)) * 100,
+                        'best_score' => max($existing_stats->best_score, $score),
+                        'last_updated' => current_time('mysql')
+                    ];
+                    
+                    $result = $wpdb->update($table_name, $updated_data, ['user_id' => $user_id, 'level' => $level]);
+                } else {
+                    // Insert new stats
+                    $result = $wpdb->insert($table_name, [
+                        'user_id' => $user_id,
+                        'level' => $level,
+                        'total_quizzes' => 1,
+                        'total_questions_answered' => $total_questions,
+                        'total_good_answers' => $correct_answers,
+                        'success_rate' => $score,
+                        'best_score' => $score,
+                        'last_updated' => current_time('mysql')
+                    ]);
+                }
+                
+                if ($result === false) {
+                    throw new \Exception($wpdb->last_error);
+                }
+                
+                // Invalidate caches
+                delete_transient('fqi3_stats_' . $user_id);
+                
+                return true;
+                
+            } catch (\Exception $e) {
+                // Log error if logger is available
+                if (isset($this->logger)) {
+                    error_log('FQI3: Failed to save user performance: ' . $e->getMessage());
+                }
+                return false;
+            }
+        }
     
         /**
          * Processes statistics update for the current user.
-         * 
-         * Handles:
-         * - Data retrieval and sanitization
-         * - Statistics update or insertion
-         * - Transient cache deletion
          * 
          * @return array Updated statistics data
          */
@@ -244,23 +317,20 @@ if (!defined('ABSPATH')) {
             $user_id = get_current_user_id();
             $data = $this->get_sanitized_post_data();
             
-            global $wpdb;
-            $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
+            $success = $this->save_user_performance(
+                $user_id,
+                $data['level'],
+                $data['correct_answers'],
+                $data['total_questions']
+            );
             
-            $existing_stats = $this->get_existing_stats($wpdb, $table_name, $user_id, $data['level']);
-            
-            if ($existing_stats) {
-                $this->update_existing_stats($wpdb, $table_name, $existing_stats, $data);
-            } else {
-                $this->insert_new_stats($wpdb, $table_name, $user_id, $data);
+            if (!$success) {
+                throw new \Exception('Failed to save user performance');
             }
-            
-            delete_transient('fqi3_stats_' . $user_id);
             
             return $data;
         }
     
-
         /**
          * Retrieves and sanitizes data from the POST request.
          *

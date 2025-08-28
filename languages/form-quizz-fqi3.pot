@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-08-28T10:47:15+00:00\n"
+"POT-Creation-Date: 2025-08-28T18:33:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: form-quizz-fqi3\n"
@@ -113,7 +113,7 @@ msgstr ""
 
 #: form-quizz-fqi3.php:559
 #: includes/admin/class-api-settings.php:304
-#: includes/admin/class-developper.php:275
+#: includes/admin/class-developper.php:282
 #: includes/admin/class-import-export.php:52
 #: includes/fqi3-config-functions.php:158
 msgid "Settings"
@@ -857,8 +857,8 @@ msgstr ""
 #: includes/admin/class-attempts.php:312
 #: includes/admin/class-dashboard.php:99
 #: includes/admin/class-view-questions.php:118
-#: includes/FQI3_Statistics.php:544
-#: includes/FQI3_Statistics.php:879
+#: includes/FQI3_Statistics.php:614
+#: includes/FQI3_Statistics.php:949
 msgid "Level"
 msgstr ""
 
@@ -1298,437 +1298,449 @@ msgid "Update User Performance:"
 msgstr ""
 
 #: includes/admin/class-developper.php:190
-msgid "This API updates or inserts performance metrics for a specific user at a particular quiz level. The data includes quiz attempts, correct answers, success rates, and best scores for the user, along with the timestamp of the last update."
+msgid "This API updates or inserts performance metrics for a specific user at a particular quiz level. The request should include the level, correct answers, and total questions. The response returns a confirmation message along with the submitted data."
 msgstr ""
 
 #: includes/admin/class-developper.php:192
-msgid "The unique identifier for the user whose performance is being updated. This is a required parameter."
+msgid "The quiz level (e.g., \"beginner\", \"intermediate\", \"advanced\"). Required."
 msgstr ""
 
 #: includes/admin/class-developper.php:193
-msgid "The quiz level (e.g., \"beginner\", \"intermediate\", \"advanced\") for which the performance is being recorded. This is a required parameter."
+msgid "The number of correct answers for this quiz attempt. Required."
 msgstr ""
 
 #: includes/admin/class-developper.php:194
-msgid "The total number of quizzes attempted by the user at the specified level. This is a required parameter."
-msgstr ""
-
-#: includes/admin/class-developper.php:195
-msgid "The total number of questions answered by the user at the specified level. This is a required parameter."
-msgstr ""
-
-#: includes/admin/class-developper.php:196
-msgid "The total number of correct answers provided by the user at the specified level. This is a required parameter."
+msgid "The total number of questions in this quiz attempt. Required."
 msgstr ""
 
 #: includes/admin/class-developper.php:197
-msgid "The percentage of correct answers calculated as (total good answers / total questions answered) * 100. This is a required parameter."
+msgid "Confirmation message indicating that the performance was updated successfully."
 msgstr ""
 
 #: includes/admin/class-developper.php:198
-msgid "The highest score achieved by the user at the specified level. This is a required parameter."
+msgid "An object containing the submitted performance data."
 msgstr ""
 
-#: includes/admin/class-developper.php:213
+#: includes/admin/class-developper.php:199
+msgid "The unique identifier for the user."
+msgstr ""
+
+#: includes/admin/class-developper.php:200
+msgid "The quiz level for which the performance was submitted."
+msgstr ""
+
+#: includes/admin/class-developper.php:201
+msgid "The number of correct answers submitted."
+msgstr ""
+
+#: includes/admin/class-developper.php:202
+msgid "The total number of questions submitted."
+msgstr ""
+
+#: includes/admin/class-developper.php:220
 msgid "Badges:"
 msgstr ""
 
-#: includes/admin/class-developper.php:215
+#: includes/admin/class-developper.php:222
 msgid "Get Badge Settings:"
 msgstr ""
 
-#: includes/admin/class-developper.php:219
+#: includes/admin/class-developper.php:226
 msgid "Get Specific Badge Type Settings:"
 msgstr ""
 
-#: includes/admin/class-developper.php:224
+#: includes/admin/class-developper.php:231
 msgid "Get All Users Badges:"
 msgstr ""
 
-#: includes/admin/class-developper.php:226
+#: includes/admin/class-developper.php:233
 msgid "This API retrieves all badges awarded to users. It returns a list of badges containing information about each user who has received one or more badges, along with details about those badges."
 msgstr ""
 
-#: includes/admin/class-developper.php:228
+#: includes/admin/class-developper.php:235
 msgid "(optional) The page number to retrieve. Defaults to the first page."
 msgstr ""
 
-#: includes/admin/class-developper.php:229
+#: includes/admin/class-developper.php:236
 msgid "(optional) The number of badges to return per page. Defaults to 10 badges."
 msgstr ""
 
-#: includes/admin/class-developper.php:232
+#: includes/admin/class-developper.php:239
 msgid "The unique identifier of the badge/user association in the database."
 msgstr ""
 
-#: includes/admin/class-developper.php:234
+#: includes/admin/class-developper.php:241
 msgid "An object containing information about the user:"
 msgstr ""
 
-#: includes/admin/class-developper.php:236
+#: includes/admin/class-developper.php:243
 msgid "The user identifier."
 msgstr ""
 
-#: includes/admin/class-developper.php:237
+#: includes/admin/class-developper.php:244
 msgid "The display name of the user."
 msgstr ""
 
-#: includes/admin/class-developper.php:238
+#: includes/admin/class-developper.php:245
 msgid "The user's email address."
 msgstr ""
 
-#: includes/admin/class-developper.php:242
+#: includes/admin/class-developper.php:249
 msgid "An object containing details about the badge:"
 msgstr ""
 
-#: includes/admin/class-developper.php:244
+#: includes/admin/class-developper.php:251
 msgid "The type of badge (e.g., \"completion-badge\" or \"success-rate-badge\")."
 msgstr ""
 
-#: includes/admin/class-developper.php:245
+#: includes/admin/class-developper.php:252
 msgid "The name of the badge."
 msgstr ""
 
-#: includes/admin/class-developper.php:246
+#: includes/admin/class-developper.php:253
 msgid "The threshold required to earn the badge, or null if not applicable."
 msgstr ""
 
-#: includes/admin/class-developper.php:247
+#: includes/admin/class-developper.php:254
 msgid "The ID of the image associated with the badge."
 msgstr ""
 
-#: includes/admin/class-developper.php:248
+#: includes/admin/class-developper.php:255
 msgid "The URL of the badge image, or null if not available."
 msgstr ""
 
-#: includes/admin/class-developper.php:251
+#: includes/admin/class-developper.php:258
 msgid "The date the badge was awarded."
 msgstr ""
 
-#: includes/admin/class-developper.php:252
+#: includes/admin/class-developper.php:259
 msgid "The achievement value that triggered the badge award."
 msgstr ""
 
-#: includes/admin/class-developper.php:277
+#: includes/admin/class-developper.php:284
 msgid "Get Settings:"
 msgstr ""
 
-#: includes/admin/class-developper.php:279
+#: includes/admin/class-developper.php:286
 msgid "Requires header: X-API-Token"
 msgstr ""
 
-#: includes/admin/class-developper.php:280
+#: includes/admin/class-developper.php:287
 msgid "Returns a merged object of whitelisted settings grouped by section. Read-only. The exposed keys are controlled via filters (fqi3_api_settings_whitelist_*)."
 msgstr ""
 
-#: includes/admin/class-developper.php:283
+#: includes/admin/class-developper.php:290
 msgid "Object of exposed general settings."
 msgstr ""
 
-#: includes/admin/class-developper.php:285
+#: includes/admin/class-developper.php:292
 msgid "Example key from general group (actual keys depend on whitelist)."
 msgstr ""
 
-#: includes/admin/class-developper.php:289
+#: includes/admin/class-developper.php:296
 msgid "Object of exposed email settings."
 msgstr ""
 
-#: includes/admin/class-developper.php:291
+#: includes/admin/class-developper.php:298
 msgid "Example key from emails group."
 msgstr ""
 
-#: includes/admin/class-developper.php:295
+#: includes/admin/class-developper.php:302
 msgid "Object of exposed tools settings."
 msgstr ""
 
-#: includes/admin/class-developper.php:297
+#: includes/admin/class-developper.php:304
 msgid "Example key from tools group."
 msgstr ""
 
-#: includes/admin/class-developper.php:301
+#: includes/admin/class-developper.php:308
 msgid "Object of exposed badges settings."
 msgstr ""
 
-#: includes/admin/class-developper.php:303
+#: includes/admin/class-developper.php:310
 msgid "Example key from badges group."
 msgstr ""
 
-#: includes/admin/class-developper.php:326
+#: includes/admin/class-developper.php:333
 msgid "Get Settings (by group):"
 msgstr ""
 
-#: includes/admin/class-developper.php:328
+#: includes/admin/class-developper.php:335
 msgid "Requires header: X-API-Token  |  {group} = general|emails|tools|badges"
 msgstr ""
 
-#: includes/admin/class-developper.php:329
+#: includes/admin/class-developper.php:336
 msgid "Returns only the whitelisted keys for the requested group. Read-only."
 msgstr ""
 
-#: includes/admin/class-developper.php:331
+#: includes/admin/class-developper.php:338
 msgid "Each property corresponds to an exposed setting in the selected group."
 msgstr ""
 
-#: includes/admin/class-developper.php:348
+#: includes/admin/class-developper.php:355
 #: includes/admin/class-infos.php:91
 #: includes/fqi3-config-functions.php:162
 msgid "Changelog and User Guide"
 msgstr ""
 
-#: includes/admin/class-developper.php:364
+#: includes/admin/class-developper.php:371
 msgid "Developer"
 msgstr ""
 
-#: includes/admin/class-developper.php:366
+#: includes/admin/class-developper.php:373
 msgid "This section lists useful technical hooks exposed by the parent plugin."
 msgstr ""
 
-#: includes/admin/class-developper.php:368
+#: includes/admin/class-developper.php:375
 msgid "AJAX Endpoints"
 msgstr ""
 
-#: includes/admin/class-developper.php:384
+#: includes/admin/class-developper.php:391
 msgid "Cron Events"
 msgstr ""
 
-#: includes/admin/class-developper.php:390
+#: includes/admin/class-developper.php:397
 msgid "User Meta Keys"
 msgstr ""
 
-#: includes/admin/class-developper.php:392
+#: includes/admin/class-developper.php:399
 msgid "No specific user meta keys are written directly by the parent plugin; data is primarily stored in custom tables (performance, periodic statistics)."
 msgstr ""
 
-#: includes/admin/class-developper.php:395
+#: includes/admin/class-developper.php:402
 msgid "Hooks"
 msgstr ""
 
-#: includes/admin/class-developper.php:396
+#: includes/admin/class-developper.php:403
 msgid "Core exposes runtime hooks and configuration filters for addons. Below is the consolidated list."
 msgstr ""
 
-#: includes/admin/class-developper.php:399
+#: includes/admin/class-developper.php:406
 msgid "(filter) Allow addons to provide a deterministic question set for a level."
 msgstr ""
 
-#: includes/admin/class-developper.php:403
+#: includes/admin/class-developper.php:410
 msgid "(action) Fired when the final set is fixed; consume context for logging."
 msgstr ""
 
-#: includes/admin/class-developper.php:407
+#: includes/admin/class-developper.php:414
 msgid "(action) Server‑side attempt created."
 msgstr ""
 
-#: includes/admin/class-developper.php:411
+#: includes/admin/class-developper.php:418
 msgid "(action) Attempt completed with score."
 msgstr ""
 
-#: includes/admin/class-developper.php:415
+#: includes/admin/class-developper.php:422
 msgid "(action) Inject a top panel into the core questions screen."
 msgstr ""
 
-#: includes/admin/class-developper.php:419
+#: includes/admin/class-developper.php:426
 msgid "(filter) Append custom actions HTML to each question row (View Questions table)."
 msgstr ""
 
-#: includes/admin/class-developper.php:423
+#: includes/admin/class-developper.php:430
 msgid "(filter) Inject tabs/sections into the core Settings page. Defined in"
 msgstr ""
 
-#: includes/admin/class-developper.php:426
+#: includes/admin/class-developper.php:433
 msgid "Example"
 msgstr ""
 
-#: includes/admin/class-developper.php:440
+#: includes/admin/class-developper.php:447
 msgid "(action) Inject extra filter controls into the Quizzes → View Questions filter form (e.g., Language dropdown)."
 msgstr ""
 
-#: includes/admin/class-developper.php:443
-#: includes/admin/class-developper.php:453
-#: includes/admin/class-developper.php:467
-#: includes/admin/class-developper.php:477
-#: includes/admin/class-developper.php:487
-#: includes/admin/class-developper.php:497
-#: includes/admin/class-developper.php:507
-#: includes/admin/class-developper.php:517
-#: includes/admin/class-developper.php:527
+#: includes/admin/class-developper.php:450
+#: includes/admin/class-developper.php:460
+#: includes/admin/class-developper.php:474
+#: includes/admin/class-developper.php:484
+#: includes/admin/class-developper.php:494
+#: includes/admin/class-developper.php:504
+#: includes/admin/class-developper.php:514
+#: includes/admin/class-developper.php:524
+#: includes/admin/class-developper.php:534
 msgid "Signature"
 msgstr ""
 
-#: includes/admin/class-developper.php:450
+#: includes/admin/class-developper.php:457
 msgid "(filter) Modify the array of SQL WHERE parts before they are imploded. Useful to constrain by language, custom flags, etc."
 msgstr ""
 
-#: includes/admin/class-developper.php:455
+#: includes/admin/class-developper.php:462
 msgid "Context"
 msgstr ""
 
-#: includes/admin/class-developper.php:457
+#: includes/admin/class-developper.php:464
 msgid "Associative array with current filters (e.g., level, search term, selected lang)."
 msgstr ""
 
-#: includes/admin/class-developper.php:464
+#: includes/admin/class-developper.php:471
 msgid "(filter) Override or post-process the final WHERE SQL string built from the parts."
 msgstr ""
 
-#: includes/admin/class-developper.php:474
+#: includes/admin/class-developper.php:481
 msgid "(filter) Filter the final SELECT SQL for the questions list (pagination query)."
 msgstr ""
 
-#: includes/admin/class-developper.php:484
+#: includes/admin/class-developper.php:491
 msgid "(filter) Filter the final COUNT(*) SQL used to compute pagination totals."
 msgstr ""
 
-#: includes/admin/class-developper.php:494
+#: includes/admin/class-developper.php:501
 msgid "(filter) Define which keys from fqi3_options are exposed via REST for the general group."
 msgstr ""
 
-#: includes/admin/class-developper.php:504
+#: includes/admin/class-developper.php:511
 msgid "(filter) Define which keys from fqi3_options are exposed via REST for the emails group."
 msgstr ""
 
-#: includes/admin/class-developper.php:514
+#: includes/admin/class-developper.php:521
 msgid "(filter) Define which keys from fqi3_options are exposed via REST for the tools group."
 msgstr ""
 
-#: includes/admin/class-developper.php:524
+#: includes/admin/class-developper.php:531
 msgid "(filter) Define which keys from fqi3_options are exposed via REST for the badges group."
 msgstr ""
 
-#: includes/admin/class-developper.php:548
+#: includes/admin/class-developper.php:555
 msgid "API Documentation:"
 msgstr ""
 
-#: includes/admin/class-developper.php:552
+#: includes/admin/class-developper.php:559
 msgid "The plugin provides a REST API for accessing quiz data. Below are the available routes:"
 msgstr ""
 
-#: includes/admin/class-developper.php:554
+#: includes/admin/class-developper.php:561
 msgid "Available Routes:"
 msgstr ""
 
-#: includes/admin/class-developper.php:570
+#: includes/admin/class-developper.php:577
 msgid "API Description"
 msgstr ""
 
-#: includes/admin/class-developper.php:577
+#: includes/admin/class-developper.php:584
 msgid "Query Parameters"
 msgstr ""
 
-#: includes/admin/class-developper.php:591
+#: includes/admin/class-developper.php:598
+msgid "Request Fields"
+msgstr ""
+
+#: includes/admin/class-developper.php:612
 msgid "Response"
 msgstr ""
 
-#: includes/admin/class-developper.php:593
+#: includes/admin/class-developper.php:614
 msgid "The response is an array of objects containing the following informations:"
 msgstr ""
 
-#: includes/admin/class-developper.php:606
+#: includes/admin/class-developper.php:627
 msgid "Example Response"
 msgstr ""
 
-#: includes/admin/class-developper.php:617
+#: includes/admin/class-developper.php:638
 msgid "API Security"
 msgstr ""
 
-#: includes/admin/class-developper.php:619
+#: includes/admin/class-developper.php:640
 msgid "Overview"
 msgstr ""
 
-#: includes/admin/class-developper.php:619
+#: includes/admin/class-developper.php:640
 msgid "The API includes multiple security layers that you can configure in the settings."
 msgstr ""
 
-#: includes/admin/class-developper.php:621
+#: includes/admin/class-developper.php:642
 msgid "HTTPS-only"
 msgstr ""
 
-#: includes/admin/class-developper.php:621
+#: includes/admin/class-developper.php:642
 msgid "Reject non-HTTPS requests when enabled. Default: disabled (HTTP allowed)."
 msgstr ""
 
-#: includes/admin/class-developper.php:622
+#: includes/admin/class-developper.php:643
 msgid "CORS allowlist"
 msgstr ""
 
-#: includes/admin/class-developper.php:622
+#: includes/admin/class-developper.php:643
 msgid "Restrict cross-origin access by specifying allowed Origins, Methods, and Headers. Defaults:"
 msgstr ""
 
-#: includes/admin/class-developper.php:624
+#: includes/admin/class-developper.php:645
 msgid "Origins"
 msgstr ""
 
-#: includes/admin/class-developper.php:624
+#: includes/admin/class-developper.php:645
 msgid "empty (CORS disabled)"
 msgstr ""
 
-#: includes/admin/class-developper.php:625
+#: includes/admin/class-developper.php:646
 msgid "Methods"
 msgstr ""
 
-#: includes/admin/class-developper.php:626
+#: includes/admin/class-developper.php:647
 msgid "Headers"
 msgstr ""
 
-#: includes/admin/class-developper.php:629
+#: includes/admin/class-developper.php:650
 msgid "Rate limiting"
 msgstr ""
 
-#: includes/admin/class-developper.php:629
+#: includes/admin/class-developper.php:650
 msgid "Sliding window limits per IP and per Token."
 msgstr ""
 
-#: includes/admin/class-developper.php:631
+#: includes/admin/class-developper.php:652
 msgid "Per IP"
 msgstr ""
 
-#: includes/admin/class-developper.php:631
-#: includes/admin/class-developper.php:632
+#: includes/admin/class-developper.php:652
+#: includes/admin/class-developper.php:653
 msgid "default 0 (disabled)"
 msgstr ""
 
-#: includes/admin/class-developper.php:632
+#: includes/admin/class-developper.php:653
 msgid "Per Token"
 msgstr ""
 
-#: includes/admin/class-developper.php:633
+#: includes/admin/class-developper.php:654
 msgid "Window (seconds)"
 msgstr ""
 
-#: includes/admin/class-developper.php:636
+#: includes/admin/class-developper.php:657
 msgid "Token scopes"
 msgstr ""
 
-#: includes/admin/class-developper.php:636
+#: includes/admin/class-developper.php:657
 msgid "Gate access to route groups: quizzes, stats, badges, settings. Default: all enabled."
 msgstr ""
 
-#: includes/admin/class-developper.php:637
+#: includes/admin/class-developper.php:658
 msgid "Token expiration"
 msgstr ""
 
-#: includes/admin/class-developper.php:637
+#: includes/admin/class-developper.php:658
 msgid "Choose Never or Expire after N days; optional grace period (overlap days) keeps the token valid slightly longer. Defaults: Never, 0 days overlap."
 msgstr ""
 
-#: includes/admin/class-developper.php:638
+#: includes/admin/class-developper.php:659
 msgid "/ping endpoint"
 msgstr ""
 
-#: includes/admin/class-developper.php:638
+#: includes/admin/class-developper.php:659
 msgid "Returns token validity and the effective scopes for quick health checks."
 msgstr ""
 
-#: includes/admin/class-developper.php:642
+#: includes/admin/class-developper.php:663
 msgid "Example Request:"
 msgstr ""
 
-#: includes/admin/class-developper.php:645
+#: includes/admin/class-developper.php:666
 msgid "Response Format:"
 msgstr ""
 
-#: includes/admin/class-developper.php:646
+#: includes/admin/class-developper.php:667
 msgid "Responses are returned in JSON format and contain either the requested data or appropriate error messages."
 msgstr ""
 
@@ -1815,6 +1827,11 @@ msgstr ""
 
 #: includes/admin/class-emails-settings.php:184
 msgid "Email CTA link"
+msgstr ""
+
+#: includes/admin/class-emails-settings.php:186
+#: includes/admin/class-general-settings.php:134
+msgid "Select a page"
 msgstr ""
 
 #: includes/admin/class-emails-settings.php:195
@@ -2081,7 +2098,7 @@ msgid "User Statistics"
 msgstr ""
 
 #: includes/admin/class-infos.php:122
-#: includes/FQI3_Statistics.php:875
+#: includes/FQI3_Statistics.php:945
 #: assets/js/fqi3-blocks-editor.js:30
 msgid "Comparative Statistics"
 msgstr ""
@@ -2311,7 +2328,7 @@ msgstr ""
 
 #: includes/admin/class-statistics.php:233
 #: includes/FQI3_Awards.php:488
-#: includes/FQI3_Statistics.php:596
+#: includes/FQI3_Statistics.php:666
 msgid "N/A"
 msgstr ""
 
@@ -2542,36 +2559,44 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
-#: includes/FQI3_Api.php:244
+#: includes/FQI3_Api.php:243
 msgid "HTTPS is required for this endpoint."
 msgstr ""
 
-#: includes/FQI3_Api.php:249
-#: includes/FQI3_Api.php:272
+#: includes/FQI3_Api.php:248
+#: includes/FQI3_Api.php:271
 msgid "Too many requests"
 msgstr ""
 
-#: includes/FQI3_Api.php:408
+#: includes/FQI3_Api.php:407
 msgid "Token successfully revoked."
 msgstr ""
 
-#: includes/FQI3_Api.php:632
+#: includes/FQI3_Api.php:631
 msgid "Insufficient scope for this endpoint."
 msgstr ""
 
-#: includes/FQI3_Api.php:695
+#: includes/FQI3_Api.php:694
 msgid "Database error occurred"
 msgstr ""
 
-#: includes/FQI3_Api.php:935
-msgid "Performance updated successfully"
+#: includes/FQI3_Api.php:916
+msgid "User ID and level are required."
 msgstr ""
 
-#: includes/FQI3_Api.php:941
+#: includes/FQI3_Api.php:928
+msgid "Failed to save user performance."
+msgstr ""
+
+#: includes/FQI3_Api.php:943
+msgid "Performance updated successfully."
+msgstr ""
+
+#: includes/FQI3_Api.php:956
 msgid "Failed to update performance"
 msgstr ""
 
-#: includes/FQI3_Api.php:1010
+#: includes/FQI3_Api.php:1035
 msgid "Invalid badge type specified"
 msgstr ""
 
@@ -2587,7 +2612,7 @@ msgstr ""
 #: includes/FQI3_Awards.php:461
 #: includes/FQI3_Statistics.php:184
 #: includes/FQI3_Statistics.php:188
-#: includes/FQI3_Statistics.php:549
+#: includes/FQI3_Statistics.php:619
 msgid "Success Rate"
 msgstr ""
 
@@ -2804,60 +2829,60 @@ msgstr ""
 msgid "User not logged in or does not have the required role"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:450
+#: includes/FQI3_Statistics.php:520
 msgid "No statistics found for your account."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:471
+#: includes/FQI3_Statistics.php:541
 msgid "this section"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:477
+#: includes/FQI3_Statistics.php:547
 msgid "Statistics option disabled. For more details, please inquire with the administrator."
 msgstr ""
 
 #. translators: %s is the subject section in a shortcode
-#: includes/FQI3_Statistics.php:482
+#: includes/FQI3_Statistics.php:552
 #, php-format
 msgid "If you want to access %s, you must be logged in."
 msgstr ""
 
 #. translators: %s is the subject section in a shortcode
-#: includes/FQI3_Statistics.php:487
+#: includes/FQI3_Statistics.php:557
 #, php-format
 msgid "You must be a premium member to view %s."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:523
+#: includes/FQI3_Statistics.php:593
 msgid "Your statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:545
+#: includes/FQI3_Statistics.php:615
 msgid "Total Quizzes"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:546
+#: includes/FQI3_Statistics.php:616
 msgid "Total Questions Answered"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:547
+#: includes/FQI3_Statistics.php:617
 msgid "Correct Answers"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:548
+#: includes/FQI3_Statistics.php:618
 msgid "Overall average"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:550
+#: includes/FQI3_Statistics.php:620
 msgid "Best Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:628
+#: includes/FQI3_Statistics.php:698
 msgid "Average Score"
 msgstr ""
 
 #. translators: %s is the number of quizzes completed.
-#: includes/FQI3_Statistics.php:753
+#: includes/FQI3_Statistics.php:823
 #, php-format
 msgid "%s quiz completed"
 msgid_plural "%s quizzes completed"
@@ -2865,51 +2890,51 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s is the level (e.g., 'beginner', 'intermediate', 'advanced') where the action or achievement took place.
-#: includes/FQI3_Statistics.php:763
+#: includes/FQI3_Statistics.php:833
 #, php-format
 msgid "in %s level"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:789
+#: includes/FQI3_Statistics.php:859
 msgid "No statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:880
+#: includes/FQI3_Statistics.php:950
 msgid "Your Best Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:881
+#: includes/FQI3_Statistics.php:951
 msgid "The Best Overall Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:889
+#: includes/FQI3_Statistics.php:959
 msgid "You do not have access to this feature"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:890
-#: includes/FQI3_Statistics.php:898
+#: includes/FQI3_Statistics.php:960
+#: includes/FQI3_Statistics.php:968
 msgid "No data yet"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:958
+#: includes/FQI3_Statistics.php:1028
 msgid "No badges found for your account."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:974
+#: includes/FQI3_Statistics.php:1044
 msgid "your badges"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1027
+#: includes/FQI3_Statistics.php:1097
 msgid "Awarded badge"
 msgid_plural "Awarded badges"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/FQI3_Statistics.php:1043
+#: includes/FQI3_Statistics.php:1113
 msgid "No badges awarded."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1073
+#: includes/FQI3_Statistics.php:1143
 msgid "Awarded on"
 msgstr ""
 

@@ -294,27 +294,36 @@ class FQI3_Badges_Settings {
         $sanitized_input['fqi3_disable_badges'] = isset($input['fqi3_disable_badges']) ? 1 : 0;
         $sanitized_input['fqi3_disable_badges_legend'] = isset($input['fqi3_disable_badges_legend']) ? 1 : 0;
     
+        // Handle quiz completion badges
         $sanitized_input['fqi3_quizzes_completed_thresholds'] = array_filter(array_map('absint', $input['fqi3_quizzes_completed_thresholds'] ?? []));
         $sanitized_input['fqi3_quizzes_completed_badge_names'] = array_filter(array_map('sanitize_text_field', $input['fqi3_quizzes_completed_badge_names'] ?? []));
         $sanitized_input['fqi3_quizzes_completed_badge_images'] = array_filter(array_map('absint', $input['fqi3_quizzes_completed_badge_images'] ?? []));
 
+        // Handle success rate badges
         $sanitized_input['fqi3_success_rate_thresholds'] = array_filter(array_map('absint', $input['fqi3_success_rate_thresholds'] ?? []));
         $sanitized_input['fqi3_success_rate_badge_names'] = array_filter(array_map('sanitize_text_field', $input['fqi3_success_rate_badge_names'] ?? []));
         $sanitized_input['fqi3_success_rate_badge_images'] = array_filter(array_map('absint', $input['fqi3_success_rate_badge_images'] ?? []));
+        $sanitized_input['fqi3_min_quizzes_for_success_rate'] = isset($input['fqi3_min_quizzes_for_success_rate']) ? absint($input['fqi3_min_quizzes_for_success_rate']) : 20;
 
-        $sanitized_input['fqi3_min_quizzes_for_success_rate'] = absint($input['fqi3_min_quizzes_for_success_rate'] ?? 20);
-
-        if (empty($sanitized_input['fqi3_quizzes_completed_thresholds']) ||
-            empty($sanitized_input['fqi3_quizzes_completed_badge_names']) ||
-            empty($sanitized_input['fqi3_quizzes_completed_badge_images']) ||
-            empty($sanitized_input['fqi3_success_rate_thresholds']) ||
-            empty($sanitized_input['fqi3_success_rate_badge_names']) ||
-            empty($sanitized_input['fqi3_success_rate_badge_images'])) {
-            return [];
+        // If any of the quiz completion badge fields are empty, clear all quiz completion badge data
+        if (empty($sanitized_input['fqi3_quizzes_completed_thresholds']) || 
+            empty($sanitized_input['fqi3_quizzes_completed_badge_names']) || 
+            empty($sanitized_input['fqi3_quizzes_completed_badge_images'])) {
+            $sanitized_input['fqi3_quizzes_completed_thresholds'] = [];
+            $sanitized_input['fqi3_quizzes_completed_badge_names'] = [];
+            $sanitized_input['fqi3_quizzes_completed_badge_images'] = [];
         }
-    
-        return $sanitized_input;
-    }    
-}
 
+        // If any of the success rate badge fields are empty, clear all success rate badge data
+        if (empty($sanitized_input['fqi3_success_rate_thresholds']) || 
+            empty($sanitized_input['fqi3_success_rate_badge_names']) || 
+            empty($sanitized_input['fqi3_success_rate_badge_images'])) {
+            $sanitized_input['fqi3_success_rate_thresholds'] = [];
+            $sanitized_input['fqi3_success_rate_badge_names'] = [];
+            $sanitized_input['fqi3_success_rate_badge_images'] = [];
+        }
+
+        return $sanitized_input;
+    }
+}
 endif;

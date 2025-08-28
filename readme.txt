@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.8.2
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -117,6 +117,12 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 8. Developer page View
 
 == Changelog ==
+= 3.1.0 =
+* Improvement: Restructured the API return format to group badges with their corresponding thresholds, names, and images
+* Improvement: Refactored the statistics update process for efficiency and enhanced the API to store user performance data in the database.
+* Fix: Fixed badge data sanitization to avoid errors with null values
+* Fix: Added missing translations for the plugin interface.
+
 = 3.0.0 =
 * New: Added 'Available Add-Ons' for Form Quizz FQI3
 * Breaking change: The shortcode `[free_quiz_form]` has been replaced by `[fqi3_quizz_form]`. The old shortcode is still supported for backward compatibility but should be updated in your content to avoid future issues.

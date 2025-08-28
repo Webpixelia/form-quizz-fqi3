@@ -22,6 +22,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('is_plugin_active')) {
+    include_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+
 if ( ! class_exists( 'FQI3_Infos_Page' ) ) :
     class FQI3_Infos_Page {
         /**
@@ -138,7 +142,7 @@ if ( ! class_exists( 'FQI3_Infos_Page' ) ) :
                     <li><strong><?php _e('Pagination', 'form-quizz-fqi3'); ?>:</strong> <?php _e('Built-in with per‑page controls (Screen Options)', 'form-quizz-fqi3'); ?></li>
                     <li><strong><?php _e('Export', 'form-quizz-fqi3'); ?>:</strong> <?php _e('CSV export respects active filters', 'form-quizz-fqi3'); ?></li>
                 </ul>
-
+                <?php if (is_plugin_active('form-quizz-fqi3-question-bank-addon/form-quizz-fqi3-question-bank-addon.php')): ?>
                 <h4 class="mt-4"><?php _e('Question Bank Pro (Add‑on): Core Settings Integration', 'form-quizz-fqi3'); ?><?php echo self::get_new_badge(); ?></h4>
                 <p class="description"><?php _e('When the Question Bank Pro add‑on is active, a new “Question Bank” tab appears inside the core Settings page.', 'form-quizz-fqi3'); ?></p>
                 <ul>
@@ -149,6 +153,7 @@ if ( ! class_exists( 'FQI3_Infos_Page' ) ) :
                 <div class="notice notice-info inline">
                     <p><strong><?php _e('Example JSON', 'form-quizz-fqi3'); ?>:</strong> <code>{"free":{"max":10,"mode":"balanced"},"pro":{"max":15,"mode":"strict"}}</code></p>
                 </div>
+                <?php endif; ?>
             </div>
             <?php
         }

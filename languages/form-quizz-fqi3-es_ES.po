@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Form Quizz FQI3 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
-"POT-Creation-Date: 2025-08-28T10:47:15+00:00\n"
-"PO-Revision-Date: 2025-08-28 11:48+0100\n"
+"POT-Creation-Date: 2025-08-28T11:08:02+00:00\n"
+"PO-Revision-Date: 2025-08-28 12:09+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -2175,6 +2175,13 @@ msgstr "Ir al sitio"
 #: includes/admin/class-emails-settings.php:184
 msgid "Email CTA link"
 msgstr "Enlace de llamada a la acción del correo electrónico"
+
+#: includes/admin/class-emails-settings.php:186
+#: includes/admin/class-general-settings.php:134
+#, fuzzy
+#| msgid "Select All"
+msgid "Select a page"
+msgstr "Seleccionar todo"
 
 #: includes/admin/class-emails-settings.php:195
 msgid "Email CTA Label"

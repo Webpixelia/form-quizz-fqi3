@@ -10,7 +10,6 @@ namespace Form_Quizz_FQI3;
 * @package    Form Quizz FQI3
 * @subpackage API System
 * @since      1.6.0
-* @version    3.0.0
 */
 
 if (!defined('ABSPATH')) {
@@ -664,7 +663,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a list of all quizzes from the database.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing all quizzes
          */
@@ -706,7 +705,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a specific quiz by its ID.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object containing the quiz ID
          * @return WP_REST_Response|WP_Error The quiz data or error if not found
          */
@@ -750,7 +749,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quizzes matching a specific difficulty level.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object containing the level
          * @return WP_REST_Response|WP_Error The matching quizzes or error if none found
          */
@@ -790,7 +789,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Get user badges
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error
          */
@@ -831,7 +830,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Get user performance with optimized query and caching.
          *
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The request object containing user ID.
          * @return WP_REST_Response JSON response containing user performance data.
          */
@@ -895,44 +894,60 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Update the user performance data by user ID.
          *
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.1.0 Refactored
+         * 
          * @param WP_REST_Request $request The request object containing user ID and performance data.
          * @return WP_REST_Response JSON response containing success message or error.
          */
         public function update_user_performance(\WP_REST_Request $request) {
             global $wpdb;
-        
+            
             try {
+                // Parameter retrieval
                 $user_id = absint($request->get_param('user_id'));
-                $level = sanitize_text_field($request->get_param('level'));
-                $table_name = $this->get_table_name('performances');
+                $params = $request->get_params();
+                
+                // Data extraction
+                $level = isset($params['level']) ? sanitize_text_field($params['level']) : '';
+                $correct_answers = isset($params['correct_answers']) ? intval($params['correct_answers']) : 0;
+                $total_questions = isset($params['total_questions']) ? intval($params['total_questions']) : 0;
         
-                $data = $this->sanitize_performance_data($request);
-                $where = ['user_id' => $user_id, 'level' => $level];
-        
-                // Tentative de mise à jour
-                $result = $wpdb->update($table_name, $data, $where);
-        
-                if ($result === false) {
-                    throw new \Exception($wpdb->last_error);
+                if (!$user_id || !$level) {
+                    throw new \Exception(__('User ID and level are required.', 'form-quizz-fqi3'));
                 }
         
-                // Si aucune ligne mise à jour, insertion
-                if ($result === 0) {
-                    $data = array_merge($data, $where);
-                    $result = $wpdb->insert($table_name, $data);
+                $statistics = new FQI3_Statistics();
+                $success = $statistics->save_user_performance(
+                    $user_id,
+                    $level,
+                    $correct_answers,
+                    $total_questions
+                );
         
-                    if ($result === false) {
-                        throw new \Exception($wpdb->last_error);
-                    }
+                if (!$success) {
+                    throw new \Exception(__('Failed to save user performance.', 'form-quizz-fqi3'));
                 }
-        
-                // Invalider le cache pour cet utilisateur
-                $cache_key = $this->generate_cache_key('user_performance', $user_id);
-                $this->invalidate_cache_key($cache_key, 'performance');
+
+                // Récupérer les valeurs mises à jour depuis la BDD
+                $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
+                $updated_stats = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM $table_name WHERE user_id = %d AND level = %s",
+                        $user_id,
+                        $level
+                    ),
+                    ARRAY_A
+                );
         
                 return new \WP_REST_Response([
-                    'message' => __('Performance updated successfully', 'form-quizz-fqi3')
+                    'message' => __('Performance updated successfully.', 'form-quizz-fqi3'),
+                    'data' => $updated_stats
+                    /*'data' => [
+                        'user_id' => $user_id,
+                        'level' => $level,
+                        'correct_answers' => $correct_answers,
+                        'total_questions' => $total_questions
+                    ]*/
                 ], 200);
         
             } catch (\Exception $e) {
@@ -942,10 +957,14 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                     ['status' => 500]
                 );
             }
-        }        
+        }                     
 
         /**
-         * Helper method to sanitize performance data
+         * Sanitize performance data from request
+         *
+         * @since 1.6.0
+         * @param \WP_REST_Request $request The request object containing performance data.
+         * @return array The sanitized performance data.
          */
         private function sanitize_performance_data(\WP_REST_Request $request): array {
             return [
@@ -957,22 +976,24 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                 'last_updated' => current_time('mysql')
             ];
         }
-        
+
         /**
-         * Get all badge settings
+         * Get badge settings
          * 
-         * Retrieves all badge-related settings from wp_options.
+         * Retrieves all badge settings from wp_options.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
+         * @version 3.1.0 Modified to use new format_badge_settings method
          * @param WP_REST_Request $request The incoming request object
-         * @return WP_REST_Response The response object containing badge settings
+         * @return WP_REST_Response The response object containing all badge settings
          */
         public function get_badge_settings(\WP_REST_Request $request) {
             $cache_key = $this->generate_cache_key('badge_settings');
         
             $result = $this->get_cached_data($cache_key, 'settings', function() {
-                return $this->load_badge_settings();
+                $settings = get_option('fqi3_badges', []);
+                return $this->format_badge_settings($settings);
             });
         
             if (empty($result['data'])) {
@@ -983,8 +1004,12 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                 );
             }
         
-            return $this->create_cached_response($result['data'], $result['cache_hit'], 'settings');
-        }        
+            return $this->create_cached_response(
+                $result['data'],
+                $result['cache_hit'],
+                'settings'
+            );
+        }
 
         /**
          * Get badge settings by type
@@ -992,7 +1017,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves badge settings for a specific type (quizzes completed or success rate).
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing specific badge settings
          */
@@ -1021,7 +1046,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all badges awarded to users with pagination support.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param \WP_REST_Request $request
          * @return WP_REST_Response|WP_Error
          */
@@ -1062,7 +1087,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quiz level settings from wp_options.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing all quiz levels
          */
@@ -1125,7 +1150,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a specific quiz level by its name.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error The level data or error if not found
          */
@@ -1154,7 +1179,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quiz levels of a specific type.
          * 
          * @since 1.6.0
-         * @since 3.0.0 Caching added
+         * @version 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error The matching levels or error if none found
          */
@@ -1175,44 +1200,25 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
             }
         
             return $this->create_cached_response($result['data'], $result['cache_hit'], 'levels');
-        }        
+        }
 
-         // Private helper methods
         /**
-         * Load and format badge settings
-         *
-         * @return array
+         * Format badge data for response
+         * 
+         * @param array $badge The badge data
+         * @param string $type The badge type
+         * @return array Formatted badge data
          */
-        private function load_badge_settings(): array {
-            $options = get_option('fqi3_badges', []);
-            
+        private function format_badge_data($badge, $type) {
             return [
-                'enabled' => !isset($options['fqi3_disable_badges']) || !$options['fqi3_disable_badges'],
-                'show_legend' => !isset($options['fqi3_disable_badges_legend']) || !$options['fqi3_disable_badges_legend'],
-                'min_quizzes_for_success_rate' => $options['fqi3_min_quizzes_for_success_rate'] ?? 20,
-                'quizzes_completed' => $this->format_badge_type_settings($options, 'quizzes_completed'),
-                'success_rate' => $this->format_badge_type_settings($options, 'success_rate'),
+                'type' => $type,
+                'badge_name' => $badge['badge_name'],
+                'threshold' => $badge['threshold'],
+                'image_id' => $badge['image_id']
             ];
         }
 
         /**
-         * Format badge type settings
-         *
-         * @param array $options
-         * @param string $type
-         * @return array
-         */
-        private function format_badge_type_settings(array $options, string $type): array {
-            return [
-                'thresholds' => $options["fqi3_{$type}_thresholds"] ?? [],
-                'badge_names' => $options["fqi3_{$type}_badge_names"] ?? [],
-                'badge_images' => $options["fqi3_{$type}_badge_images"] ?? [],
-            ];
-        }
-
-        /**
-         * Read-only: return all exposed settings groups combined
-         *
          * Aggregates general, emails, tools and badges settings (badges via existing formatter).
          * Exposure is strictly controlled by per-group whitelists provided via filters.
          *
@@ -1222,6 +1228,8 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * - fqi3_api_settings_whitelist_tools
          *
          * @since 3.0.0
+         * @param \WP_REST_Request $request The request object
+         * @return \WP_REST_Response
          */
         public function get_all_settings_readonly(\WP_REST_Request $request): \WP_REST_Response {
             $general = $this->get_settings_group_values('general');
@@ -1310,14 +1318,63 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
         }
 
         /**
+         * Format badge settings into a grouped structure
+         * 
+         * @since 3.1.0
+         * @param array $settings
+         * @return array
+         */
+        private function format_badge_settings($settings) {
+            $formatted = [
+                'enabled' => !$settings['fqi3_disable_badges'],
+                'show_legend' => !$settings['fqi3_disable_badges_legend'],
+                'min_quizzes_for_success_rate' => $settings['fqi3_min_quizzes_for_success_rate'],
+                'quizzes_completed' => [
+                    'badges' => []
+                ],
+                'success_rate' => [
+                    'badges' => []
+                ]
+            ];
+
+            // Format quizzes completed badges
+            if (!empty($settings['fqi3_quizzes_completed_thresholds'])) {
+                foreach ($settings['fqi3_quizzes_completed_thresholds'] as $index => $threshold) {
+                    $formatted['quizzes_completed']['badges'][] = [
+                        'threshold' => $threshold,
+                        'name' => $settings['fqi3_quizzes_completed_badge_names'][$index] ?? '',
+                        'image_id' => $settings['fqi3_quizzes_completed_badge_images'][$index] ?? 0
+                    ];
+                }
+            }
+
+            // Format success rate badges
+            if (!empty($settings['fqi3_success_rate_thresholds'])) {
+                foreach ($settings['fqi3_success_rate_thresholds'] as $index => $threshold) {
+                    $formatted['success_rate']['badges'][] = [
+                        'threshold' => $threshold,
+                        'name' => $settings['fqi3_success_rate_badge_names'][$index] ?? '',
+                        'image_id' => $settings['fqi3_success_rate_badge_images'][$index] ?? 0
+                    ];
+                }
+            }
+
+            return $formatted;
+        }
+
+        /**
          * Get type specific badge settings
          *
+         * @since 1.6.0
+         * @version 3.0.0 Caching added
+         * @version 3.1.0 Modified to use new format_badge_settings method
          * @param string $type
          * @return array
          */
         private function get_type_specific_settings(string $type): array {
             if (self::$badge_settings_cache === null) {
-                self::$badge_settings_cache = $this->load_badge_settings();
+                $settings = get_option('fqi3_badges', []);
+                self::$badge_settings_cache = $this->format_badge_settings($settings);
             }
 
             $settings = [];
