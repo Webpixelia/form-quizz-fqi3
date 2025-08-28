@@ -10,6 +10,7 @@ const PERCENTAGE_THRESHOLD = 80;
 
 window.addEventListener('load', function() {
     sessionStorage.removeItem('incorrectAnswers');
+    sessionStorage.removeItem('fqi3_quiz_data');
 });
 
 function showLevelSelection() {
@@ -46,6 +47,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// Fonction générique pour envoyer une requête AJAX
+async function sendQuizAction(action, data) {
+    const formData = new FormData();
+    formData.append('action', action);
+    for (const [key, value] of Object.entries(data)) {
+        formData.append(key, value);
+    }
+
+    try {
+        const response = await fetch(fqi3Data.session.ajax_url, {
+            method: 'POST',
+            body: formData
+        });
+
+        const responseData = await response.json();
+        if (!response.ok || !responseData.success) {
+            console.error(`Failed to notify WordPress about ${action}:`, responseData.message);
+            return { success: false, data: responseData };
+        }
+
+        // Retourner la réponse en cas de succès
+        return { success: true, data: responseData };
+    } catch (error) {
+        console.error(`Error during ${action}:`, error);
+        return { success: false, data: { message: 'AJAX request failed' } };
+    }
+}
+
 /*
 * The startQuizWithLevel function initializes a quiz based on the selected level 
 * and manages timer settings if enabled. 
@@ -68,9 +97,15 @@ async function startQuizWithLevel(level) {
 
         if (document.getElementById('user-level') && document.getElementById('quiz-questions-container')) {
             try {
+                // Notifier le démarrage du quiz
+                const quizStartData = {
+                    quiz_level: niveau,
+                    nonce: fqi3Data.session.nonce
+                };
+                await sendQuizAction('fqi3_register_quiz_start', quizStartData);
+
                 // Récupérer les paramètres du minuteur
                 const timerSettings = getTimerSettings();
-                // Vérifier si timerSettings est valide avant d'accéder à ses propriétés
                 const isTimerSettingsValid = timerSettings !== null && typeof timerSettings === 'object';
 
                 // Si le minuteur est activé et les paramètres sont valides, sauvegarder les paramètres via AJAX
@@ -90,7 +125,6 @@ async function startQuizWithLevel(level) {
                     }
                     const responseData = await response.json();
                     if (responseData.success) {
-                        // Démarrer le minuteur après avoir sauvegardé les paramètres
                         startTimer(timerSettings.timerDuration * 60); // Convertir les minutes en secondes
                         // Assurer que le conteneur de questions n'est pas nul avant de modifier la propriété d'affichage
                         const quizQuestionsContainer = document.getElementById('quiz-questions-container');
@@ -516,6 +550,18 @@ function storeIncorrectAnswer(questionIndex, question, selectedKey, correctKey) 
     sessionStorage.setItem('incorrectAnswers', JSON.stringify(incorrectAnswers));
 }
 
+function storeDataCurrentQuiz(quizLevel, quizScore) {
+    const datasCurrentQuiz = JSON.parse(sessionStorage.getItem('fqi3_quiz_data')) || [];
+
+    const dataCurrentQuiz = {
+        level: quizLevel,
+        score: quizScore
+    }
+
+    datasCurrentQuiz.push(dataCurrentQuiz);
+    sessionStorage.setItem('fqi3_quiz_data', JSON.stringify(datasCurrentQuiz));
+}
+
 /**
 * Displays incorrect answers in an HTML table.
 *
@@ -637,7 +683,7 @@ function selectOption(chosenButton, selectedIndex) {
 /**
  * Displays the results of the quiz once the user has completed it.
  */
-function showResults() {
+async function showResults() {
     const quizQuestionsContainer = document.getElementById('quiz-questions-container');
     const resultContainer = document.getElementById('result-container');
     const resultText = document.getElementById('result-text');
@@ -673,7 +719,58 @@ function showResults() {
 
     setTimeout(() => {
         showIncorrectAnswers();
-    }, 500); 
+    }, 500);
+
+    const quizCompleteData = {
+        quiz_level: userLevelValue,
+        quiz_score: percentage.toFixed(2),
+        nonce: fqi3Data.session.nonce
+    };
+
+    const response = await sendQuizAction('fqi3_register_quiz_complete', quizCompleteData);
+
+    if (response && response.success) {
+        // Extraire les valeurs de la réponse
+        const quizLevel = response.data.data.level;
+        const quizScore = response.data.data.score;
+
+        // Déclencher le hook avec les données
+        triggerQuizResultsHook(quizLevel, quizScore);
+    } else {
+        console.error('Error submitting quiz results:', response ? response.data : 'No response');
+    }
+}
+
+function triggerQuizResultsHook(quizLevel, quizScore) {
+    // Simuler le hook PHP en JavaScript
+    const event = new CustomEvent('fqi3_quiz_results_ready', {
+        detail: {
+            quiz_level: quizLevel,
+            quiz_score: quizScore
+        }
+    });
+    
+    // Déclencher l'événement
+    document.dispatchEvent(event);
+        
+    // Appeler l'endpoint AJAX pour les hooks
+    const hookData = new FormData();
+    hookData.append('action', 'fqi3_process_quiz_hooks');
+    hookData.append('nonce', fqi3Data.session.nonce);
+    hookData.append('quiz_level', quizLevel);
+    hookData.append('quiz_score', quizScore);
+    
+    fetch(fqi3Data.ajax_url, {
+        method: 'POST',
+        body: hookData
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log('Hooks processing result:', result);
+    })
+    .catch(error => {
+        console.error('Error processing hooks:', error);
+    });
 }
 
 /**

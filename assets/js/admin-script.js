@@ -32,12 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 exportCheckboxes: '.export-options .form-check-input',
                 userTabs: '#userTabs button',
                 userRows: '.user-row',
+                guideChangelog: '#guide_changelog',
+                developerDoc: '#developer_doc',
+                stickyBottom: 'div.mt-3.sticky-bottom',
+                addQuestionForm: '#ajouterQuestionForm',
+                formErrorContainer: '#fqi3-form-errors'
             };
 
             this.initializeEventListeners();
             this.activateDefaultTab();
             this.initAnswerOptionsManagement();
             this.initUserTabFilter();
+            this.activateDriverJs();
+            this.setupChangelogObserver();
+            this.initAddQuestionAjaxValidation();
         }
 
         setupSelectAllCheckbox(selectAllSelector, checkboxSelector) {
@@ -577,6 +585,71 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        initAddQuestionAjaxValidation() {
+            const form = document.querySelector(this.selectors.addQuestionForm);
+            // Ensure we're on the add question page and localization exists
+            if (!form || typeof fqi3QuestionsAjax === 'undefined') return;
+
+            let errorContainer = document.querySelector(this.selectors.formErrorContainer);
+            if (!errorContainer) {
+                errorContainer = document.createElement('div');
+                errorContainer.id = this.selectors.formErrorContainer.replace('#', '');
+                errorContainer.className = 'notice notice-error';
+                errorContainer.style.display = 'none';
+                form.prepend(errorContainer);
+            }
+
+            const showErrors = (errors) => {
+                if (!errors || !errors.length) return;
+                errorContainer.innerHTML = `<ul>${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+                errorContainer.style.display = 'block';
+                window.scrollTo({ top: form.offsetTop - 100, behavior: 'smooth' });
+            };
+
+            const clearErrors = () => {
+                errorContainer.innerHTML = '';
+                errorContainer.style.display = 'none';
+            };
+
+            form.addEventListener('submit', async (e) => {
+                // Only intercept the "add question" submission
+                const actionInput = form.querySelector('input[name="action"]');
+                if (!actionInput || actionInput.value !== 'add_question') return;
+
+                // If we already validated, allow normal submission
+                if (form.dataset.fqi3Validated === '1') {
+                    return;
+                }
+
+                e.preventDefault();
+                clearErrors();
+
+                const formData = new FormData(form);
+                formData.append('action', 'fqi3_validate_add_question');
+                formData.append('security', fqi3QuestionsAjax.nonce_validate_add);
+
+                try {
+                    const response = await fetch(fqi3QuestionsAjax.ajaxurl, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (data && data.success) {
+                        // Mark as validated and submit normally to trigger insertion
+                        form.dataset.fqi3Validated = '1';
+                        form.submit();
+                    } else {
+                        const errors = (data && data.data && (data.data.errors || (data.data.message ? [data.data.message] : []))) || [admin_vars.translations.invalidNonce];
+                        showErrors(errors);
+                    }
+                } catch (err) {
+                    showErrors([admin_vars.translations.error || 'An unexpected error occurred.']);
+                }
+            });
+        }
+
         initUserTabFilter() {
             const tabs = document.querySelectorAll(this.selectors.userTabs);
             const rows = document.querySelectorAll(this.selectors.userRows);
@@ -608,6 +681,57 @@ document.addEventListener('DOMContentLoaded', () => {
             // Simulate click on first tab to initialize filter
             const firstTab = document.querySelector('#all-tab');
             if (firstTab) firstTab.click();
+        }
+
+        initDriverjs() {
+            // Access driver via global IIFE bundle
+            const driver = window.driver?.js?.driver;
+            if (!driver) return;
+
+            // Steps provided by driverjs-strings.js (already translated via wp.i18n)
+            const steps = (typeof window.fqi3GetDriverSteps === 'function') ? window.fqi3GetDriverSteps() : [];
+            if (!steps || !steps.length) return;
+
+            const driverObj = driver({ showProgress: true, steps });
+            driverObj.drive();
+        }
+
+        activateDriverJs() {
+            const startTourButton = document.getElementById('start-tour');
+            if (startTourButton) {
+                // Lier le contexte de "this" à la méthode initDriverjs
+                startTourButton.addEventListener('click', this.initDriverjs.bind(this));
+            }
+        }
+
+        setupChangelogObserver() {
+            const guideNode = document.querySelector(this.selectors.guideChangelog);
+            const developerNode = document.querySelector(this.selectors.developerDoc);
+
+            // If neither tab exists, nothing to observe
+            if (!guideNode && !developerNode) return;
+
+            const updateSticky = () => {
+                const guideActive = guideNode ? guideNode.classList.contains('active') : false;
+                const developerActive = developerNode ? developerNode.classList.contains('active') : false;
+                const isActive = guideActive || developerActive;
+                const stickyBottom = document.querySelector(this.selectors.stickyBottom);
+                if (stickyBottom) {
+                    stickyBottom.style.display = isActive ? 'none' : 'block';
+                }
+            };
+
+            const observer = new MutationObserver(updateSticky);
+
+            if (guideNode) {
+                observer.observe(guideNode, { attributes: true, attributeFilter: ['class'] });
+            }
+            if (developerNode) {
+                observer.observe(developerNode, { attributes: true, attributeFilter: ['class'] });
+            }
+
+            // Initial state
+            updateSticky();
         }
     }
 
@@ -673,8 +797,24 @@ jQuery(document).ready(function($) {
     // ========== GESTION DES ONGLETS ==========
 
     function handleTabs() {
-        // Récupérer l'onglet actif depuis localStorage
-        var activeTab = localStorage.getItem('activeTab');
+        const currentPage = window.location.href;
+    
+        const storageKey = 'activeTab-' + currentPage;
+
+        // 1) Prefer URL ?tab parameter if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+
+        if (tabParam) {
+            $('.fqi3-section-options-page').removeClass('active');
+            $('#' + tabParam).addClass('active');
+            $('.fqi3-tab-link').removeClass('active');
+            $('li[data-tab="' + tabParam + '"]').addClass('active');
+            localStorage.setItem(storageKey, tabParam);
+            // No early return: still bind click handlers below
+        }
+
+        const activeTab = localStorage.getItem(storageKey);
 
         if (activeTab) {
             $('.fqi3-section-options-page').removeClass('active');
@@ -683,20 +823,175 @@ jQuery(document).ready(function($) {
             $('li[data-tab="' + activeTab + '"]').addClass('active');
         }
 
-        // Onglet cliqué
+        // Clicked tab
         $('.fqi3-tab-link').on('click', function() {
-            var tabId = $(this).data('tab');
+            const tabId = $(this).data('tab');
             $('.fqi3-tab-link').removeClass('active');
             $(this).addClass('active');
             $('.fqi3-section-options-page').removeClass('active');
             $('#' + tabId).addClass('active');
-            localStorage.setItem('activeTab', tabId);
+            localStorage.setItem(storageKey, tabId);
         });
 
-        // Sauvegarder l'onglet actif lors de la soumission du formulaire
+        //Save active tab when form submitted
         $('#fqi3-form-options').on('submit', function() {
-            var activeTab = $('.fqi3-tab-link.active').data('tab');
-            localStorage.setItem('activeTab', activeTab);
+            const activeTab = $('.fqi3-tab-link.active').data('tab');
+            //localStorage.setItem('activeTab', activeTab);
+            localStorage.setItem(storageKey, activeTab);
+        });
+    }
+
+    // ========== GESTION API TEST =========
+    function handleApiTest() {
+        $(document).on('click', '#fqi3-test-api', function () {
+            const endpoint = $('#fqi3-api-endpoint').val().trim();
+            const token = $('#fqi3_quiz_api_token').val()?.trim() || '';
+            const responseContainer = $('#fqi3-api-response');
+
+            // Vérification : champ vide
+            if (!endpoint) {
+                responseContainer.html('<div class="alert alert-warning">Veuillez entrer un endpoint API.</div>');
+                return;
+            }
+
+            responseContainer.html('<p>Testing...</p>');
+
+            $.ajax({
+                url: endpoint,
+                type: 'GET',
+                headers: token ? { 'X-API-Token': token } : {},
+                beforeSend: function () {
+                    responseContainer.html('<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>');
+                },
+                success: function (response) {
+                    const prettyJson = JSON.stringify(response, null, 2);
+                    responseContainer.html(`
+                        <div class="card mt-3">
+                            <div class="card-header bg-success text-white">
+                                <i class="bi bi-check-circle"></i> Réponse de l'API
+                            </div>
+                            <div class="card-body bg-light p-3 text-break">
+                                <pre class="mb-0">${prettyJson}</pre>
+                            </div>
+                        </div>
+                    `);
+                },
+                error: function (xhr) {
+                    responseContainer.html(`
+                        <div class="alert alert-danger mt-3" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> Erreur ${xhr.status} : ${xhr.statusText}
+                        </div>
+                    `);
+                }
+            });
+        });
+    }
+
+    // ========== GESTION AJAX SEARCH ==========
+    function handleAddonsSearch() {
+        let currentFilter = 'all';
+        let searchTimeout;
+
+        function performSearch() {
+            const searchTerm = $('#addon-search').val();
+            
+            $.ajax({
+                url: fqi3AddonsAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'search_addons',
+                    nonce: fqi3AddonsAjax.nonce_search,
+                    search: searchTerm,
+                    filter: currentFilter
+                },
+                beforeSend: function() {
+                    $('#addons-grid').addClass('loading');
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#addons-grid').html(response.data.html);
+                    } else {
+                        $('#addons-grid').html('<div class="col">' + fqi3AddonsAjax.strings.noResults + '</div>');
+                    }
+                },
+                error: function() {
+                    console.error('Failed to fetch add-ons');
+                },
+                complete: function() {
+                    $('#addons-grid').removeClass('loading');
+                }
+            });
+        }
+
+        // Gestionnaire de recherche avec debounce
+        $('#addon-search').on('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(performSearch, 300);
+        });
+
+        // Gestionnaire de filtre
+        $('.filter-option').on('click', function(e) {
+            e.preventDefault();
+            currentFilter = $(this).data('filter');
+            $('.dropdown-toggle').text($(this).text());
+            performSearch();
+        });
+    }
+
+    // ========== GESTION AJAX INSTALL/ACTIVATE/DEACTIVATE ADDONS ==========
+    function handleAddonActions() {
+
+        function performAddonAction(actionType, slug, zipUrl = '') {
+            $.ajax({
+                url: fqi3AddonsAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'fqi3_addon_action',
+                    nonce: fqi3AddonsAjax.nonce_action,
+                    action_type: actionType,
+                    slug: slug,
+                    zip: zipUrl
+                },
+                beforeSend: function() {
+                    let loadingText = fqi3AddonsAjax.strings.loading;
+                    if (actionType === 'install') {
+                        loadingText = fqi3AddonsAjax.strings.installing;
+                    } else if (actionType === 'activate') {
+                        loadingText = fqi3AddonsAjax.strings.activating;
+                    } else if (actionType === 'deactivate') {
+                        loadingText = fqi3AddonsAjax.strings.deactivating;
+                    }
+
+                    $(`.fqi3-addon-action[data-slug="${slug}"]`)
+                        .prop('disabled', true)
+                        .text(loadingText);
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.data.message);
+                        location.reload(); // rafraîchit l’état des boutons
+                    } else {
+                        alert(response.data.message || fqi3AddonsAjax.strings.error);
+                    }
+                },
+                error: function() {
+                    alert(fqi3AddonsAjax.strings.error || 'An error occurred.');
+                },
+                complete: function() {
+                    $(`.fqi3-addon-action[data-slug="${slug}"]`)
+                        .prop('disabled', false);
+                }
+            });
+        }
+
+        // Gestionnaire de clic sur les boutons d'action
+        $(document).on('click', '.fqi3-addon-action', function(e) {
+            e.preventDefault();
+            const actionType = $(this).data('action');
+            const slug = $(this).data('slug');
+            const zipUrl = $(this).data('zip') || '';
+
+            performAddonAction(actionType, slug, zipUrl);
         });
     }
 
@@ -705,6 +1000,9 @@ jQuery(document).ready(function($) {
         initializeItemManagement();
         refreshStatistics();
         handleTabs();
+        handleApiTest();
+        handleAddonsSearch();
+        handleAddonActions(); 
     }
 
     // Démarrer toutes les initialisations

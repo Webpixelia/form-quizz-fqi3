@@ -29,17 +29,17 @@ function fqi3_get_free_quiz_levels() {
 }
 
 /**
- * Get the plugin page slugs.
+ * Get admin pages configuration without translations (for addons).
+ *
+ * @return array Admin pages configuration.
  * 
- * @return array
- * 
- * @since 1.3.1
+ * @since 3.0.0
  */
-function fqi3_get_admin_pages() {
+function fqi3_get_admin_pages_raw() {
     return [
         'main' => [
             'slug' => 'fqi3-main',
-            'title' => __('Form Quizz FQI3', 'form-quizz-fqi3'),
+            'title' => 'Form Quizz FQI3',
             'capability' => 'edit_posts',
             'callback' => 'fqi3_render_main_page',
             'icon' => 'dashicons-welcome-learn-more',
@@ -48,7 +48,7 @@ function fqi3_get_admin_pages() {
         ],
         'dashboard' => [
             'slug' => 'fqi3-dashboard',
-            'title' => __('Dashboard', 'form-quizz-fqi3'),
+            'title' => 'Dashboard',
             'capability' => 'edit_posts',
             'property' => 'dashboard_page',
             'callback' => 'render_dashboard_page',
@@ -56,7 +56,7 @@ function fqi3_get_admin_pages() {
         ],
         'view_questions' => [
             'slug' => 'fqi3-view-quiz-questions',
-            'title' => __('View Questions', 'form-quizz-fqi3'),
+            'title' => 'View Questions',
             'capability' => 'edit_posts',
             'property' => 'view_questions_page',
             'callback' => 'render_consultation_page',
@@ -64,7 +64,7 @@ function fqi3_get_admin_pages() {
         ],
         'add_questions' => [
             'slug' => 'fqi3-add-quiz-questions',
-            'title' => __('Add Question', 'form-quizz-fqi3'),
+            'title' => 'Add Question',
             'capability' => 'edit_posts',
             'property' => 'add_questions_page',
             'callback' => 'render_add_question_page',
@@ -72,7 +72,7 @@ function fqi3_get_admin_pages() {
         ],
         'edit_questions' => [
             'slug' => 'fqi3-update-quiz-questions',
-            'title' => __('Edit Question', 'form-quizz-fqi3'),
+            'title' => 'Edit Question',
             'capability' => 'edit_posts',
             'property' => 'edit_questions_page',
             'callback' => 'render_edit_question_page',
@@ -80,7 +80,7 @@ function fqi3_get_admin_pages() {
         ],
         'statistics' => [
             'slug' => 'fqi3-statistics-quiz-questions',
-            'title' => __('Statistics', 'form-quizz-fqi3'),
+            'title' => 'Statistics',
             'capability' => 'edit_posts',
             'property' => 'statistics_page',
             'callback' => 'render_statistics_page',
@@ -88,7 +88,7 @@ function fqi3_get_admin_pages() {
         ],
         'options' => [
             'slug' => 'fqi3-options-quiz-questions',
-            'title' => __('Settings', 'form-quizz-fqi3'),
+            'title' => 'Settings',
             'capability' => 'manage_options',
             'property' => 'options_page',
             'callback' => 'render_options_page',
@@ -96,21 +96,74 @@ function fqi3_get_admin_pages() {
         ],
         'import_export' => [
             'slug' => 'fqi3-import-export',
-            'title' => __('Import/Export', 'form-quizz-fqi3'),
+            'title' => 'Import/Export',
             'capability' => 'manage_options',
             'property' => 'import_export_page',
             'callback' => 'render_import_export_page',
             'restricted' => false
         ],
+        'attempts' => [
+            'slug' => 'fqi3-attempts',
+            'title' => 'Attempts (Audit)',
+            'capability' => 'edit_posts',
+            'property' => 'attempts_page',
+            'callback' => 'render_attempts_page',
+            'restricted' => true
+        ],
+        'add_ons' => [
+            'slug' => 'fqi3-add-ons',
+            'title' => '<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>',
+            'capability' => 'edit_posts',
+            'property' => 'add_ons_page',
+            'callback' => 'render_add_ons_page',
+            'restricted' => false
+        ],
         'infos' => [
             'slug' => 'fqi3-changelog-user-guide',
-            'title' => __('Changelog and User Guide', 'form-quizz-fqi3'),
+            'title' => 'Changelog and User Guide',
             'capability' => 'manage_options',
             'property' => 'infos_page',
             'callback' => 'render_infos_page',
             'restricted' => false
-        ]
+        ],
+        'developper' => [
+            'slug' => 'fqi3-developper',
+            'title' => 'Developper',
+            'capability' => 'manage_options',
+            'property' => 'developper_page',
+            'callback' => 'render_developper_page',
+            'restricted' => false
+        ],
     ];
+}
+
+/**
+ * Get the plugin page slugs.
+ * 
+ * @return array
+ * 
+ * @since 1.3.1
+ */
+function fqi3_get_admin_pages() {
+    $pages = fqi3_get_admin_pages_raw();
+    
+    // Apply translations if available and textdomain is loaded
+    if (function_exists('__') && did_action('init')) {
+        $pages['main']['title'] = __('Form Quizz FQI3', 'form-quizz-fqi3');
+        $pages['dashboard']['title'] = __('Dashboard', 'form-quizz-fqi3');
+        $pages['view_questions']['title'] = __('View Questions', 'form-quizz-fqi3');
+        $pages['add_questions']['title'] = __('Add Question', 'form-quizz-fqi3');
+        $pages['edit_questions']['title'] = __('Edit Question', 'form-quizz-fqi3');
+        $pages['statistics']['title'] = __('Statistics', 'form-quizz-fqi3');
+        $pages['options']['title'] = __('Settings', 'form-quizz-fqi3');
+        $pages['import_export']['title'] = __('Import/Export', 'form-quizz-fqi3');
+        $pages['attempts']['title'] = __('Attempts (Audit)', 'form-quizz-fqi3');
+        $pages['add_ons']['title'] = __('<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>', 'form-quizz-fqi3');
+        $pages['infos']['title'] = __('Changelog and User Guide', 'form-quizz-fqi3');
+        $pages['developper']['title'] = __('Developper', 'form-quizz-fqi3');
+    }
+    
+    return $pages;
 }
 
 /**
@@ -121,7 +174,7 @@ function fqi3_get_admin_pages() {
  * @since 1.4.0
  */
 function fqi3_get_options_page_slug() {
-    $plugin_page_slugs = fqi3_get_admin_pages();
+    $plugin_page_slugs = fqi3_get_admin_pages_raw();
     return isset($plugin_page_slugs['options']['slug']) ? $plugin_page_slugs['options']['slug'] : '';
 }
 
@@ -134,7 +187,7 @@ function fqi3_get_options_page_slug() {
  *               including IDs, titles, and options details.
  */
 function fqi3_options_settings_sections() {
-    return [
+    $config = [
         'settings_classes' => [
             'FQI3_General_Settings',
             'FQI3_Access_Control_Settings',
@@ -142,7 +195,8 @@ function fqi3_options_settings_sections() {
             'FQI3_Content_Settings',
             'FQI3_Badges_Settings',
             'FQI3_Levels_Settings',
-            'FQI3_Api_Settings'
+            'FQI3_Api_Settings',
+            'FQI3_Tools_Settings'
         ],
         'sections' => [
             'general_settings' => [
@@ -179,9 +233,22 @@ function fqi3_options_settings_sections() {
                 'id' => 'fqi3_api_section',
                 'title' => __('API Options', 'form-quizz-fqi3'),
                 'icon' => 'bi-braces'
+            ],
+            'tools' => [
+                'id' => 'fqi3_tools_section',
+                'title' => __('Tools', 'form-quizz-fqi3'),
+                'icon' => 'bi-tools'
             ]
         ]
     ];
+
+    // Allow addons to inject additional settings sections/tabs into the core options UI
+    // Example usage (in an addon):
+    // add_filter('fqi3_options_settings_sections', function($config){
+    //     $config['sections']['my_addon'] = [ 'id' => 'fqi3_my_addon', 'title' => __('My Addon','textdomain'), 'icon' => 'bi-puzzle' ];
+    //     return $config;
+    // });
+    return apply_filters('fqi3_options_settings_sections', $config);
 }
 
 /**
@@ -235,7 +302,6 @@ function fqi3_getUserPremiumRoles(): array {
     }
 
     return $premium_roles;
-    //return [ROLE_PREMIUM, 'administrator'];
 }
 
 /**
@@ -272,7 +338,7 @@ function fqi3_userHasAnyRole(int $user_id, array $roles): bool {
  */
 function is_plugin_admin_page($screen_id) {
     // Get the slugs from the backend class
-    $plugin_page_slugs = fqi3_get_admin_pages();
+    $plugin_page_slugs = fqi3_get_admin_pages_raw();
     $plugin_pages = array_map(function($page) {
         return 'form-quizz-fqi3_page_' . $page['slug'];
     }, $plugin_page_slugs);
@@ -343,4 +409,31 @@ function fqi3_set_default_options($default_options, $option_name) {
     if ($new_options !== $current_options) {
         update_option($option_name, $new_options, false);
     }
+}
+
+/**
+ * Masks the license key except for the specified visible start and end portions.
+ *
+ * This function takes a license key and masks the middle part, leaving only a 
+ * certain number of characters visible at the start and end of the key. 
+ * If the license key is too short to mask, the function returns the key as is.
+ *
+ * @param string $license_key The license key to be masked.
+ * @param int    $visible_start The number of characters to leave visible at the start of the license key. Default is 4.
+ * @param int    $visible_end The number of characters to leave visible at the end of the license key. Default is 4.
+ *
+ * @return string The masked license key, with visible portions at the start and end, and '*' in the middle.
+ * 
+ * @since 3.0.0
+ */
+function fqi3_mask_license_key($license_key, $visible_start = 4, $visible_end = 4) {
+    $length = strlen($license_key);
+
+    if ($length <= ($visible_start + $visible_end)) {
+        return $license_key;
+    }
+
+    return substr($license_key, 0, $visible_start)
+         . str_repeat('*', $length - ($visible_start + $visible_end))
+         . substr($license_key, -$visible_end);
 }

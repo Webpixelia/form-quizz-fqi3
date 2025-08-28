@@ -39,6 +39,26 @@
 
 button {font-family: inherit;}
 
+.notice {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    border-left-width: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+    margin: 5px 0 15px;
+    padding: 1px 12px;
+}
+.notice.notice-updated,.notice.notice-success {
+    border-color: #28a745;
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.notice.notice-error {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
 #loading-indicator {
     position: absolute;
     top: 50%;
@@ -463,6 +483,7 @@ button {font-family: inherit;}
 }
 
 .social-share .btn {
+    display: inline-flex;
     color: white;
     margin: 5px;
     padding: 10px 15px;
@@ -474,9 +495,13 @@ button {font-family: inherit;}
 .social-share .btn:hover {
     opacity: 0.9;
 }
+.social-share .btn svg {
+    margin-right: 5px;
+}
 .social-share .btn.facebook { background-color: #4267B2;}
 .social-share .btn.x { background-color: #14171A;}
 .social-share .btn.linkedin { background-color: #0077B5;}
+.social-share .btn.google { background-color: #CF463A;}
 
 /* Stats */
 .x-scroll {
@@ -669,6 +694,56 @@ table.fqi3-legend-badges-list th, table.fqi3-legend-badges-list td {
     cursor: pointer;
     font-weight: 600;
     text-decoration: none;
+}
+
+/* Switch Checkbox */
+.form-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.form-switch input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 50px !important;
+    height: 28px;
+    background-color: #e0e0e0;
+    border-radius: 25px !important;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    outline: none;
+    border: none !important
+}
+
+.form-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    background-color: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.form-switch input[type="checkbox"]:checked {
+    background-color: #4CAF50; /* Couleur verte quand activé */
+}
+
+.form-switch input[type="checkbox"]:checked::before {
+    transform: translateX(22px);
+}
+
+.form-switch label {
+    margin-right: 10px;
+    font-weight: 500;
+    color: #333;
 }
 
 /* Responsive */

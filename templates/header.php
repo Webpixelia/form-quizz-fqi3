@@ -12,15 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $admin_pages = fqi3_get_admin_pages();
-$slugViewInfos = $admin_pages['infos']['slug'];
+$slugViewInfos = isset($slugInfos) && $slugInfos ? $slugInfos : $admin_pages['infos']['slug'];
 $documentation_url = esc_url(admin_url('admin.php?page=' . $slugViewInfos));
 $support_url = 'https://webpixelia.com/en/contact/';
 ?>
 <div class="fqi3_banner">
     <div class="fqi3_banner_wrapper">
         <div class="fqi3_logo">
-            <h1><?php echo esc_html(FQI3_NAME); ?></h1>
-            <span class="fqi3_version">v<?php echo esc_html(FQI3_VERSION); ?></span>
+            <h1><?php echo esc_html($plugin_name); ?></h1>
+            <span class="fqi3_version">v<?php echo esc_html($plugin_version); ?></span>
         </div>
         <div class="fqi3_meta">
             <a class="btn btn-info" rel="noopener noreferrer" href="<?php echo esc_url($documentation_url); ?>"><i class="bi bi-file-earmark-text"></i> <?php esc_html_e('Documentation', 'form-quizz-fqi3'); ?></a>

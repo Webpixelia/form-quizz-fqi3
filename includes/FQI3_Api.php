@@ -10,14 +10,14 @@ namespace Form_Quizz_FQI3;
 * @package    Form Quizz FQI3
 * @subpackage API System
 * @since      1.6.0
-* @version    2.0.0
+* @version    3.0.0
 */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
+if ( !class_exists( 'FQI3_Quiz_API' ) ) :
 
     class FQI3_Quiz_API {
         // Cache storage for frequently accessed data
@@ -41,14 +41,34 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
             'no_settings' => 'No badge settings found',
             'no_performance' => 'Performance not found'
         ];
+        
+        // Cache TTL constants
+        private const CACHE_TTL = [
+            'quiz' => 3600,        // 1 heure
+            'quizzes' => 3600,     // 1 heure  
+            'levels' => 86400,     // 24 heures
+            'badges' => 3600,      // 1 heure
+            'performance' => 300,  // 5 minutes
+            'settings' => 7200     // 2 heures
+        ];
+        
+        private const CACHE_VERSION = 'v1';
+        private FQI3_API_Logger $logger;
+
         /**
          * Initializes the API by registering REST routes.
          * 
          * @since 1.6.0
+         * @version 3.0.0 Logger added
          */
         public function __construct() {
             add_action('rest_api_init', [$this, 'register_routes']);
+            $options = fqi3_get_options();
+            $level = $options['fqi3_api_logger'] ?? 'off';
+            $this->logger = new FQI3_API_Logger($level);
             add_action('wp_ajax_fqi3_revoke_token', [$this, 'revoke_token_handler']);
+            // CORS headers for REST responses and handle OPTIONS
+            add_filter('rest_pre_serve_request', [$this, 'send_cors_headers'], 0, 4);
         }
 
         /**
@@ -59,15 +79,102 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * 
          * @since 2.0.0
          */
-        private function get_table_name(string $table_key): string {
+        protected function get_table_name(string $table_key): string {
             global $wpdb;
             return $wpdb->prefix . self::TABLE_SUFFIX[$table_key];
         }
 
         /**
+         * Centralized cache management method
+         * 
+         * @param string $key Cache key
+         * @param string $group Cache group
+         * @param callable $callback Function to execute if cache miss
+         * @param int|null $ttl Time to live override
+         * @return array ['data' => mixed, 'cache_hit' => bool]
+         * 
+         * @since 3.0.0
+         */
+        private function get_cached_data(string $key, string $group, callable $callback, ?int $ttl = null): array {
+            $cached = wp_cache_get($key, $group);
+            if ($cached !== false) {
+                return ['data' => $cached, 'cache_hit' => true];
+            }
+            
+            try {
+                $data = $callback();
+                if ($data !== null) {
+                    $cache_ttl = $ttl ?? self::CACHE_TTL[$group] ?? 3600;
+                    wp_cache_set($key, $data, $group, $cache_ttl);
+                }
+                return ['data' => $data, 'cache_hit' => false];
+            } catch (\Exception $e) {
+                return ['data' => null, 'cache_hit' => false];
+            }
+        }
+
+        /**
+         * Generate consistent cache key
+         * 
+         * @param string $prefix Cache key prefix
+         * @param mixed ...$params Parameters to include in key
+         * @return string Cache key
+         * 
+         * @since 3.0.0
+         */
+        private function generate_cache_key(string $prefix, ...$params): string {
+            return 'fqi3_' . $prefix . '_' . md5(serialize($params)) . '_' . self::CACHE_VERSION;
+        }
+
+        /**
+         * Create REST response with cache headers
+         * 
+         * @param mixed $data Response data
+         * @param bool $cache_hit Whether data came from cache
+         * @param string $cache_type Type of cache for TTL lookup
+         * @param int $status HTTP status code
+         * @return WP_REST_Response
+         * 
+         * @since 3.0.0
+         */
+        private function create_cached_response($data, bool $cache_hit, string $cache_type, int $status = 200): \WP_REST_Response {
+            $ttl = self::CACHE_TTL[$cache_type] ?? 3600;
+            
+            return new \WP_REST_Response($data, $status, [
+                'Cache-Control' => 'max-age=' . $ttl,
+                'X-FQI3-Cache' => $cache_hit ? 'HIT' : 'MISS'
+            ]);
+        }
+
+        /**
+         * Invalidate cache for a specific group
+         * 
+         * @param string $group Cache group to invalidate
+         * @return void
+         * 
+         * @since 3.0.0
+         */
+        private function invalidate_cache_group(string $group): void {
+            wp_cache_flush_group($group);
+        }
+
+        /**
+         * Invalidate specific cache key
+         * 
+         * @param string $key Cache key
+         * @param string $group Cache group
+         * @return void
+         * 
+         * @since 3.0.0
+         */
+        private function invalidate_cache_key(string $key, string $group): void {
+            wp_cache_delete($key, $group);
+        }
+
+        /**
          * Verify the provided API token
          * 
-         * Compares the provided token against the stored token in WordPress options.
+         * Decrypts the stored token and compares it with the provided token.
          * 
          * @since 1.6.0
          * @param string $token The token to verify
@@ -75,14 +182,49 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          */
         private function verify_token(string $token): bool {
             if (empty($token)) return false;
-    
+
             if (!isset(self::$options_cache['api_token'])) {
                 $options = fqi3_get_options();
                 self::$options_cache['api_token'] = $options['fqi3_quiz_api_token'] ?? '';
+                // cache expiration-related settings
+                self::$options_cache['api_token_created_at'] = isset($options['fqi3_quiz_api_token_created_at']) ? intval($options['fqi3_quiz_api_token_created_at']) : 0;
+                self::$options_cache['api_token_exp_mode'] = $options['fqi3_quiz_api_token_exp_mode'] ?? 'never';
+                self::$options_cache['api_token_exp_days'] = isset($options['fqi3_quiz_api_token_exp_days']) ? intval($options['fqi3_quiz_api_token_exp_days']) : 0;
+                self::$options_cache['api_token_overlap_days'] = isset($options['fqi3_quiz_api_token_overlap_days']) ? intval($options['fqi3_quiz_api_token_overlap_days']) : 0;
             }
-    
-            return !empty(self::$options_cache['api_token']) && 
-                   hash_equals(self::$options_cache['api_token'], $token);
+
+            if (empty(self::$options_cache['api_token'])) return false;
+
+            try {
+                $token_manager = new TokenManager();
+                $stored_token = $token_manager->decrypt_token(self::$options_cache['api_token']);
+                
+                // First, constant-time compare token value
+                if (empty($stored_token) || !hash_equals($stored_token, $token)) {
+                    return false;
+                }
+
+                // Then, check expiration policy if applicable
+                $mode = self::$options_cache['api_token_exp_mode'] ?? 'never';
+                if ($mode === 'days') {
+                    $created_at = self::$options_cache['api_token_created_at'] ?? 0;
+                    // Backward compatibility: if timestamp missing, accept token
+                    if ($created_at > 0) {
+                        $days = max(0, intval(self::$options_cache['api_token_exp_days'] ?? 0));
+                        $overlap = max(0, intval(self::$options_cache['api_token_overlap_days'] ?? 0));
+                        $now = time();
+                        $lifetime = ($days + $overlap) * DAY_IN_SECONDS;
+                        if ($days > 0 && $lifetime > 0 && ($created_at + $lifetime) < $now) {
+                            return false; // expired including grace period
+                        }
+                    }
+                }
+
+                return true;
+            } catch (\Exception $e) {
+                // Log error if needed
+                return false;
+            }
         }
 
         /**
@@ -95,8 +237,19 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * @return true|WP_Error True if authentication succeeded, WP_Error if it failed
          */
         public function check_token_auth(\WP_REST_Request $request): \WP_Error|bool {
+            // HTTPS enforcement
+            $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+            $https_only = !empty($options['fqi3_api_https_only']);
+            if ($https_only && !is_ssl()) {
+                return new \WP_Error('rest_forbidden', __('HTTPS is required for this endpoint.', 'form-quizz-fqi3'), ['status' => 403]);
+            }
+
+            // Basic IP rate limiting before token validation
+            if (!$this->rate_limit_check($request)) {
+                return new \WP_Error('rest_rate_limited', __('Too many requests', 'form-quizz-fqi3'), ['status' => 429]);
+            }
+
             $auth_header = $request->get_header('X-API-Token');
-            
             if (empty($auth_header)) {
                 return new \WP_Error(
                     'rest_forbidden',
@@ -104,12 +257,125 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
                     ['status' => 401]
                 );
             }
-    
-            return $this->verify_token($auth_header) ? true : new \WP_Error(
-                'rest_forbidden',
-                __(self::ERROR_MESSAGES['token_invalid'], 'form-quizz-fqi3'),
-                ['status' => 401]
-            );
+
+            $valid = $this->verify_token($auth_header);
+            if (!$valid) {
+                return new \WP_Error(
+                    'rest_forbidden',
+                    __(self::ERROR_MESSAGES['token_invalid'], 'form-quizz-fqi3'),
+                    ['status' => 401]
+                );
+            }
+
+            // Token-based rate limiting after successful token validation
+            if (!$this->rate_limit_check($request, $auth_header)) {
+                return new \WP_Error('rest_rate_limited', __('Too many requests', 'form-quizz-fqi3'), ['status' => 429]);
+            }
+
+            return true;
+        }
+
+        /**
+         * Check if the current token has the required scope
+         * 
+         * @param string $required_scope The scope to check
+         * @return bool True if scope is available
+         * 
+         * @since 3.0.0
+         */
+        private function has_scope(string $required_scope): bool {
+            $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+            $allowed_scopes = isset($options['fqi3_api_scopes_allowed']) && is_array($options['fqi3_api_scopes_allowed']) 
+                ? $options['fqi3_api_scopes_allowed'] 
+                : ['quizzes','stats','badges','settings'];
+            
+            return in_array($required_scope, $allowed_scopes, true);
+        }
+
+        /**
+         * Fetch rate limit settings with sane defaults.
+         * 
+         * @return array The rate limit settings
+         * 
+         * @since 3.0.0
+         */
+        private function get_rate_limit_settings(): array {
+            if (!isset(self::$options_cache['rate'])) {
+                $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+                self::$options_cache['rate'] = [
+                    'ip'     => isset($options['fqi3_api_rate_ip']) ? max(0, intval($options['fqi3_api_rate_ip'])) : 0,
+                    'token'  => isset($options['fqi3_api_rate_token']) ? max(0, intval($options['fqi3_api_rate_token'])) : 0,
+                    'window' => isset($options['fqi3_api_rate_window']) ? max(1, intval($options['fqi3_api_rate_window'])) : 60,
+                ];
+            }
+            return self::$options_cache['rate'];
+        }
+
+        /**
+         * Resolve client IP from request/headers.
+         * 
+         * @param \WP_REST_Request $request The incoming request object
+         * @return string The client IP address
+         * 
+         * @since 3.0.0
+         */
+        private function get_client_ip(\WP_REST_Request $request): string {
+            $xff = $request->get_header('x-forwarded-for');
+            if (!empty($xff)) {
+                $parts = array_map('trim', explode(',', $xff));
+                if (!empty($parts[0])) return $parts[0];
+            }
+            $ip = $request->get_header('x-real-ip');
+            if (!empty($ip)) return $ip;
+            return isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+        }
+
+        /**
+         * Sliding window rate limiter using WP transients.
+         * 
+         * When $token is null, checks IP limit only (used pre-auth).
+         * When $token is provided, checks token limit only (used post-auth).
+         * 
+         * @param \WP_REST_Request $request The incoming request object
+         * @param ?string $token The API token to check (null for IP check)
+         * @return bool True if rate limit is not exceeded, false otherwise
+         * 
+         * @since 3.0.0
+         */
+        private function rate_limit_check(\WP_REST_Request $request, ?string $token = null): bool {
+            $settings = $this->get_rate_limit_settings();
+            $window   = (int) $settings['window'];
+            $now      = time();
+
+            // Helper closure to consume a slot
+            $consume = function (string $key, int $limit) use ($window, $now): bool {
+                if ($limit <= 0) return true; // disabled
+                $bucket = get_transient($key);
+                if (!is_array($bucket)) { $bucket = []; }
+                // purge old timestamps
+                $cut = $now - $window;
+                $bucket = array_values(array_filter($bucket, static function ($ts) use ($cut) {
+                    return is_int($ts) && $ts > $cut;
+                }));
+                if (count($bucket) >= $limit) {
+                    return false; // over limit
+                }
+                $bucket[] = $now;
+                // Set transient to expire at window to auto-clean
+                set_transient($key, $bucket, $window);
+                return true;
+            };
+
+            if ($token === null) {
+                // Pre-auth: IP rate limit only
+                $ip      = $this->get_client_ip($request);
+                $ip_key  = 'fqi3_rate_ip_' . md5($ip);
+                return $consume($ip_key, (int) $settings['ip']);
+            }
+
+            // Post-auth: token rate limit only
+            $tok_key = 'fqi3_rate_token_' . md5($token);
+            return $consume($tok_key, (int) $settings['token']);
         }
 
         /**
@@ -128,8 +394,14 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
             $options = fqi3_get_options();
             if (isset($options['fqi3_quiz_api_token'])) {
                 unset($options['fqi3_quiz_api_token']); 
-        
+                if (isset($options['fqi3_quiz_api_token_created_at'])) {
+                    unset($options['fqi3_quiz_api_token_created_at']);
+                }
+
                 update_option('fqi3_options', $options);
+                
+                // Invalider les caches liés aux tokens
+                self::$options_cache = [];
             }
 
             // Retourner une réponse JSON
@@ -152,27 +424,138 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
         }
 
         /**
+         * Send CORS headers for REST responses and handle preflight.
+         * Hooked to rest_pre_serve_request.
+         *
+         * @param bool               $served  Whether the request has already been served.
+         * @param \WP_HTTP_Response  $result  Result to send to the client. Usually a \WP_REST_Response.
+         * @param \WP_REST_Request   $request Request used to generate the response.
+         * @param \WP_REST_Server    $server  Server instance.
+         * @return bool True to indicate the request has been served (for OPTIONS), otherwise the original $served.
+         */
+        public function send_cors_headers($served, $result, $request, $server) {
+            // Read settings
+            $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+            $origins_raw = isset($options['fqi3_api_cors_origins']) ? (string) $options['fqi3_api_cors_origins'] : '';
+            $methods     = isset($options['fqi3_api_cors_methods']) ? (string) $options['fqi3_api_cors_methods'] : 'GET, POST, OPTIONS';
+            $headers     = isset($options['fqi3_api_cors_headers']) ? (string) $options['fqi3_api_cors_headers'] : 'Content-Type, X-API-Token';
+
+            // If origins empty => CORS disabled
+            $origins = array_filter(array_map(static function ($o) {
+                return trim($o);
+            }, explode(',', $origins_raw)));
+
+            // Always vary on Origin
+            header('Vary: Origin', false);
+
+            $req_method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper((string) $_SERVER['REQUEST_METHOD']) : '';
+            $origin_hdr = isset($_SERVER['HTTP_ORIGIN']) ? (string) $_SERVER['HTTP_ORIGIN'] : '';
+
+            $allow_origin = '';
+            if (!empty($origins)) {
+                if (in_array('*', $origins, true)) {
+                    $allow_origin = '*';
+                } elseif (!empty($origin_hdr) && in_array($origin_hdr, $origins, true)) {
+                    $allow_origin = $origin_hdr;
+                }
+            }
+
+            if ($req_method === 'OPTIONS') {
+                if ($allow_origin !== '') {
+                    header('Access-Control-Allow-Origin: ' . $allow_origin);
+                    header('Access-Control-Allow-Methods: ' . $methods);
+                    header('Access-Control-Allow-Headers: ' . $headers);
+                    header('Access-Control-Max-Age: 600');
+                }
+                // Preflight: short-circuit with 204 No Content
+                if (!headers_sent()) {
+                    status_header(204);
+                }
+                return true;
+            }
+
+            // Non-OPTIONS: send CORS headers for allowed origins
+            if ($allow_origin !== '') {
+                header('Access-Control-Allow-Origin: ' . $allow_origin);
+                // Optionally expose token header if needed
+                // header('Access-Control-Expose-Headers: X-API-Token');
+            }
+
+            return $served;
+        }
+
+        /**
+         * Decorator to add logging to a callback
+         * 
+         * @param callable $callback
+         * @return callable
+         * 
+         * @since 3.0.0
+         */
+        private function with_logging(callable $callback): callable {
+            return function($request) use ($callback) {
+                $start_time = microtime(true);
+        
+                $response = call_user_func($callback, $request);
+        
+                if ($this->logger) {
+                    $duration = microtime(true) - $start_time;
+                    if ($response instanceof \WP_REST_Response) {
+                        $this->logger->log_request($request, $response, $duration);
+                    }
+                }
+        
+                return $response;
+            };
+        }        
+
+        /**
          * Centralized route configuration
+         * 
+         * @since 1.6.0
+         * @version 3.0.0 Settings added
+         * 
+         * @return array
          */
         private function get_route_config(): array {
-            $common_args = [
-                'methods' => 'GET',
-                'permission_callback' => [$this, 'check_token_auth'],
-            ];
+            $get_perm  = $this->make_permission_callback('quizzes');
+            $stat_perm = $this->make_permission_callback('stats');
+            $badge_perm= $this->make_permission_callback('badges');
+            $set_perm  = $this->make_permission_callback('settings');
 
             return [
+                // Ping route (no specific scope required; validates token + returns scopes)
+                '/ping' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'ping'],
+                    'permission_callback' => [$this, 'check_token_auth'],
+                ],
                 // Routes for quizzes
-                '/quizzes' => $common_args + ['callback' => [$this, 'get_quizzes']],
-                '/quizzes/(?P<id>\d+)' => $common_args + ['callback' => [$this, 'get_quiz_by_id']],
-                '/quizzes/level/(?P<level_name>[a-zA-Z0-9_-]+)' => $common_args + [
-                    'callback' => [$this, 'get_quizzes_by_level']
+                '/quizzes' => [
+                    'methods' => 'GET',
+                    'callback' => $this->with_logging([$this, 'get_quizzes']),
+                    'permission_callback' => $get_perm,
+                ],
+                '/quizzes/(?P<id>\d+)' => [
+                    'methods' => 'GET',
+                    'callback' => $this->with_logging([$this, 'get_quiz_by_id']),
+                    'permission_callback' => $get_perm,
+                ],
+                '/quizzes/level/(?P<level_name>[a-zA-Z0-9_-]+)' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_quizzes_by_level'],
+                    'permission_callback' => $get_perm,
                 ],
                 // Routes for users data
-                '/user/(?P<user_id>\d+)/badges' => $common_args + ['callback' => [$this, 'get_user_badges']],
+                '/user/(?P<user_id>\d+)/badges' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_user_badges'],
+                    'permission_callback' => $badge_perm,
+                ],
                 '/user/(?P<user_id>\d+)/performance' => [
                     'methods' => ['GET', 'POST'],
                     'callback' => [$this, 'handle_user_performance'],
-                    'permission_callback' => [$this, 'check_token_auth'],
+                    'permission_callback' => $stat_perm,
                     'args' => [
                         'user_id' => [
                             'required' => true,
@@ -181,10 +564,20 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
                     ]
                 ],
                 // Routes for badges
-                '/badges/settings' => $common_args + ['callback' => [$this, 'get_badge_settings']],
-                '/badges/settings/(?P<type>completion-badge|success-rate-badge)' => $common_args + ['callback' => [$this, 'get_badge_settings_by_type']],
-                '/badges/all-users' => $common_args + [
+                '/badges/settings' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_badge_settings'],
+                    'permission_callback' => $badge_perm,
+                ],
+                '/badges/settings/(?P<type>completion-badge|success-rate-badge)' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_badge_settings_by_type'],
+                    'permission_callback' => $badge_perm,
+                ],
+                '/badges/all-users' => [
+                    'methods' => 'GET',
                     'callback' => [$this, 'get_all_users_badges'],
+                    'permission_callback' => $badge_perm,
                     'args' => [
                         'page' => [
                             'required' => false,
@@ -198,11 +591,48 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
                         ]
                     ]
                 ],
+                // Read-only core settings exposure (general, emails, tools)
+                '/settings' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_all_settings_readonly'],
+                    'permission_callback' => $set_perm,
+                ],
+                '/settings/(?P<group>general|emails|tools|badges)' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_settings_group_readonly'],
+                    'permission_callback' => $set_perm,
+                ],
                 // Routes for quiz levels
-                '/levels' => $common_args + ['callback' => [$this, 'get_quiz_levels']],
-                '/levels/(?P<name>[a-zA-Z0-9_-]+)' => $common_args + ['callback' => [$this, 'get_quiz_level_by_name']],
-                '/levels/type/(?P<type>free|premium)' => $common_args + ['callback' => [$this, 'get_quiz_levels_by_type']]
+                '/levels' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_quiz_levels'],
+                    'permission_callback' => $get_perm,
+                ],
+                '/levels/(?P<name>[a-zA-Z0-9_-]+)' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_quiz_level_by_name'],
+                    'permission_callback' => $get_perm,
+                ],
+                '/levels/type/(?P<type>free|premium)' => [
+                    'methods' => 'GET',
+                    'callback' => [$this, 'get_quiz_levels_by_type'],
+                    'permission_callback' => $get_perm,
+                ]
             ];
+        }
+
+        /**
+         * Make a permission callback that checks token, rate limits, HTTPS and scope.
+         */
+        private function make_permission_callback(string $required_scope): \Closure {
+            return function (\WP_REST_Request $request) use ($required_scope) {
+                $auth = $this->check_token_auth($request);
+                if ($auth !== true) return $auth;
+                if (!$this->has_scope($required_scope)) {
+                    return new \WP_Error('rest_forbidden', __('Insufficient scope for this endpoint.', 'form-quizz-fqi3'), ['status' => 403]);
+                }
+                return true;
+            };
         }
     
         /**
@@ -234,13 +664,16 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a list of all quizzes from the database.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing all quizzes
          */
         public function get_quizzes(\WP_REST_Request $request) {
-            global $wpdb;
+            $cache_key = $this->generate_cache_key('all_quizzes');
             
-            try {
+            $result = $this->get_cached_data($cache_key, 'quizzes', function() {
+                global $wpdb;
+                
                 $results = $wpdb->get_results(
                     $wpdb->prepare(
                         "SELECT * FROM {$this->get_table_name('quizzes')} WHERE 1 = %d",
@@ -253,14 +686,18 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
                     throw new \Exception($wpdb->last_error);
                 }
 
-                return new \WP_REST_Response($results ?: [], 200);
-            } catch (\Exception $e) {
+                return $results ?: [];
+            });
+
+            if ($result['data'] === null) {
                 return new \WP_Error(
                     'database_error',
                     __('Database error occurred', 'form-quizz-fqi3'),
                     ['status' => 500]
                 );
             }
+
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'quizzes');
         }
     
         /**
@@ -269,51 +706,43 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a specific quiz by its ID.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object containing the quiz ID
          * @return WP_REST_Response|WP_Error The quiz data or error if not found
          */
         public function get_quiz_by_id(\WP_REST_Request $request) {
-            global $wpdb;
-        
             $id = (int) $request['id'];
-            $cache_key = 'quiz_' . $id;
+            $cache_key = $this->generate_cache_key('quiz', $id);
         
-            try {
-                // Vérifier d'abord dans le cache
-                $quiz = wp_cache_get($cache_key, 'quiz_cache');
+            $result = $this->get_cached_data($cache_key, 'quiz', function() use ($id) {
+                global $wpdb;
                 
-                // Si le cache est vide, récupérer le quiz depuis la base de données
-                if (false === $quiz) {
-                    $quiz = $wpdb->get_row(
-                        $wpdb->prepare(
-                            "SELECT * FROM {$this->get_table_name('quizzes')} WHERE id = %d",
-                            $id
-                        ),
-                        ARRAY_A
-                    );
-        
-                    // Si le quiz est trouvé, le mettre en cache pour une heure
-                    if ($quiz) {
-                        wp_cache_set($cache_key, $quiz, 'quiz_cache', 3600);
-                    }
+                $quiz = $wpdb->get_row(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$this->get_table_name('quizzes')} WHERE id = %d",
+                        $id
+                    ),
+                    ARRAY_A
+                );
+
+                if ($wpdb->last_error) {
+                    throw new \Exception($wpdb->last_error);
                 }
-        
-                // Vérifier si le quiz a bien été trouvé et retourner une réponse
-                if ($quiz) {
-                    return new \WP_REST_Response($quiz, 200);
-                } else {
-                    throw new \Exception(self::ERROR_MESSAGES['no_quiz']);
-                }
-                
-            } catch (\Exception $e) {
-                // Gérer les erreurs en retournant une WP_Error
+
+                return $quiz;
+            });
+
+            if (!$result['data']) {
                 return new \WP_Error(
                     'no_quiz',
-                    __('Failed to retrieve quiz: ', 'form-quizz-fqi3') . $e->getMessage(),
-                    ['status' => 500]
+                    __(self::ERROR_MESSAGES['no_quiz'], 'form-quizz-fqi3'),
+                    ['status' => 404]
                 );
             }
+
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'quiz');
         }
+
 
         /**
          * Get quizzes by level
@@ -321,223 +750,199 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quizzes matching a specific difficulty level.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object containing the level
          * @return WP_REST_Response|WP_Error The matching quizzes or error if none found
          */
         public function get_quizzes_by_level(\WP_REST_Request $request) {
-            global $wpdb;
+            $level = sanitize_text_field($request['level_name']);
+            $cache_key = $this->generate_cache_key('quizzes_level', $level);
         
-            try {
-                $level = sanitize_text_field($request['level_name']);
-                $cache_key = 'quizzes_level_' . md5($level);
+            $result = $this->get_cached_data($cache_key, 'quizzes', function() use ($level) {
+                global $wpdb;
+                $quizzes = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$this->get_table_name('quizzes')} WHERE niveau = %s",
+                        $level
+                    ),
+                    ARRAY_A
+                );
         
-                // Essayer de récupérer depuis le cache d'abord
-                $quizzes = wp_cache_get($cache_key, 'quiz_cache');
-                if (false === $quizzes) {
-                    $quizzes = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "SELECT * FROM {$this->get_table_name('quizzes')} WHERE niveau = %s",
-                            $level
-                        ),
-                        ARRAY_A
-                    );
-        
-                    // Mettre en cache les résultats si des quiz sont trouvés
-                    if (!empty($quizzes)) {
-                        wp_cache_set($cache_key, $quizzes, 'quiz_cache', 3600);
-                    }
+                if ($wpdb->last_error) {
+                    throw new \Exception($wpdb->last_error);
                 }
         
-                // Vérification et réponse
-                if (!empty($quizzes)) {
-                    return new \WP_REST_Response($quizzes, 200);
-                }
+                return $quizzes ?: [];
+            });
         
+            if (empty($result['data'])) {
                 return new \WP_Error(
-                    'no_quizzes', 
-                    __(self::ERROR_MESSAGES['no_levels'], 'form-quizz-fqi3'), 
+                    'no_quizzes',
+                    __(self::ERROR_MESSAGES['no_levels'], 'form-quizz-fqi3'),
                     ['status' => 404]
-                );            
-                
-            } catch (\Exception $e) {
-                return new \WP_Error(
-                    'database_error',
-                    __('Failed to retrieve quizzes due to a database error', 'form-quizz-fqi3'),
-                    ['status' => 500, 'message' => $e->getMessage()]
                 );
             }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'quizzes');
         }
 
         /**
          * Get user badges
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error
          */
         public function get_user_badges(\WP_REST_Request $request) {
-            global $wpdb;
-
-            try {
-                $user_id = (int) $request->get_param('user_id');
-                $cache_key = 'user_badges_' . $user_id;
-
-                // Try to get from cache first
-                $badges = wp_cache_get($cache_key, 'badge_cache');
-                if (false === $badges) {
-                    $badges = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "SELECT * FROM {$this->get_table_name('awards')} WHERE user_id = %d",
-                            $user_id
-                        ),
-                        ARRAY_A
-                    );
-
-                    if (!empty($badges)) {
-                        wp_cache_set($cache_key, $badges, 'badge_cache', 3600);
-                    }
+            $user_id = (int) $request->get_param('user_id');
+            $cache_key = $this->generate_cache_key('user_badges', $user_id);
+        
+            $result = $this->get_cached_data($cache_key, 'badges', function() use ($user_id) {
+                global $wpdb;
+                $badges = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT * FROM {$this->get_table_name('awards')} WHERE user_id = %d",
+                        $user_id
+                    ),
+                    ARRAY_A
+                );
+        
+                if ($wpdb->last_error) {
+                    throw new \Exception($wpdb->last_error);
                 }
-
-                if (!empty($badges)) {
-                    return new \WP_REST_Response($badges, 200);
-                }
-
+        
+                return $badges ?: [];
+            });
+        
+            if (empty($result['data'])) {
                 return new \WP_Error(
                     'no_badge',
-                    __(self::ERROR_MESSAGES['no_badges'], 'form-quizz-fqi3'), 
+                    __(self::ERROR_MESSAGES['no_badges'], 'form-quizz-fqi3'),
                     ['status' => 404]
                 );
-
-            } catch (\Exception $e) {
-                // Handle the exception and return a generic error response
-                return new \WP_Error(
-                    'database_error',
-                    __('An error occurred while retrieving user badges.', 'form-quizz-fqi3'),
-                    ['status' => 500, 'details' => $e->getMessage()]
-                );
             }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'badges');
         }
+        
 
         /**
          * Get user performance with optimized query and caching.
          *
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The request object containing user ID.
          * @return WP_REST_Response JSON response containing user performance data.
          */
         public function get_user_performance(\WP_REST_Request $request) {
-            global $wpdb;
-            
-            try {
-                $user_id = absint($request->get_param('user_id'));
-                $cache_key = "fqi3_user_performance_{$user_id}";
-                
-                // Try to get from cache first
-                $performances = wp_cache_get($cache_key);
-                
-                if ($performances === false) {
-                    $performances = $wpdb->get_results(
-                        $wpdb->prepare(
-                            "SELECT 
-                                level,
-                                total_quizzes,
-                                total_questions_answered,
-                                total_good_answers,
-                                success_rate,
-                                best_score,
-                                last_updated
-                            FROM {$this->get_table_name('performances')} 
-                            WHERE user_id = %d",
-                            $user_id
-                        ),
-                        ARRAY_A
-                    );
-
-                    if ($wpdb->last_error) {
-                        throw new \Exception($wpdb->last_error);
-                    }
-
-                    // Cache the results for 5 minutes
-                    wp_cache_set($cache_key, $performances, '', 300);
+            $user_id = absint($request->get_param('user_id'));
+            $cache_key = $this->generate_cache_key('user_performance', $user_id);
+        
+            $result = $this->get_cached_data($cache_key, 'performance', function() use ($user_id) {
+                global $wpdb;
+                $performances = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "SELECT 
+                            level,
+                            total_quizzes,
+                            total_questions_answered,
+                            total_good_answers,
+                            success_rate,
+                            best_score,
+                            last_updated
+                         FROM {$this->get_table_name('performances')} 
+                         WHERE user_id = %d",
+                        $user_id
+                    ),
+                    ARRAY_A
+                );
+        
+                if ($wpdb->last_error) {
+                    throw new \Exception($wpdb->last_error);
                 }
-
-                if (empty($performances)) {
-                    return new \WP_Error(
-                        'no_performance',
-                        __(self::ERROR_MESSAGES['no_performance'], 'form-quizz-fqi3'),
-                        ['status' => 404]
-                    );
-                }
-
-                // Format the response data
-                $formatted_performance = array_map(function($performance) {
-                    return [
-                        'level' => $performance['level'],
-                        'stats' => [
-                            'total_quizzes' => intval($performance['total_quizzes']),
-                            'total_questions' => intval($performance['total_questions_answered']),
-                            'correct_answers' => intval($performance['total_good_answers']),
-                            'success_rate' => floatval($performance['success_rate']),
-                            'best_score' => floatval($performance['best_score'])
-                        ],
-                        'last_updated' => $performance['last_updated']
-                    ];
-                }, $performances);
-
-                return new \WP_REST_Response($formatted_performance, 200);
-
-            } catch (\Exception $e) {
+        
+                return $performances ?: [];
+            });
+        
+            if (empty($result['data'])) {
                 return new \WP_Error(
-                    'database_error',
-                    __('Failed to retrieve performance data', 'form-quizz-fqi3'),
-                    ['status' => 500]
+                    'no_performance',
+                    __(self::ERROR_MESSAGES['no_performance'], 'form-quizz-fqi3'),
+                    ['status' => 404]
                 );
             }
+        
+            $formatted_performance = array_map(function($performance) {
+                return [
+                    'level' => $performance['level'],
+                    'stats' => [
+                        'total_quizzes' => intval($performance['total_quizzes']),
+                        'total_questions' => intval($performance['total_questions_answered']),
+                        'correct_answers' => intval($performance['total_good_answers']),
+                        'success_rate' => floatval($performance['success_rate']),
+                        'best_score' => floatval($performance['best_score'])
+                    ],
+                    'last_updated' => $performance['last_updated']
+                ];
+            }, $result['data']);
+        
+            return $this->create_cached_response($formatted_performance, $result['cache_hit'], 'performance');
         }
+        
 
         /**
          * Update the user performance data by user ID.
          *
          * @since 1.6.0
+         * @since 3.0.0 Caching added
+         * @param WP_REST_Request $request The request object containing user ID and performance data.
+         * @return WP_REST_Response JSON response containing success message or error.
          */
         public function update_user_performance(\WP_REST_Request $request) {
             global $wpdb;
-            
+        
             try {
                 $user_id = absint($request->get_param('user_id'));
                 $level = sanitize_text_field($request->get_param('level'));
                 $table_name = $this->get_table_name('performances');
-                
+        
                 $data = $this->sanitize_performance_data($request);
                 $where = ['user_id' => $user_id, 'level' => $level];
-                
+        
+                // Tentative de mise à jour
                 $result = $wpdb->update($table_name, $data, $where);
-                
+        
                 if ($result === false) {
                     throw new \Exception($wpdb->last_error);
                 }
-                
+        
+                // Si aucune ligne mise à jour, insertion
                 if ($result === 0) {
                     $data = array_merge($data, $where);
                     $result = $wpdb->insert($table_name, $data);
-                    
+        
                     if ($result === false) {
                         throw new \Exception($wpdb->last_error);
                     }
                 }
-                
+        
+                // Invalider le cache pour cet utilisateur
+                $cache_key = $this->generate_cache_key('user_performance', $user_id);
+                $this->invalidate_cache_key($cache_key, 'performance');
+        
                 return new \WP_REST_Response([
                     'message' => __('Performance updated successfully', 'form-quizz-fqi3')
                 ], 200);
-                
+        
             } catch (\Exception $e) {
                 return new \WP_Error(
                     'update_failed',
-                    __('Failed to update performance', 'form-quizz-fqi3'),
+                    __('Failed to update performance', 'form-quizz-fqi3') . ': ' . $e->getMessage(),
                     ['status' => 500]
                 );
             }
-        }
+        }        
 
         /**
          * Helper method to sanitize performance data
@@ -559,18 +964,27 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all badge-related settings from wp_options.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing badge settings
          */
         public function get_badge_settings(\WP_REST_Request $request) {
-            if (self::$badge_settings_cache === null) {
-                self::$badge_settings_cache = $this->load_badge_settings();
+            $cache_key = $this->generate_cache_key('badge_settings');
+        
+            $result = $this->get_cached_data($cache_key, 'settings', function() {
+                return $this->load_badge_settings();
+            });
+        
+            if (empty($result['data'])) {
+                return new \WP_Error(
+                    'no_settings',
+                    self::ERROR_MESSAGES['no_settings'],
+                    ['status' => 404]
+                );
             }
-            
-            return empty(self::$badge_settings_cache)
-                ? new \WP_Error('no_settings', self::ERROR_MESSAGES['no_settings'], ['status' => 404])
-                : new \WP_REST_Response(self::$badge_settings_cache, 200);
-        }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'settings');
+        }        
 
         /**
          * Get badge settings by type
@@ -578,23 +992,28 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves badge settings for a specific type (quizzes completed or success rate).
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing specific badge settings
          */
         public function get_badge_settings_by_type(\WP_REST_Request $request) {
-            $type = $request['type'];
-            $settings = $this->get_type_specific_settings($type);
-            
-            if (empty($settings)) {
+            $type = sanitize_text_field($request['type']);
+            $cache_key = $this->generate_cache_key('badge_settings', $type);
+        
+            $result = $this->get_cached_data($cache_key, 'settings', function() use ($type) {
+                return $this->get_type_specific_settings($type);
+            });
+        
+            if (empty($result['data'])) {
                 return new \WP_Error(
                     'invalid_type',
                     __('Invalid badge type specified', 'form-quizz-fqi3'),
                     ['status' => 400]
                 );
             }
-            
-            return new \WP_REST_Response($settings, 200);
-        }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'settings');
+        }        
 
         /**
          * Get badges for all users
@@ -602,26 +1021,40 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all badges awarded to users with pagination support.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param \WP_REST_Request $request
          * @return WP_REST_Response|WP_Error
          */
         public function get_all_users_badges(\WP_REST_Request $request) {
             global $wpdb;
-            
-            $pagination = $this->get_pagination_params($request);
-            $badges = $this->fetch_paginated_badges($wpdb, $pagination);
-            
-            if (empty($badges)) {
-                return new \WP_Error('no_badges', self::ERROR_MESSAGES['no_badges'], ['status' => 404]);
-            }
-            
-            $formatted_badges = $this->format_badges_with_details($badges);
-            $response = new \WP_REST_Response($formatted_badges, 200);
-            
-            $this->add_pagination_headers($response, $pagination);
-            return $response;
-        }
         
+            $pagination = $this->get_pagination_params($request);
+            $cache_key = $this->generate_cache_key(
+                'all_users_badges',
+                $pagination['page'],
+                $pagination['per_page']
+            );
+        
+            $result = $this->get_cached_data($cache_key, 'badges', function() use ($wpdb, $pagination) {
+                $badges = $this->fetch_paginated_badges($wpdb, $pagination);
+                return $badges ?: [];
+            });
+        
+            if (empty($result['data'])) {
+                return new \WP_Error(
+                    'no_badges',
+                    self::ERROR_MESSAGES['no_badges'],
+                    ['status' => 404]
+                );
+            }
+        
+            $formatted_badges = $this->format_badges_with_details($result['data']);
+            $response = new \WP_REST_Response($formatted_badges, 200);
+        
+            $this->add_pagination_headers($response, $pagination);
+        
+            return $this->create_cached_response($formatted_badges, $result['cache_hit'], 'badges');
+        }        
 
         /**
          * Get all quiz levels
@@ -629,19 +1062,61 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quiz level settings from wp_options.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response The response object containing all quiz levels
          */
         public function get_quiz_levels(\WP_REST_Request $request) {
-            $levels = $this->format_quiz_levels(get_option('fqi3_quiz_levels', []));
-            
-            return empty($levels)
-                ? new \WP_Error(
+            $cache_key = $this->generate_cache_key('quiz_levels');
+        
+            $result = $this->get_cached_data($cache_key, 'levels', function() {
+                return $this->format_quiz_levels(get_option('fqi3_quiz_levels', []));
+            });
+        
+            if (empty($result['data'])) {
+                return new \WP_Error(
                     'no_levels', 
                     self::ERROR_MESSAGES['no_levels'], 
                     ['status' => 404]
-                )
-                : new \WP_REST_Response($levels, 200);
+                );
+            }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'levels');
+        }        
+
+        /**
+         * Ping endpoint: validate token and return scopes and token policy info.
+         * 
+         * @since 3.0.0
+         * @param \WP_REST_Request $request
+         * @return \WP_REST_Response
+         */
+        public function ping(\WP_REST_Request $request): \WP_REST_Response {
+            $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+            $scopes = isset($options['fqi3_api_scopes_allowed']) && is_array($options['fqi3_api_scopes_allowed']) ? array_values($options['fqi3_api_scopes_allowed']) : ['quizzes','stats','badges','settings'];
+            $created_at = isset($options['fqi3_quiz_api_token_created_at']) ? intval($options['fqi3_quiz_api_token_created_at']) : 0;
+            $mode = $options['fqi3_quiz_api_token_exp_mode'] ?? 'never';
+            $days = isset($options['fqi3_quiz_api_token_exp_days']) ? intval($options['fqi3_quiz_api_token_exp_days']) : 0;
+            $overlap = isset($options['fqi3_quiz_api_token_overlap_days']) ? intval($options['fqi3_quiz_api_token_overlap_days']) : 0;
+            $now = time();
+            $expires_at = ($mode === 'days' && $created_at > 0 && $days > 0) ? ($created_at + ($days * DAY_IN_SECONDS)) : 0;
+            $valid_until = ($mode === 'days' && $created_at > 0 && ($days + $overlap) > 0) ? ($created_at + (($days + $overlap) * DAY_IN_SECONDS)) : 0;
+            $https_only = !empty($options['fqi3_api_https_only']);
+
+            $payload = [
+                'status' => 'ok',
+                'time' => $now,
+                'scopes' => $scopes,
+                'token_policy' => [
+                    'mode' => $mode,
+                    'created_at' => $created_at,
+                    'expires_at' => $expires_at,
+                    'valid_until' => $valid_until,
+                    'grace_days' => $overlap,
+                    'https_only' => (bool) $https_only,
+                ],
+            ];
+            return new \WP_REST_Response($payload, 200);
         }
 
         /**
@@ -650,21 +1125,28 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves a specific quiz level by its name.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error The level data or error if not found
          */
         public function get_quiz_level_by_name(\WP_REST_Request $request) {
-            $target_name = $request['name'];
-            $level = $this->find_quiz_level_by_name($target_name);
-            
-            return $level === null
-                ? new \WP_Error(
+            $target_name = sanitize_text_field($request['name']);
+            $cache_key = $this->generate_cache_key('quiz_level', $target_name);
+        
+            $result = $this->get_cached_data($cache_key, 'levels', function() use ($target_name) {
+                return $this->find_quiz_level_by_name($target_name);
+            });
+        
+            if ($result['data'] === null) {
+                return new \WP_Error(
                     'level_not_found',
                     __(self::ERROR_MESSAGES['no_levels'], 'form-quizz-fqi3'),
                     ['status' => 404]
-                )
-                : new \WP_REST_Response($level, 200);
-        }
+                );
+            }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'levels');
+        }        
 
         /**
          * Get quiz levels by type (free or premium)
@@ -672,21 +1154,28 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
          * Retrieves all quiz levels of a specific type.
          * 
          * @since 1.6.0
+         * @since 3.0.0 Caching added
          * @param WP_REST_Request $request The incoming request object
          * @return WP_REST_Response|WP_Error The matching levels or error if none found
          */
         public function get_quiz_levels_by_type(\WP_REST_Request $request) {
-            $type = $request['type'];
-            $levels = $this->filter_quiz_levels_by_type($type);
-            
-            return empty($levels)
-                ? new \WP_Error(
+            $type = sanitize_text_field($request['type']);
+            $cache_key = $this->generate_cache_key('quiz_levels_by_type', $type);
+        
+            $result = $this->get_cached_data($cache_key, 'levels', function() use ($type) {
+                return $this->filter_quiz_levels_by_type($type);
+            });
+        
+            if (empty($result['data'])) {
+                return new \WP_Error(
                     'level_not_found',
                     __(self::ERROR_MESSAGES['no_levels_specified_type'], 'form-quizz-fqi3'),
                     ['status' => 404]
-                )
-                : new \WP_REST_Response($levels, 200);
-        }
+                );
+            }
+        
+            return $this->create_cached_response($result['data'], $result['cache_hit'], 'levels');
+        }        
 
          // Private helper methods
         /**
@@ -719,6 +1208,105 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
                 'badge_names' => $options["fqi3_{$type}_badge_names"] ?? [],
                 'badge_images' => $options["fqi3_{$type}_badge_images"] ?? [],
             ];
+        }
+
+        /**
+         * Read-only: return all exposed settings groups combined
+         *
+         * Aggregates general, emails, tools and badges settings (badges via existing formatter).
+         * Exposure is strictly controlled by per-group whitelists provided via filters.
+         *
+         * Filters available (each returns an array of allowed option keys under fqi3_options):
+         * - fqi3_api_settings_whitelist_general
+         * - fqi3_api_settings_whitelist_emails
+         * - fqi3_api_settings_whitelist_tools
+         *
+         * @since 3.0.0
+         */
+        public function get_all_settings_readonly(\WP_REST_Request $request): \WP_REST_Response {
+            $general = $this->get_settings_group_values('general');
+            $emails  = $this->get_settings_group_values('emails');
+            $tools   = $this->get_settings_group_values('tools');
+            $badges  = $this->get_settings_group_values('badges');
+
+            $payload = [
+                'general' => $general,
+                'emails' => $emails,
+                'tools' => $tools,
+                'badges' => $badges,
+            ];
+
+            return new \WP_REST_Response($payload, 200);
+        }
+
+        /**
+         * Read-only: return a single exposed settings group
+         *
+         * @param WP_REST_Request $request
+         * @return WP_REST_Response
+         * @since 3.0.0
+         */
+        public function get_settings_group_readonly(\WP_REST_Request $request): \WP_REST_Response {
+            $group = sanitize_key($request['group']);
+            $values = $this->get_settings_group_values($group);
+            return new \WP_REST_Response($values, 200);
+        }
+
+        /**
+         * Helper: fetch whitelisted settings for a group from options storage.
+         *
+         * Groups: general, emails, tools → from fqi3_options (via fqi3_get_options if available).
+         * Group: badges → from fqi3_badges.
+         * Returns only keys present in the underlying options array and sanitizes values.
+         *
+         * @since 3.0.0
+         */
+        private function get_settings_group_values(string $group): array {
+            $core_options   = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
+            $badges_options = (array) get_option('fqi3_badges', []);
+
+            $filter_map = [
+                'general' => 'fqi3_api_settings_whitelist_general',
+                'emails'  => 'fqi3_api_settings_whitelist_emails',
+                'tools'   => 'fqi3_api_settings_whitelist_tools',
+                'badges'  => 'fqi3_api_settings_whitelist_badges',
+            ];
+
+            $filter = $filter_map[$group] ?? null;
+            $whitelist = is_string($filter) ? (array) apply_filters($filter, []) : [];
+
+            // Choose the correct source array based on group
+            $source = ($group === 'badges') ? $badges_options : $core_options;
+
+            $result = [];
+            foreach ($whitelist as $key) {
+                if (array_key_exists($key, $source)) {
+                    $result[$key] = $this->sanitize_setting_value($source[$key]);
+                }
+            }
+
+            return $result;
+        }
+
+        /**
+         * Helper: sanitize setting value for safe read-only exposure.
+         * Scalars are escaped; arrays are recursively sanitized; objects are cast to arrays.
+         *
+         * @since 3.0.0
+         */
+        private function sanitize_setting_value($value) {
+            if (is_array($value)) {
+                return array_map([$this, 'sanitize_setting_value'], $value);
+            }
+            if (is_object($value)) {
+                $value = (array) $value;
+                return array_map([$this, 'sanitize_setting_value'], $value);
+            }
+            if (is_bool($value) || is_int($value) || is_float($value)) {
+                return $value;
+            }
+            // Fallback for strings
+            return sanitize_text_field((string) $value);
         }
 
         /**

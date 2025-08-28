@@ -5,8 +5,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
-Tested up to: 6.7.1
-Stable tag: 2.2.0
+Tested up to: 6.8.2
+Stable tag: 3.0.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -56,6 +56,20 @@ Your plugin offers six shortcodes to easily integrate quizzes and stats into you
 - **Import/Export Settings**: Easily migrate plugin settings between sites.  
 - **API Integration**: Use the API to interact with quizzes programmatically.  
 
+### Developer
+- Filter: `fqi3_options_settings_sections` allows addons to inject additional tabs/sections into the core settings page. Example:
+
+```
+add_filter('fqi3_options_settings_sections', function($config){
+    $config['sections']['my_addon'] = [
+        'id' => 'fqi3_my_addon',
+        'title' => __('My Addon','textdomain'),
+        'icon' => 'bi-puzzle',
+    ];
+    return $config;
+});
+```
+
 ### Additional Features  
 - **Free Attempt Management**: Specify the maximum number of free attempts per user per day.  
 - **Gamification Elements**: Configure badges and awards for users based on their performance.  
@@ -100,12 +114,50 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 5. Settings page View
 6. Import/Export page View
 7. Guide and Changelog page View
+8. Developer page View
 
 == Changelog ==
+= 3.0.0 =
+* New: Added 'Available Add-Ons' for Form Quizz FQI3
+* Breaking change: The shortcode `[free_quiz_form]` has been replaced by `[fqi3_quizz_form]`. The old shortcode is still supported for backward compatibility but should be updated in your content to avoid future issues.
+* Added: do_action('fqi3_quiz_started', $user_id, $quiz_level); at quiz start and do_action('fqi3_quiz_completed', $user_id, $quiz_level); at quiz completion to track user activity.
+* New: Server-side attempts storage. Core persists quiz attempts in a lightweight table (wp_fqi3_quiz_attempts: id, user_id, level, score, started_at, completed_at) and returns attempt_id in AJAX responses.
+* Added: do_action('fqi3_quiz_attempt_started', $attempt_id, $user_id, $quiz_level) and do_action('fqi3_quiz_attempt_completed', $attempt_id, $user_id, $quiz_level, $score) for precise attempt lifecycle hooks.
+* Changed: do_action('fqi3_quiz_questions_drawn', ...) now includes attempt_id in the $context array (e.g., ['source' => 'core', 'attempt_id' => N]) to enable audit/snapshots by addons.
+* Added: do_action('fqi3_user_awarded_badge', $user_id, $badge_name, $badge_id) hook to trigger actions when a user is awarded a badge.
+* Added: do_action('fqi3_before_results_quiz_form') to trigger custom actions before displaying the quiz results form.
+* Added: do_action('fqi3_after_results_quiz_form') to trigger custom actions after displaying the quiz results form.
+* Added: Introduced apply_filters('fqi3_dashboard_addon_cards', []) to allow addons to dynamically inject custom cards into the admin dashboard, enhancing extensibility and customization.
+* Enhanced the get_changelog method to accept an optional parameter for specifying a custom changelog file path.
+* Added: Admin page "Attempts (Audit)" under Form Quizz FQI3 menu to list, filter (level, user, date range), paginate (per-page screen option), and export CSV of quiz attempts (ID, user, level, score, started/completed). Level filter uses dropdown fed by `fqi3_quiz_levels`.
+* Added: New developer filter `fqi3_options_settings_sections` to let addons inject settings tabs/sections into the core options page.
+* Added: New developer filter `fqi3_admin_quiz_question_actions` to let addons append custom actions HTML per question row in the View Questions table: `apply_filters('fqi3_admin_quiz_question_actions', '', $question)`.
+* Added: When Question Bank Pro is active, a new "Question Bank" tab appears in the core Settings page (fields saved under `fqi3_qb_settings`). User Guide updated with example & developer snippet.
+* Security: Added encryption key management system for token security
+* Fixed: JavaScript undefined variable error
+* Fixed: Resolved translation issues with proper string localization
+* Fixed: Issue where the active tab would not persist across different plugin/addon settings pages after page reload.
+* Fixed: **Translation loading triggered too early** error in WordPress 6.7+ by implementing proper translation loading timing and creating `fqi3_get_admin_pages_raw()` function for addon compatibility
+* Fixed: **Typed property must not be accessed before initialization** error in admin classes by properly initializing array properties in constructors
+* Added: Server‑rendered Gutenberg blocks for all public shortcodes of the parent plugin, available in the custom category "Form Quizz FQI3":
+* Added: Custom Gutenberg block category "Form Quizz FQI3" to group all FQI3 blocks together.
+* Support for WordPress 6.8
+* Database: Core migration widens `q` and `q2` columns in `wp_fqi3_quizzes` to `TEXT` with site charset/collation (utf8mb4), executed once on admin_init; backward‑compatible and idempotent.
+* Admin UX: Added AJAX validation handling for the "Add Question" form (Question Bank addon) to intercept submit, validate asynchronously with nonce/capability checks, display inline errors, and only submit when valid.
+* Added: Developer hooks to extend Quizzes > View Questions admin list (filters, queries)
+* Added: Read-only REST Settings API with token auth and whitelisted option groups
+* Added: API Test feature to verify API access and token validity
+* Security: API hardening and defaults
+* Added: New page "Developer" in the admin menu
+* Refactor: Unified caching system for users, badges, and quiz levels with automatic invalidation on updates. Improves REST API performance and ensures consistent data across endpoints.
+* Added: API Logger to track API requests and responses.
+* Improved: Updated user_has_permission() and validate_user_permissions() methods to use explicit nullable type declarations, preventing PHP 8.4+ deprecation warnings.
+
 = 2.2.0 =
 * New: Added a dashboard page for a quick overview of key information.
 * Added: New option to include administrators in premium role features for testing purposes.
 * Added: Download by the user the "Incorrect Answers" table as a CSV file.
+* Added: do_action('fqi3_after_statistics_page') after content statistics page in admin
 * Modified: `fqi3_access_roles` database option structure
 * Improved: UI/UX with customizable, responsive modals for a more seamless question deletion confirmation.
 * Fixed: Display bug in the badge legend table

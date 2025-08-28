@@ -332,7 +332,10 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
                 $badge_id
             ));
 
-            if ($result === false) {
+            // Trigger the hook only if a new badge is inserted (result = 1)
+            if ($result === 1) {
+                do_action('fqi3_user_awarded_badge', $user_id, $badge_name, $badge_id);
+            } elseif ($result === false) {
                 error_log("FQI3 Awards: Error awarding badge - {$wpdb->last_error}");
             }
         }

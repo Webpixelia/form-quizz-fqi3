@@ -41,27 +41,6 @@ class FQI3_General_Settings {
 
     public function add_general_settings_fields() {
         add_settings_field(
-            'fqi3_delete_data',
-            __('Delete data on uninstall', 'form-quizz-fqi3'),
-            [ $this, 'render_delete_data_field' ],
-            fqi3_get_options_page_slug(),
-            'fqi3_general_section'
-        );
-        add_settings_field(
-            'fqi3_disable_sharing',
-            __('Social sharing of results', 'form-quizz-fqi3'),
-            [ $this, 'render_disable_sharing_field' ],
-            fqi3_get_options_page_slug(),
-            'fqi3_general_section'
-        );
-        add_settings_field(
-            'fqi3_disable_statistics',
-            __('Disable statistics', 'form-quizz-fqi3'),
-            [ $this, 'render_disable_statistics' ],
-            fqi3_get_options_page_slug(),
-            'fqi3_general_section'
-        );
-        add_settings_field(
             'fqi3_sales_page',
             __('Link to the sales page', 'form-quizz-fqi3'),
             [ $this, 'render_link_sales_page_field' ],

@@ -32,7 +32,10 @@ class FQI3_Backend {
     private FQI3_Statistics_Page $statistics_page;
     private FQI3_Option_Page $options_page;
     private FQI3_Infos_Page $infos_page;
+    private FQI3_Developper_Page $developper_page;
     private FQI3_Import_Export_Page $import_export_page;
+    private FQI3_Addons_Page $add_ons_page;
+    private FQI3_Attempts_Page $attempts_page;
     private array $levelsQuiz;
     private array $plugin_page_slugs;
 
@@ -41,19 +44,8 @@ class FQI3_Backend {
      * Initializes settings, adds menu pages, and sets up hooks for handling actions and filters.
      */
     public function __construct() {
-        // Load pages slugs
-        $this->plugin_page_slugs = fqi3_get_admin_pages();
-
         // Load admin class
         $this->loadAdminClasses();
-
-        // Initialize admin pages
-        $this->add_questions_page = new FQI3_Add_Questions_Page($this);
-        $this->edit_questions_page = new FQI3_Edit_Questions_Page($this);
-        $this->statistics_page = new FQI3_Statistics_Page($this);
-        $this->options_page = new FQI3_Option_Page($this);
-        $this->infos_page = new FQI3_Infos_Page($this);
-        $this->import_export_page = new FQI3_Import_Export_Page($this);
 
         // Hooks
         $this->setup_hooks();
@@ -83,6 +75,7 @@ class FQI3_Backend {
             'class-badges-settings',
             'class-levels-settings',
             'class-api-settings',
+            'class-tools-settings',
             // Pages Admin
             'class-dashboard',
             'class-view-questions',
@@ -90,8 +83,11 @@ class FQI3_Backend {
             'class-edit-questions',
             'class-options',
             'class-infos',
+            'class-developper',
             'class-statistics',
             'class-import-export',
+            'class-attempts',
+            'class-add-ons',
         ];
 
         foreach ($adminClasses as $class) {
@@ -99,21 +95,54 @@ class FQI3_Backend {
         }
     }
 
-     /**
+    /**
      * Sets up hooks for the plugin.
      */
     private function setup_hooks(): void
     {
+        add_action('init', [$this, 'initialize_admin_pages']);
+        add_action('init', [$this, 'maybe_schedule_purge']);
         add_action('wp_loaded', [$this, 'initialize_levels']);
         add_action('wp_loaded', [$this, 'create_view_questions_components']);
         add_action('admin_init', [$this, 'initialize_settings']);
         add_action('admin_menu', [$this, 'add_menu_pages']);
         add_action('admin_notices', [$this, 'display_admin_header']);
         add_action('in_admin_footer', [$this, 'display_admin_footer']);
+        add_filter('set_screen_option_fqi3_items_per_page', [$this, 'save_screen_options'], 10, 3);
+        add_filter('set_screen_option_fqi3_attempts_per_page', [$this, 'save_screen_options'], 10, 3);
+        add_action('fqi3_purge_attempts_event', [$this, 'run_purge_attempts']);
+    }
+
+    /**
+     * Initialize admin pages after translations are loaded.
+     * 
+     * This method initializes the admin pages and their slugs after the translations
+     * have been loaded to avoid the "Translation loading triggered too early" error.
+     * 
+     * @since 3.0.0
+     */
+    public function initialize_admin_pages(): void
+    {
+        // Load pages slugs with translations now that they're loaded
+        $this->plugin_page_slugs = fqi3_get_admin_pages();
+
+        // Initialize admin pages
+        $this->add_questions_page = new FQI3_Add_Questions_Page($this);
+        $this->edit_questions_page = new FQI3_Edit_Questions_Page($this);
+        $this->statistics_page = new FQI3_Statistics_Page($this);
+        $this->options_page = new FQI3_Option_Page($this);
+        $this->infos_page = new FQI3_Infos_Page($this);
+        $this->developper_page = new FQI3_Developper_Page($this);
+        $this->import_export_page = new FQI3_Import_Export_Page($this);
+        $this->add_ons_page = new FQI3_Addons_Page($this);
+        $this->attempts_page = new FQI3_Attempts_Page($this);
+
+        // Add hooks that depend on admin pages
         add_action('admin_post_add_question', [$this->add_questions_page, 'handle_add_question']);
         add_action('admin_post_update_question', [$this->edit_questions_page, 'handle_update_question']);
-        add_filter('set_screen_option_fqi3_items_per_page', [$this, 'save_screen_options'], 10, 3);
+        add_action('wp_ajax_fqi3_validate_add_question', [$this->add_questions_page, 'ajax_validate_add_question']);
         add_action('load-form-quizz-fqi3_page_' . $this->get_view_questions_slug(), [$this, 'screen_options']);
+        add_action('load-form-quizz-fqi3_page_' . $this->get_attempts_slug(), [$this, 'screen_options_attempts']);
     }
 
     /**
@@ -170,8 +199,6 @@ class FQI3_Backend {
     public function init_register_settings() {
         register_setting('fqi3_options_group', 'fqi3_options', [$this, 'sanitize_fqi3_settings']);
         register_setting('fqi3_options_group', 'fqi3_access_roles',['FQI3_Access_Control_Settings', 'sanitize_roles']);
-        //register_setting('fqi3_options_group', 'fqi3_badges',['FQI3_Badges_Settings', 'sanitize_badges_options']);
-        //register_setting('fqi3_options_group', 'fqi3_quiz_levels',['FQI3_Levels_Settings', 'sanitize_levels_options']);
 
         $config = fqi3_options_settings_sections();
         foreach ($config['settings_classes'] as $class) {
@@ -205,15 +232,62 @@ class FQI3_Backend {
         $sanitized_input = array_merge($sanitized_input, FQI3_Content_Settings::sanitize_content_options($input));
         $sanitized_input = array_merge($sanitized_input, FQI3_Api_Settings::sanitize_api_options($input));
 
+        // Tools settings (purge)
+        $sanitized_input['fqi3_attempts_purge_enabled'] = !empty($input['fqi3_attempts_purge_enabled']) ? 1 : 0;
+        $days = isset($input['fqi3_attempts_retention_days']) ? absint($input['fqi3_attempts_retention_days']) : 30;
+        if ($days <= 0) { $days = 30; }
+        $sanitized_input['fqi3_attempts_retention_days'] = $days;
+
         return $sanitized_input;
+    }
+
+    /**
+     * Schedule or clear daily purge based on settings
+     */
+    public function maybe_schedule_purge(): void
+    {
+        $options = fqi3_get_options();
+        $enabled = !empty($options['fqi3_attempts_purge_enabled']);
+        $hook = 'fqi3_purge_attempts_event';
+        $scheduled = wp_next_scheduled($hook);
+
+        if ($enabled && !$scheduled) {
+            wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', $hook);
+        } elseif (!$enabled && $scheduled) {
+            wp_clear_scheduled_hook($hook);
+        }
+    }
+
+    /**
+     * Purge attempts older than retention days
+     */
+    public function run_purge_attempts(): void
+    {
+        global $wpdb;
+        $options = fqi3_get_options();
+        $days = isset($options['fqi3_attempts_retention_days']) ? absint($options['fqi3_attempts_retention_days']) : 30;
+        if ($days <= 0) { $days = 30; }
+
+        $table = $wpdb->prefix . 'fqi3_quiz_attempts';
+        // Delete in batches to avoid timeouts
+        $batch = 1000;
+        do {
+            $deleted = $wpdb->query(
+                $wpdb->prepare(
+                    "DELETE FROM {$table} WHERE started_at < (NOW() - INTERVAL %d DAY) LIMIT {$batch}",
+                    $days
+                )
+            );
+        } while ($deleted === $batch);
     }
 
     /**
      * Adds menu pages and submenus to the WordPress admin menu.
      */
     public function add_menu_pages(): void {
-        $pages = $this->plugin_page_slugs;
+        $pages = fqi3_get_admin_pages();
         $allowed_roles = $this->get_allowed_roles();
+        $test = [];
 
         foreach ($pages as $key => $page) {
             $property = isset($page['property']) ? $page['property'] : null;
@@ -245,9 +319,20 @@ class FQI3_Backend {
                     $thisCallback
                 );
             }
-        }
+            $test[] = $page['title'];
+        };
+
+        $this->register_submenus();
+
         // Remove the main menu entry from submenus
         remove_submenu_page($pages['main']['slug'], $pages['main']['slug']);
+    }
+
+    /**
+     * Méthode pour enregistrer les sous-menus (extensible par les addons)
+     */
+    public function register_submenus() {
+        do_action('fqi3_register_submenus');
     }
 
      /**
@@ -265,6 +350,8 @@ class FQI3_Backend {
     {
         $screen = get_current_screen();
         if (is_plugin_admin_page($screen->id)) {
+            $plugin_name = FQI3_NAME;
+            $plugin_version = FQI3_VERSION;
             include(FQI3_PATH . '/templates/header.php');
         }
     }
@@ -278,7 +365,8 @@ class FQI3_Backend {
     *
     * @return void
     * 
-    * @since 1.3.2
+    * @since 1.3.2 Initial release
+    * @since 3.0.0 Add params
     */
     public function display_admin_footer(): void {
         $screen = get_current_screen();
@@ -295,7 +383,24 @@ class FQI3_Backend {
      * @since 1.4.0
      */
     public function get_view_questions_slug(): ?string {
+        if (!isset($this->plugin_page_slugs)) {
+            $this->plugin_page_slugs = fqi3_get_admin_pages_raw();
+        }
         return isset($this->plugin_page_slugs['view_questions']['slug']) ? $this->plugin_page_slugs['view_questions']['slug'] : null;
+    }
+
+    /**
+     * Retrieves the slug for the 'attempts' page from the plugin_page_slugs property.
+     *
+     * @return string|null The slug of the 'attempts' page, or null if not found.
+     * 
+     * @since 3.0.0 
+     */
+    public function get_attempts_slug(): ?string {
+        if (!isset($this->plugin_page_slugs)) {
+            $this->plugin_page_slugs = fqi3_get_admin_pages_raw();
+        }
+        return isset($this->plugin_page_slugs['attempts']['slug']) ? $this->plugin_page_slugs['attempts']['slug'] : null;
     }
 
     /**
@@ -344,11 +449,11 @@ class FQI3_Backend {
      * @param mixed $status Current status.
      * @param string $option Option name.
      * @param mixed $value New value for the option.
-     * @return mixed Updated value if the option is 'fqi3_items_per_page', otherwise the original status.
+     * @return mixed Updated value if the option is 'fqi3_items_per_page' or 'fqi3_attempts_per_page', otherwise the original status.
      */
     public function save_screen_options($status, $option, $value)
     {
-        if ($option === 'fqi3_items_per_page') {
+        if ($option === 'fqi3_items_per_page' || $option === 'fqi3_attempts_per_page') {
             update_option($option, $value, false);
             return $value;
         }
@@ -372,6 +477,27 @@ class FQI3_Backend {
             'label'   => __('Questions per page', 'form-quizz-fqi3'),
             'default' => 10,
             'option'  => 'fqi3_items_per_page'
+        );
+
+        add_screen_option('per_page', $args);
+    }
+
+    /**
+     * Adds screen options for the Attempts (Audit) admin page.
+     * 
+     * @since 3.0.0
+     */
+    public function screen_options_attempts(): void
+    {
+        $screen = get_current_screen();
+        if ($screen->id !== 'form-quizz-fqi3_page_' . $this->get_attempts_slug()) {
+            return;
+        }
+
+        $args = array(
+            'label'   => __('Attempts per page', 'form-quizz-fqi3'),
+            'default' => 20,
+            'option'  => 'fqi3_attempts_per_page'
         );
 
         add_screen_option('per_page', $args);

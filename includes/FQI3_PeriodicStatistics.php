@@ -121,7 +121,7 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
          * @param string $end_date End date of the period
          * @param int $userId The ID of a specific user for whom statistics should be recorded (optional).
          */
-        private function recordPeriodicStatistics(string $periodType, string $startDate, string $endDate, int $userId = null): void {
+        private function recordPeriodicStatistics(string $periodType, string $startDate, string $endDate, ?int $userId = null): void {
             global $wpdb;
         
             $userCondition = $userId ? [$startDate, $endDate, $userId] : [$startDate, $endDate];
@@ -139,7 +139,8 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             ", ...$userCondition));
         
             if (empty($results)) {
-                throw new \Exception(__('No data found for the specified period.', 'form-quizz-fqi3'));
+                //throw new \Exception(__('No data found for the specified period.', 'form-quizz-fqi3'));
+                return;
             }
         
             foreach ($results as $row) {

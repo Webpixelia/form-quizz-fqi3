@@ -66,6 +66,37 @@ class FQI3_Add_Questions_Page {
     }
 
     /**
+     * AJAX: Validate add question form without saving.
+     *
+     * Action: wp_ajax_fqi3_validate_add_question
+     */
+    public function ajax_validate_add_question(): void {
+        if ( ! current_user_can('edit_posts') ) {
+            wp_send_json_error([
+                'message' => __('You are not allowed to perform this action.', 'form-quizz-fqi3')
+            ], 403);
+        }
+
+        $nonce = isset($_POST['security']) ? sanitize_text_field(wp_unslash($_POST['security'])) : '';
+        if ( ! wp_verify_nonce($nonce, 'fqi3_validate_add_question') ) {
+            wp_send_json_error([
+                'message' => __('Invalid security token.', 'form-quizz-fqi3')
+            ], 400);
+        }
+
+        $result = $this->validate_and_sanitize_input();
+        if ($result instanceof \WP_Error) {
+            wp_send_json_error([
+                'errors' => $result->get_error_messages(),
+            ], 422);
+        }
+
+        wp_send_json_success([
+            'message' => __('Validation passed.', 'form-quizz-fqi3')
+        ]);
+    }
+
+    /**
      * Handles the submission of the form for adding a new question.
      * Verifies nonce for security, sanitizes input data, and inserts the new question into the database.
      * Redirects to the page displaying all questions upon successful insertion.

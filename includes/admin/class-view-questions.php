@@ -71,16 +71,16 @@ class FQI3_View_Questions_Page {
         ?>
         <div class="wrap container-fluid">
             <!-- Header Section -->
-            <div class="row mb-4">
-                <div class="col">
-                    <h1 class="h2 d-inline-block"><?php _e('Viewing questions', 'form-quizz-fqi3'); ?></h1>
+            <div class="d-flex align-items-center justify-content-between">
+                <h2 class="wp-heading-inline page-title"><?php _e('Viewing questions', 'form-quizz-fqi3'); ?></h2>
+                <div class="btn-group gap-2">
                     <a href="<?php echo esc_url(admin_url("admin.php?page=$add_page")); ?>" 
-                       class="btn btn-primary ms-2">
+                       class="btn btn-primary btn-sm ms-2">
                         <i class="bi bi-plus-circle"></i> <?php _e('Add a question', 'form-quizz-fqi3'); ?>
                     </a>
                 </div>
             </div>
-            <hr class="wp-header-end">
+            <hr>
             <?php $this->render_modal_deletion(); ?>
             <div class="container-fluid mt-4">
                 <div class="bg-light p-4 rounded shadow-sm">
@@ -101,6 +101,12 @@ class FQI3_View_Questions_Page {
                 </div>
             </div>
 
+            <div class="d-flex flex-wrap gap-3">
+                <?php
+                // Allow addons to inject a top panel (e.g., QB Assignment & Status) before the questions table
+                do_action('fqi3_admin_quiz_questions_top_panel');
+                ?>
+            </div>
 
             <!-- Questions Table -->
             <div class="table-responsive">
@@ -110,6 +116,10 @@ class FQI3_View_Questions_Page {
                             <th><?php _e('ID', 'form-quizz-fqi3'); ?></th>
                             <th><?php _e('Access', 'form-quizz-fqi3'); ?></th>
                             <th><?php _e('Level', 'form-quizz-fqi3'); ?></th>
+                            <?php
+                            // Allow addons (e.g., multilingual) to inject extra columns after Level
+                            do_action('fqi3_admin_quiz_questions_header_after_level');
+                            ?>
                             <th><?php _e('Question', 'form-quizz-fqi3'); ?></th>
                             <th><?php _e('Instructions for the question', 'form-quizz-fqi3'); ?></th>
                             <th><?php _e('Options', 'form-quizz-fqi3'); ?></th>
@@ -224,12 +234,46 @@ class FQI3_View_Questions_Page {
         if (!empty($search_term)) {
             $where_clause[] = $wpdb->prepare('q LIKE %s', '%' . $wpdb->esc_like($search_term) . '%');
         }
+        // Allow addons (e.g., multilingual) to inject extra WHERE parts
+        $where_clause = apply_filters(
+            'fqi3_admin_quiz_questions_where_parts',
+            $where_clause,
+            [
+                'table'        => $table_name,
+                'filter_level' => $filter_level,
+                'search_term'  => $search_term,
+            ]
+        );
+
         $where_clause_str = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
+        // Allow addons to adjust the final WHERE SQL string
+        $where_clause_str = apply_filters(
+            'fqi3_admin_quiz_questions_where_sql',
+            $where_clause_str,
+            [
+                'table'        => $table_name,
+                'filter_level' => $filter_level,
+                'search_term'  => $search_term,
+            ]
+        );
 
         $sql = $wpdb->prepare(
             "SELECT SQL_CALC_FOUND_ROWS * FROM $table_name $where_clause_str LIMIT %d OFFSET %d",
             $items_per_page,
             $offset
+        );
+        // Allow addons to override/adjust the final SQL before execution
+        $sql = apply_filters(
+            'fqi3_admin_quiz_questions_sql',
+            $sql,
+            [
+                'table'          => $table_name,
+                'filter_level'   => $filter_level,
+                'search_term'    => $search_term,
+                'items_per_page' => $items_per_page,
+                'offset'         => $offset,
+                'where_sql'      => $where_clause_str,
+            ]
         );
 
         return $wpdb->get_results($sql);
@@ -253,9 +297,43 @@ class FQI3_View_Questions_Page {
         if (!empty($search_term)) {
             $where_clause[] = $wpdb->prepare('q LIKE %s', '%' . $wpdb->esc_like($search_term) . '%');
         }
+        // Allow addons to inject extra WHERE parts for count query as well
+        $where_clause = apply_filters(
+            'fqi3_admin_quiz_questions_where_parts',
+            $where_clause,
+            [
+                'table'        => $table_name,
+                'filter_level' => $filter_level,
+                'search_term'  => $search_term,
+                'count'        => true,
+            ]
+        );
+
         $where_clause_str = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
+        $where_clause_str = apply_filters(
+            'fqi3_admin_quiz_questions_where_sql',
+            $where_clause_str,
+            [
+                'table'        => $table_name,
+                'filter_level' => $filter_level,
+                'search_term'  => $search_term,
+                'count'        => true,
+            ]
+        );
         
-        return $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause_str");
+        $count_sql = "SELECT COUNT(*) FROM $table_name $where_clause_str";
+        $count_sql = apply_filters(
+            'fqi3_admin_quiz_questions_count_sql',
+            $count_sql,
+            [
+                'table'        => $table_name,
+                'filter_level' => $filter_level,
+                'search_term'  => $search_term,
+                'where_sql'    => $where_clause_str,
+            ]
+        );
+
+        return $wpdb->get_var($count_sql);
     }
 
     /**
@@ -319,6 +397,10 @@ class FQI3_View_Questions_Page {
                         class="form-control-sm"
                         value="<?php echo esc_attr($search_term); ?>" 
                         placeholder="<?php _e('Search questions...', 'form-quizz-fqi3'); ?>">
+                <?php
+                // Allow addons to inject additional filter fields (e.g., language dropdown)
+                do_action('fqi3_admin_quiz_questions_filter_fields');
+                ?>
                 <button type="submit" class="btn btn-dark btn-sm">
                     <i class="bi bi-filter"></i> <?php _e('Filter', 'form-quizz-fqi3'); ?>
                 </button>
@@ -423,6 +505,10 @@ class FQI3_View_Questions_Page {
                 <td class="id_column"><?php echo esc_html($question->id); ?></td>
                 <td class="access_column"><?php echo esc_html($freeLevel === true ? __('Free', 'form-quizz-fqi3') : __('Premium', 'form-quizz-fqi3')); ?></td>
                 <td class="level_column"><?php echo esc_html($labelLevel); ?></td>
+                <?php
+                // Allow addons to inject extra cells after Level
+                do_action('fqi3_admin_quiz_questions_row_after_level', $question);
+                ?>
                 <td class="question_column"><?php echo esc_html($question->q); ?></td>
                 <td class="question_2_column"><?php echo esc_html($question->q2); ?></td>
                 <td class="options_column">
@@ -433,9 +519,13 @@ class FQI3_View_Questions_Page {
                     <a href="#" class="btn btn-sm btn-danger delete-question" data-id="<?php echo esc_attr($question->id); ?>">
                         <?php _e('Delete', 'form-quizz-fqi3'); ?>
                     </a>
+                    <?php
+                    // Allow addons to append actions HTML (e.g., Translate dropdown)
+                    echo apply_filters('fqi3_admin_quiz_question_actions', '', $question);
+                    ?>
                 </td>
                 <td class="edit_column">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . $edit_page . '&id=' . $question->id)); ?>" class="btn btn-sm btn-success">
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . $edit_page . '&id=' . $question->id)); ?>" class="btn btn-sm btn-warning">
                         <?php _e('Edit', 'form-quizz-fqi3'); ?>
                     </a>
                 </td>

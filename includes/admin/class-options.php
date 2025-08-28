@@ -37,6 +37,8 @@ if ( ! class_exists( 'FQI3_Option_Page' ) ) :
 
                 <?php settings_errors(); ?>
 
+                <button id="start-tour" class="btn btn-info mb-3"><?php _e('Start the guided tour', 'form-quizz-fqi3') ?></button>
+
                 <div id="options_container" class="fqi3-options-container">
                     <div id="options_tab_link">
                         <?php $this->render_options_tabs($sections); ?>
@@ -45,6 +47,7 @@ if ( ! class_exists( 'FQI3_Option_Page' ) ) :
                         <?php $this->render_options_form($plugin_page_slugs); ?>
                     </div>
                 </div>
+            </div>
             <?php
         }
 

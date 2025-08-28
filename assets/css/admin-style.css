@@ -11,7 +11,7 @@
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
- :root {
+:root {
     --fqi3--border--color: #E5E7EB;
     --fqi3--border--radius: 6px;
     --fqi3--box-shadow: 1px 2px 3px #12196110;
@@ -42,20 +42,65 @@
     --fqi3--spacing--medium: 30px;
     --fqi3--spacing--small: 10px;
     --fqi3--weight-font-bold: 800;
- }
- body {
+}
+
+body {
     font-size: initial;
- }
- .form-switch .form-check-input {
+}
+
+.form-switch .form-check-input {
     background-repeat:no-repeat;
     float: unset;
- }
+}
 
- /* Header */
- .fqi3_banner {
+input[readonly] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.disabled {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed !important;
+}
+
+.disabled a {
+    color: #aaa !important;
+    text-decoration: none;
+}
+
+.disabled .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    z-index: 1;
+}
+
+.blur {filter: blur(3px);}
+
+.fqi3-section-options-page.disabled * {
+    pointer-events: none;
+}
+
+/* Cacher le <th> vide dans la table des options */
+.form-table th[scope="row"]:empty {
+    display: none;
+}
+
+/* Ajuster la largeur à 0 */
+.form-table th[scope="row"]:empty {
+    width: 0;
+}
+
+/* Header */
+.fqi3_banner {
     background-color: #FFF;
     box-shadow: var(--fqi3--box-shadow);
-    margin-left: -20px;
     padding: var(--fqi3--spacing--medium) 0 calc(var(--fqi3--spacing--medium) / 2) 0;
 }
 .fqi3_banner .fqi3_banner_wrapper {
@@ -545,4 +590,19 @@ i.bi {
 .changelog-entry {
     margin: 1em 0;
     line-height: 1.6;
+}
+
+/* MENU Admin */
+#adminmenu #toplevel_page_fqi3-main .wp-submenu li.fqi3-separator-addon {
+    position: relative;
+}
+
+#adminmenu #toplevel_page_fqi3-main .wp-submenu li.fqi3-separator-addon::before {
+    content: "";
+    background: #b4b9be;
+    display: block;
+    height: 1px;
+    margin: 5px auto;
+    opacity: 0.4;
+    width: calc(100% - 24px);
 }

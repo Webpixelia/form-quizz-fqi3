@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 2.2.0
+ * Version: 3.0.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Requires PHP: 8.0
@@ -28,8 +28,6 @@ if (!defined('ABSPATH')) {
 // Composer autoload
 require_once __DIR__ . '/vendor/autoload.php';
 
-use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-
 /**
  * Main plugin class
  */
@@ -46,14 +44,7 @@ final class FormQuizzFQI3 {
      *
      * @var string
      */
-    private const FQI3_VERSION = '2.2.0';
-
-    /**
-     * GitHub repository details
-     *
-     * @var string
-     */
-    private const GITHUB_REPO_URL = 'https://github.com/Webpixelia/form-quizz-fqi3';
+    private const FQI3_VERSION = '3.0.0';
 
     /**
      * Required PHP version
@@ -92,42 +83,68 @@ final class FormQuizzFQI3 {
     }
 
     /**
+     * Register Gutenberg blocks for core plugin shortcodes (SSR)
+     */
+    public function registerBlocks(): void {
+        if (!function_exists('register_block_type')) {
+            return;
+        }
+
+        // Editor script registering SSR blocks
+        wp_register_script(
+            'fqi3-blocks-editor',
+            plugins_url('assets/js/fqi3-blocks-editor.js', __FILE__),
+            ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-server-side-render'],
+            self::FQI3_VERSION,
+            true
+        );
+
+        // Helper to register a shortcode-backed SSR block
+        $register = function(string $name, string $shortcode) {
+            register_block_type($name, [
+                'editor_script'   => 'fqi3-blocks-editor',
+                'render_callback' => function($attributes = [], $content = '') use ($shortcode) {
+                    return do_shortcode('[' . $shortcode . ']');
+                },
+                'attributes' => [],
+                'supports'  => [ 'html' => false ],
+            ]);
+        };
+
+        // Primary public shortcodes
+        $register('fqi3/quiz-form', 'fqi3_quizz_form');
+        $register('fqi3/remaining-attempts', 'fqi3_remaining_attempts');
+        $register('fqi3/user-statistics', 'fqi3_user_statistics');
+        $register('fqi3/comparative-statistics', 'fqi3_comparative_statistics');
+        $register('fqi3/current-user-badges', 'fqi3_current_user_badges');
+        $register('fqi3/periodic-stats', 'fqi3_periodic_stats');
+    }
+    
+    /**
      * Private constructor to prevent direct instantiation
      */
     private function __construct() {
         $this->defineConstants();
         $this->checkRequirements();
-        $this->initHooks();
         $this->loadDependencies();
-        $this->initUpdateChecker();
-    }
+        $this->initHooks();
 
-    /**
-     * Initialize GitHub update checker
-     */
-    private function initUpdateChecker(): void {
-        $updateChecker = PucFactory::buildUpdateChecker(
-            self::GITHUB_REPO_URL,
-            __FILE__,
-            'form-quizz-fqi3'
-        );
-
-        // Optional: Set the branch that contains the stable release
-        //$updateChecker->setBranch('main');
-
-        // Enable release assets
-        //$updateChecker->getVcsApi()->enableReleaseAssets();
-
-        // Optional: If repository is private
-        // $updateChecker->setAuthentication('your-github-personal-access-token');
-
-        // Optional: Set update checker to check for pre-release versions
-        // $updateChecker->setUpdateMetadata([
-        //     'version' => self::FQI3_VERSION,
-        //     'requires' => '5.0', // Minimum WordPress version
-        //     'tested' => '6.2', // Tested up to WordPress version
-        //     'requires_php' => self::REQUIRED_PHP_VERSION,
-        // ]);
+        // Blocks and category
+        add_action('init', [$this, 'registerBlocks']);
+        add_filter('block_categories_all', function(array $categories) {
+            $slug = 'form-quizz-fqi3';
+            foreach ($categories as $cat) {
+                if (!empty($cat['slug']) && $cat['slug'] === $slug) {
+                    return $categories;
+                }
+            }
+            $categories[] = [
+                'slug'  => $slug,
+                'title' => __('Form Quizz FQI3', 'form-quizz-fqi3'),
+                'icon'  => null,
+            ];
+            return $categories;
+        }, 10, 1);
     }
 
     /**
@@ -199,6 +216,8 @@ final class FormQuizzFQI3 {
         if (is_admin()) {
             add_action('admin_enqueue_scripts', [$this, 'adminAssets']);
             add_action('admin_init', [$this, 'restrictAdminAccess']);
+            // Run schema upgrade once to widen q/q2 to TEXT (utf8mb4)
+            add_action('admin_init', [$this, 'maybeMigrateSchema300']);
             add_filter('plugin_action_links_' . plugin_basename(FQI3_FILE), [$this, 'pluginLinks']);
         } else {
             add_action('wp_enqueue_scripts', [$this, 'frontendAssets']);
@@ -230,9 +249,9 @@ final class FormQuizzFQI3 {
             FQI3_TABLE_QUIZZES => "
                 CREATE TABLE IF NOT EXISTS {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " (
                     id INT(11) NOT NULL AUTO_INCREMENT,
-                    niveau VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-                    q VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-                    q2 VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                    niveau VARCHAR(255) NOT NULL,
+                    q TEXT NOT NULL,
+                    q2 TEXT NOT NULL,
                     options JSON NOT NULL,
                     answer INT(11) NOT NULL,
                     PRIMARY KEY (id)
@@ -285,7 +304,7 @@ final class FormQuizzFQI3 {
         $files = [
             'fqi3-config-functions.php',
             'admin/class-abstract-settings.php',
-            'db/PerformanceTableManager.php',
+            'db/PerformanceTableManager.php',         
             'FQI3_Template_Manager.php',
             'FQI3_Awards.php',
             'FQI3_Frontend.php',
@@ -293,7 +312,8 @@ final class FormQuizzFQI3 {
             'FQI3_Statistics.php',
             'FQI3_PeriodicStatistics.php',
             'FQI3_Emails.php',
-            'FQI3_Api.php'
+            'FQI3_Api.php',
+            'admin/class-api-logger.php',
         ];
 
         foreach ($files as $file) {
@@ -311,12 +331,69 @@ final class FormQuizzFQI3 {
      * @since 1.6.0 Modified to include quiz API initialization based on settings
     */
     public function init(): void {
-        load_plugin_textdomain('form-quizz-fqi3', false, FQI3_PATH_DIRECTORY . '/languages');
-
+        $this->loadTextdomain();
         $options = get_option('fqi3_options', []);
+        // Ensure default API settings whitelists are registered
+        $this->registerApiSettingsWhitelists();
         if (isset($options['fqi3_quiz_api']) && $options['fqi3_quiz_api']) {
             new FQI3_Quiz_API();
         }
+    }
+
+    /**
+     * Register default whitelists for API-exposed settings groups.
+     *
+     * These filters define which option keys from 'fqi3_options' can be exposed
+     * through the read-only REST endpoints implemented in FQI3_Api.
+     *
+     * Addons or site code can extend or restrict these lists via the same filters.
+     */
+    private function registerApiSettingsWhitelists(): void {
+        // General group: only requested fields
+        add_filter('fqi3_api_settings_whitelist_general', function(array $keys) {
+            $defaults = [
+                'fqi3_free_trials_per_day',
+                'fqi3_number_questions_per_quiz',
+            ];
+            return array_values(array_unique(array_merge($keys, $defaults)));
+        });
+
+        // Emails group: only requested fields
+        add_filter('fqi3_api_settings_whitelist_emails', function(array $keys) {
+            $defaults = [
+                'fqi3_disable_emails',
+            ];
+            return array_values(array_unique(array_merge($keys, $defaults)));
+        });
+
+        // Tools group: only requested fields
+        add_filter('fqi3_api_settings_whitelist_tools', function(array $keys) {
+            $defaults = [
+                'fqi3_disable_sharing',
+                'fqi3_disable_statistics',
+            ];
+            return array_values(array_unique(array_merge($keys, $defaults)));
+        });
+
+        // Badges group: only requested fields
+        add_filter('fqi3_api_settings_whitelist_badges', function(array $keys) {
+            $defaults = [
+                'fqi3_disable_badges',
+                'fqi3_disable_badges_legend',
+            ];
+            return array_values(array_unique(array_merge($keys, $defaults)));
+        });
+    }
+
+    /**
+     * Load plugin textdomain early for both admin and frontend.
+     */
+    public function loadTextdomain(): void {
+        load_plugin_textdomain(
+            'form-quizz-fqi3',
+            false,
+            dirname(plugin_basename(FQI3_FILE)) . '/languages'
+        );
     }
 
     /**
@@ -331,14 +408,17 @@ final class FormQuizzFQI3 {
         if (!in_array($hook, $plugin_pages, true)) {
             return;
         }
-    
+
         // Enqueue media assets if needed
         if ($hook === 'form-quizz-fqi3_page_fqi3-options-quiz-questions') {
             wp_enqueue_media();
         }
-    
+
         // Enqueue Bootstrap assets
         $this->enqueueBootstrapAssets();
+
+        // Enqueue Driver JS assets
+        $this->enqueueDriverJsAssets();
     
         // Enqueue plugin-specific assets
         $this->enqueuePluginAssets();
@@ -348,15 +428,23 @@ final class FormQuizzFQI3 {
     }
 
     /**
-     * Get admin page slugs
+     * Retrieve and filter admin page slugs for the plugin
      *
-     * @return string[]
-     */
+     * This method generates page slugs for the plugin and allows addons to extend 
+     * the list of admin page slugs via a filter.
+     *
+     * @return string[] Array of admin page slugs
+     * @since 3.0.0 Added support for extending page slugs via filter
+    */
     private function getAdminPageSlugs(): array {
         $pages = fqi3_get_admin_pages();
-        return array_map(function ($page) {
+
+        $plugin_pages = array_map(function ($page) {
             return 'form-quizz-fqi3_page_' . $page['slug'];
         }, $pages);
+    
+        // Filter to allow addons extend pages list
+        return apply_filters('fqi3_admin_page_slugs', $plugin_pages);
     }
 
     /**
@@ -368,12 +456,23 @@ final class FormQuizzFQI3 {
         wp_enqueue_script('bootstrap-js', 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js', ['jquery'], null, true);
     }
 
+    public function enqueueDriverJsAssets(): void {
+        wp_enqueue_style('driver-css', 'https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.css', [], null, 'all');
+        wp_enqueue_script('driver-js', 'https://cdn.jsdelivr.net/npm/driver.js@1.0.1/dist/driver.js.iife.js', [], null, true);
+    }
+
     /**
      * Enqueue plugin-specific assets
      */
-    private function enqueuePluginAssets(): void {
+    private function enqueuePluginAssets(): void {        
         wp_enqueue_style('fqi3-admin-style', FQI3_ASSETS . '/css/admin-style.css', [], self::FQI3_VERSION, 'all');
-        wp_enqueue_script('fqi3-admin-script', FQI3_ASSETS . '/js/admin-script.js', ['jquery'], self::FQI3_VERSION, true);
+        // Load translatable Driver.js steps first (exposes window.fqi3GetDriverSteps)
+        wp_enqueue_script('fqi3-driver-strings', FQI3_ASSETS . '/js/driverjs-strings.js', ['wp-i18n'], self::FQI3_VERSION, true);
+        wp_set_script_translations('fqi3-driver-strings', 'form-quizz-fqi3');
+
+        // Main admin script depends on jQuery, wp-i18n and our driver strings
+        wp_enqueue_script('fqi3-admin-script', FQI3_ASSETS . '/js/admin-script.js', ['jquery', 'wp-i18n', 'fqi3-driver-strings'], self::FQI3_VERSION, true);
+        wp_set_script_translations('fqi3-admin-script', 'form-quizz-fqi3');
     }
 
     private function localizeAdminScript(): void {
@@ -404,6 +503,28 @@ final class FormQuizzFQI3 {
         wp_localize_script('fqi3-admin-script', 'fqi3Stats', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('fqi3_refresh_stats')
+        ]);
+
+        wp_localize_script('fqi3-admin-script', 'fqi3AddonsAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce_search' => wp_create_nonce('fqi3_addons_search'),
+            'nonce_action' => wp_create_nonce('fqi3_addon_action'),
+            'strings' => [
+                'noResults' => __('No add-ons found.', 'form-quizz-fqi3'),
+                'loading'   => __('Please wait...', 'form-quizz-fqi3'),
+                'error'     => __('An unexpected error occurred.', 'form-quizz-fqi3'),
+                'installing'=> __('Installing add-on...', 'form-quizz-fqi3'),
+                'activating'=> __('Activating add-on...', 'form-quizz-fqi3'),
+                'deactivating' => __('Deactivating add-on...', 'form-quizz-fqi3'),
+                'notAllowed'   => __('You are not allowed to perform this action.', 'form-quizz-fqi3'),
+                'invalidNonce' => __('Invalid security token.', 'form-quizz-fqi3'),
+            ]
+        ]);
+
+        // AJAX validation for Add Question form
+        wp_localize_script('fqi3-admin-script', 'fqi3QuestionsAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce_validate_add' => wp_create_nonce('fqi3_validate_add_question'),
         ]);
     }
 
@@ -556,6 +677,74 @@ final class FormQuizzFQI3 {
     public function deactivate(): void {
         remove_role(ROLE_PREMIUM);
         flush_rewrite_rules();
+    }
+
+    /**
+     * Upgrade DB schema for 3.0.0 to allow longer question texts.
+     * - Change columns q and q2 in core quizzes table to TEXT with site charset/collation.
+     * - Idempotent: checks current column types and skips if already TEXT.
+     * - Executes once and records completion in an option.
+     */
+    public function maybeMigrateSchema300(): void {
+        // Ensure only privileged users trigger migration to avoid unnecessary writes
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        $flag = get_option('fqi3_core_schema_qtext_300', '0');
+        if ($flag === '1') {
+            return; // already migrated
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . FQI3_TABLE_QUIZZES;
+
+        // Verify table exists
+        $table_exists = (bool) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = %s',
+            DB_NAME,
+            $table
+        ));
+        if (!$table_exists) {
+            // Create tables if missing (fresh installs)
+            $this->createTables();
+            update_option('fqi3_core_schema_qtext_300', '1');
+            return;
+        }
+
+        // Describe current columns
+        $cols = $wpdb->get_results('DESCRIBE ' . $table, ARRAY_A);
+        if (!is_array($cols)) {
+            return;
+        }
+        $types = [];
+        foreach ($cols as $c) {
+            if (!empty($c['Field']) && !empty($c['Type'])) {
+                $types[strtolower($c['Field'])] = strtolower($c['Type']);
+            }
+        }
+
+        $alters = [];
+        $charset = $wpdb->charset ? (' CHARACTER SET ' . $wpdb->charset) : '';
+        $collate = $wpdb->collate ? (' COLLATE ' . $wpdb->collate) : '';
+
+        // Only widen if not already text
+        if (isset($types['q']) && strpos($types['q'], 'text') === false) {
+            $alters[] = 'MODIFY `q` TEXT' . $charset . $collate;
+        }
+        if (isset($types['q2']) && strpos($types['q2'], 'text') === false) {
+            $alters[] = 'MODIFY `q2` TEXT' . $charset . $collate;
+        }
+
+        if ($alters) {
+            $sql = 'ALTER TABLE `' . esc_sql($table) . '` ' . implode(', ', $alters);
+            $wpdb->query($sql);
+            if (defined('WP_DEBUG') && WP_DEBUG && !empty($wpdb->last_error)) {
+                error_log('[FQI3] Schema migration 3.0.0 notice: ' . $wpdb->last_error);
+            }
+        }
+
+        update_option('fqi3_core_schema_qtext_300', '1');
     }
 }
 

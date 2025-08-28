@@ -57,7 +57,7 @@ class FQI3_Dashboard_Page {
                             <i class="bi bi-people"></i> <?php _e('Latest registrants', 'form-quizz-fqi3'); ?>
                         </div>
                         <div class="card-body">
-                            <ul class="nav nav-pills nav-fill" id="userTabs" role="tablist">
+                            <ul class="nav nav-pills nav-fill small" id="userTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="all-tab" data-bs-target="all">
                                         <?php _e('All', 'form-quizz-fqi3'); ?>
@@ -113,6 +113,8 @@ class FQI3_Dashboard_Page {
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
+                                <?php $questions_url = admin_url('admin.php?page=' . (fqi3_get_admin_pages_raw()['view_questions']['slug'] ?? 'fqi3-view-quiz-questions')); ?>
+                                <div class="text-end"><a class="btn btn-sm btn-primary" href="<?php echo esc_url($questions_url); ?>"><i class="bi bi-list"></i><?php _e('View all', 'form-quizz-fqi3'); ?></a></div>
                             </div>
                         </div>
                     </div>
@@ -169,7 +171,27 @@ class FQI3_Dashboard_Page {
                     </div>
                 </div>
 
-                <!-- Postbox 4 -->
+                <?php
+                $addon_cards = apply_filters('fqi3_dashboard_addon_cards', []);
+                if (!empty($addon_cards)) :
+                    foreach ($addon_cards as $card) :
+                        if (!isset($card['title'], $card['content'], $card['icon_class'], $card['header_class'])) {
+                            continue;
+                        }
+                        ?>
+                        <div class="col-md-6 mb-4">
+                            <div class="card mw-100">
+                                <div class="card-header <?php echo esc_attr($card['header_class']); ?>">
+                                    <i class="<?php echo esc_attr($card['icon_class']); ?>"></i> <?php echo esc_html($card['title']); ?>
+                                </div>
+                                <div class="card-body">
+                                    <?php echo $card['content']; ?>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                <!-- Last Postbox -->
                 <div class="col-md-6 mb-4">
                     <div class="card mw-100">
                         <div class="card-header bg-info text-white fw-semibold">

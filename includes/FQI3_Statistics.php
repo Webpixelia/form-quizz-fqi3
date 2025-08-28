@@ -466,7 +466,7 @@ if (!defined('ABSPATH')) {
          * @param array $options The plugin options array.
          * @return string|null An error message if validation fails, or null if all checks pass.
          */
-        public function validate_user_permissions(string $subject = null): ?string {
+        public function validate_user_permissions(?string $subject = null): ?string {
             if ($subject === null) {
                 $subject = __('this section', 'form-quizz-fqi3');
             }

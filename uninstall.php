@@ -24,10 +24,11 @@ if (isset($options['fqi3_delete_data']) && $options['fqi3_delete_data']) {
         'fqi3_access_roles',
         'fqi3_badges',
         'fqi3_current_version',
+        'fqi3_import_export_logs',
         'fqi3_items_per_page',
         'fqi3_options',
-        'fqi3_quiz_levels',
-        'fqi3_import_export_logs'
+        'fqi3_quiz_levels',   
+        'fqi3_encryption_key',
     ];
     foreach ($options_to_delete as $option) {
         delete_option($option);
