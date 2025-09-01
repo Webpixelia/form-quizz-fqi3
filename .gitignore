@@ -10,7 +10,6 @@
 *.rsrc
 
 # PHP Composer dependencies
-/vendor/
 composer.lock
 
 # Node.js dependencies (if applicable)
