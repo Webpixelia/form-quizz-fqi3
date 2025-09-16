@@ -1,11 +1,9 @@
-# Copyright (C) 2024 Jonathan Webpixelia
-# This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
 "Project-Id-Version: Form Quizz FQI3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
-"POT-Creation-Date: 2025-08-28T18:33:33+00:00\n"
-"PO-Revision-Date: 2025-08-28 19:37+0100\n"
+"POT-Creation-Date: 2025-09-16T09:44:51+00:00\n"
+"PO-Revision-Date: 2025-09-16 22:06+0100\n"
 "Last-Translator: \n"
 "Language-Team: Jonathan Webpixelia <contact@webpixelia.com>\n"
 "Language: fr\n"
@@ -18,7 +16,7 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: form-quizz-fqi3.php form-quizz-fqi3.php:143
-#: includes/fqi3-config-functions.php:152
+#: includes/fqi3-config-functions.php:171
 msgid "Form Quizz FQI3"
 msgstr "Form Quizz FQI3"
 
@@ -49,90 +47,119 @@ msgstr ""
 "Le formulaire Quizz FQI3 nécessite la version PHP %2$s ou supérieure. Votre "
 "version actuelle est %1$s."
 
-#: form-quizz-fqi3.php:480
+#: form-quizz-fqi3.php:485
 msgid "Are you sure you want to revoke the API token?"
 msgstr "Êtes-vous sûr de vouloir révoquer le jeton API ?"
 
-#: form-quizz-fqi3.php:481
+#: form-quizz-fqi3.php:486
 msgid "Unable to copy the shortcode. Please try again."
 msgstr "Impossible de copier le code court. Veuillez réessayer."
 
-#: form-quizz-fqi3.php:482
+#: form-quizz-fqi3.php:487
 msgid "Insert image"
 msgstr "Insérer une image"
 
-#: form-quizz-fqi3.php:483
+#: form-quizz-fqi3.php:488
 msgid "Use this image"
 msgstr "Utiliser cette image"
 
-#: form-quizz-fqi3.php:484
+#: form-quizz-fqi3.php:489
 msgid "Upload image"
 msgstr "Télécharger l’image"
 
-#: form-quizz-fqi3.php:485
+#: form-quizz-fqi3.php:490
 msgid "Answer choice"
 msgstr "Choix de réponse"
 
-#: form-quizz-fqi3.php:486 templates/question-form.php:105
+#: form-quizz-fqi3.php:491 templates/question-form.php:105
 msgid "Remove Answer Option"
 msgstr "Supprimer l’option de réponse"
 
-#: form-quizz-fqi3.php:487
+#: form-quizz-fqi3.php:492
 msgid "You must have at least 4 answer options."
 msgstr "Vous devez avoir au moins 4 options de réponse."
 
-#: form-quizz-fqi3.php:513 includes/admin/class-add-ons.php:424
+#: form-quizz-fqi3.php:520 includes/admin/class-add-ons.php:436
 msgid "No add-ons found."
 msgstr "Aucun module complémentaire trouvé."
 
-#: form-quizz-fqi3.php:514
+#: form-quizz-fqi3.php:521
 msgid "Please wait..."
 msgstr "Veuillez patienter…"
 
-#: form-quizz-fqi3.php:515
+#: form-quizz-fqi3.php:522 form-quizz-fqi3.php:546
 msgid "An unexpected error occurred."
 msgstr "Une erreur inattendue s’est produite."
 
-#: form-quizz-fqi3.php:516
+#: form-quizz-fqi3.php:523
 msgid "Installing add-on..."
 msgstr "Installation du module complémentaire..."
 
-#: form-quizz-fqi3.php:517
+#: form-quizz-fqi3.php:524
 msgid "Activating add-on..."
 msgstr "Activation du module complémentaire..."
 
-#: form-quizz-fqi3.php:518
+#: form-quizz-fqi3.php:525
 msgid "Deactivating add-on..."
 msgstr "Désactivation du module complémentaire..."
 
-#: form-quizz-fqi3.php:519 includes/admin/class-add-ons.php:709
+#: form-quizz-fqi3.php:526 includes/admin/class-add-ons.php:1293
+#: includes/admin/class-add-ons.php:1650
 #: includes/admin/class-add-questions.php:76
 msgid "You are not allowed to perform this action."
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
 "action."
 
-#: form-quizz-fqi3.php:520 includes/admin/class-add-questions.php:83
+#: form-quizz-fqi3.php:527 includes/admin/class-add-questions.php:83
 msgid "Invalid security token."
 msgstr "Jeton de sécurité non valide."
 
-#: form-quizz-fqi3.php:559 includes/admin/class-api-settings.php:304
+#: form-quizz-fqi3.php:528
+msgid "Submitting..."
+msgstr "Envoi en cours..."
+
+#: form-quizz-fqi3.php:544
+msgid "Please enter a GitHub token."
+msgstr "Veuillez saisir un jeton GitHub."
+
+#: form-quizz-fqi3.php:545
+msgid "GitHub token must contain at least 20 characters."
+msgstr "La clé GitHub doit contenir au moins 20 caractères."
+
+#: form-quizz-fqi3.php:547
+msgid "Server communication error."
+msgstr "Erreur de communication avec le serveur."
+
+#: form-quizz-fqi3.php:548
+msgid "Current token"
+msgstr "Jeton actuel"
+
+#: form-quizz-fqi3.php:549 includes/admin/class-license-settings.php:78
+msgid "Enter new token to update"
+msgstr "Entrez un nouveau jeton pour mettre à jour"
+
+#: form-quizz-fqi3.php:550 includes/admin/class-license-settings.php:190
+msgid "GitHub token saved successfully!"
+msgstr "Le jeton GitHub a été enregistré avec succès !"
+
+#: form-quizz-fqi3.php:583 includes/admin/class-api-settings.php:304
 #: includes/admin/class-developper.php:282
 #: includes/admin/class-import-export.php:52
-#: includes/fqi3-config-functions.php:158
+#: includes/fqi3-config-functions.php:177
 msgid "Settings"
 msgstr "Réglages"
 
-#: form-quizz-fqi3.php:562 templates/header.php:27
+#: form-quizz-fqi3.php:586 templates/header.php:27
 msgid "Support"
 msgstr "Support"
 
-#: form-quizz-fqi3.php:640
+#: form-quizz-fqi3.php:664
 msgid "Please select a level before starting the quiz."
 msgstr "Sélectionne un niveau avant de commencer le quiz."
 
 #. Translators: %s is the limit number of quiz per day
-#: form-quizz-fqi3.php:642
+#: form-quizz-fqi3.php:666
 #, php-format
 msgid ""
 "You have reached the limit of %s quizzes per day as a free logged in user."
@@ -141,37 +168,37 @@ msgstr ""
 "connecté gratuitement."
 
 #. Translators: %1$s is the number of correct answer if singular, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:644
+#: form-quizz-fqi3.php:668
 #, php-format
 msgid "You have %1$s correct answer on %2$s. (%3$s%) for the %4$s level"
 msgstr "Vous avez %1$s réponse correcte sur %2$s. (%3$s%) pour le niveau %4$s"
 
 #. Translators: %1$s is the number of correct answers if plural, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:646
+#: form-quizz-fqi3.php:670
 #, php-format
 msgid "You have %1$s correct answers on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 "Vous avez %1$s réponses correctes sur %2$s. (%3$s%) pour le niveau %4$s"
 
-#: form-quizz-fqi3.php:647
+#: form-quizz-fqi3.php:671
 msgid "Select an answer before moving on to the next question."
 msgstr "Sélectionne une réponse avant de passer à la question suivante."
 
-#: form-quizz-fqi3.php:648 includes/admin/class-view-questions.php:123
+#: form-quizz-fqi3.php:672 includes/admin/class-view-questions.php:123
 #: templates/partials/quiz-results.php:50
 msgid "Question"
 msgstr "Question"
 
-#: form-quizz-fqi3.php:649
+#: form-quizz-fqi3.php:673
 msgid "on"
 msgstr "sur"
 
-#: form-quizz-fqi3.php:650
+#: form-quizz-fqi3.php:674
 msgid "Oops! Your time is up! Feel free to try again."
 msgstr "Oups ! Votre temps est écoulé! N’hésite pas à réessayer."
 
 #. Translators: %1$s is the URL site, %2$s is  the number of correct answers, %3$s is the total number of questions, %3$s is the percentage of correct answers
-#: form-quizz-fqi3.php:652
+#: form-quizz-fqi3.php:676
 #, php-format
 msgid ""
 "I just finished the quiz on %1$s and I answered %2$s of %3$s questions "
@@ -222,11 +249,11 @@ msgstr ""
 "Cochez cette case pour accorder les fonctionnalités Premium aux "
 "administrateurs"
 
-#: includes/admin/class-add-ons.php:82
+#: includes/admin/class-add-ons.php:95
 msgid "The solution to create and manage a member area and subscriptions"
 msgstr "La solution pour créer et gérer un espace membre et des abonnements"
 
-#: includes/admin/class-add-ons.php:84
+#: includes/admin/class-add-ons.php:97
 msgid ""
 "Create and manage customizable subscription plans: recurring, one time, "
 "customizable duration"
@@ -234,23 +261,23 @@ msgstr ""
 "Créer et gérer des plans d'abonnement personnalisables : récurrents, "
 "ponctuels, durée personnalisable"
 
-#: includes/admin/class-add-ons.php:85
+#: includes/admin/class-add-ons.php:98
 msgid ""
 "Seamless integration with Stripe for secure payments (PayPal coming Soon)"
 msgstr ""
 "Intégration transparente avec Stripe pour les paiements sécurisés (PayPal "
 "bientôt)"
 
-#: includes/admin/class-add-ons.php:86
+#: includes/admin/class-add-ons.php:99
 msgid "Intuitive user interface to manage subscriptions and profil"
 msgstr ""
 "Interface utilisateur intuitive pour gérer les abonnements et les profils"
 
-#: includes/admin/class-add-ons.php:87
+#: includes/admin/class-add-ons.php:100
 msgid "Easy integration via shortcodes or by configuring pages"
 msgstr "Intégration facile via des shortcodes ou en configurant les pages"
 
-#: includes/admin/class-add-ons.php:101
+#: includes/admin/class-add-ons.php:115
 msgid ""
 "Allow users to promote your quizzes and earn commissions on subscriptions or "
 "paid quizzes."
@@ -258,17 +285,17 @@ msgstr ""
 "Permettez aux utilisateurs de promouvoir vos quiz et de percevoir des "
 "commissions sur les abonnements ou les quiz payants."
 
-#: includes/admin/class-add-ons.php:103
+#: includes/admin/class-add-ons.php:117
 msgid "Referral system with unique tracking links (last-click attribution)."
 msgstr ""
 "Système de référencement avec des liens de suivi uniques (attribution au "
 "dernier clic)."
 
-#: includes/admin/class-add-ons.php:104
+#: includes/admin/class-add-ons.php:118
 msgid "Affiliate dashboard with commission tracking."
 msgstr "Tableau de bord d’affiliation avec suivi des commissions."
 
-#: includes/admin/class-add-ons.php:105
+#: includes/admin/class-add-ons.php:119
 msgid ""
 "Payouts management: approve eligible conversions, schedule payouts, mark as "
 "paid."
@@ -276,14 +303,14 @@ msgstr ""
 "Gestion des paiements : approuver les conversions éligibles, planifier les "
 "paiements, marquer comme payés."
 
-#: includes/admin/class-add-ons.php:106
+#: includes/admin/class-add-ons.php:120
 msgid ""
 "Reports and analytics: KPIs, Top Affiliates, Click Anomalies with CSV export."
 msgstr ""
 "Rapports et analyses : KPI, principaux affiliés, anomalies de clic avec "
 "exportation CSV."
 
-#: includes/admin/class-add-ons.php:107
+#: includes/admin/class-add-ons.php:121
 msgid ""
 "Integration with third-party affiliate platforms (Refersion, Tapfiliate) "
 "with Test Connection."
@@ -291,7 +318,7 @@ msgstr ""
 "Intégration avec des plateformes d'affiliation tierces (Refersion, "
 "Tapfiliate) avec Test Connection."
 
-#: includes/admin/class-add-ons.php:124
+#: includes/admin/class-add-ons.php:138
 msgid ""
 "Allow users to quickly and securely log in using their favorite social media "
 "accounts."
@@ -299,21 +326,21 @@ msgstr ""
 "Permettez aux utilisateurs de se connecter rapidement et en toute sécurité "
 "en utilisant leurs comptes de réseaux sociaux préférés."
 
-#: includes/admin/class-add-ons.php:126
+#: includes/admin/class-add-ons.php:140
 msgid "Support for Facebook, Google, LinkedIn."
 msgstr "Prise en charge de Facebook, Google, LinkedIn."
 
-#: includes/admin/class-add-ons.php:127
+#: includes/admin/class-add-ons.php:141
 msgid "Synchronization of profile data with user dashboard."
 msgstr ""
 "Synchronisation des données de profil avec le tableau de bord de "
 "l’utilisateur."
 
-#: includes/admin/class-add-ons.php:128
+#: includes/admin/class-add-ons.php:142
 msgid "Simplify the registration process for new users."
 msgstr "Simplifiez le processus d’inscription pour les nouveaux utilisateurs."
 
-#: includes/admin/class-add-ons.php:129
+#: includes/admin/class-add-ons.php:143
 msgid ""
 "Increase user retention and engagement with simplified login and "
 "registration options."
@@ -321,13 +348,13 @@ msgstr ""
 "Augmentez la rétention et l’engagement des utilisateurs avec des options de "
 "connexion et d’inscription simplifiées."
 
-#: includes/admin/class-add-ons.php:130
+#: includes/admin/class-add-ons.php:144
 msgid "Leverage the security of social media platforms for authentication."
 msgstr ""
 "Tirez parti de la sécurité des plateformes de médias sociaux pour "
 "l’authentification."
 
-#: includes/admin/class-add-ons.php:147
+#: includes/admin/class-add-ons.php:161
 msgid ""
 "Boost User Engagement with Automated Email Marketing! Seamlessly integrate "
 "your quizzes with leading email marketing services to nurture leads and keep "
@@ -338,7 +365,7 @@ msgstr ""
 "services de marketing par e-mail pour entretenir les contacts et maintenir "
 "l'engagement des utilisateurs."
 
-#: includes/admin/class-add-ons.php:149
+#: includes/admin/class-add-ons.php:163
 msgid ""
 "Automatic Quiz Follow-Ups: Send emails based on quiz completion, scores, or "
 "inactivity."
@@ -346,7 +373,7 @@ msgstr ""
 "Suivis automatiques des quiz : envoyez des e-mails en fonction de "
 "l'achèvement du quiz, des scores ou de l'inactivité."
 
-#: includes/admin/class-add-ons.php:150
+#: includes/admin/class-add-ons.php:164
 msgid ""
 "Personalized Campaigns: Use dynamic variables (e.g., user name, quiz "
 "results) for tailored messaging."
@@ -354,7 +381,7 @@ msgstr ""
 "Campagnes personnalisées : utilisez des variables dynamiques (par exemple, "
 "nom d'utilisateur, résultats de quiz) pour des messages personnalisés."
 
-#: includes/admin/class-add-ons.php:151
+#: includes/admin/class-add-ons.php:165
 msgid ""
 "Seamless Integrations: Connect with Mailchimp, Brevo (ex-Sendinblue), and "
 "ActiveCampaign effortlessly."
@@ -362,7 +389,7 @@ msgstr ""
 "Intégrations transparentes : connectez-vous sans effort à Mailchimp, Brevo "
 "(ex-Sendinblue) et ActiveCampaign."
 
-#: includes/admin/class-add-ons.php:152
+#: includes/admin/class-add-ons.php:166
 msgid ""
 "Grow Your Audience: Capture leads and automate email sequences for better "
 "retention."
@@ -370,7 +397,7 @@ msgstr ""
 "Développez votre audience : capturez des prospects et automatisez les "
 "séquences d'e-mails pour une meilleure rétention."
 
-#: includes/admin/class-add-ons.php:166
+#: includes/admin/class-add-ons.php:180
 msgid ""
 "Send automated notifications for Form Quizz FQI3 events via Email, WhatsApp "
 "(Cloud API) and SMS (Twilio). Respect per-user preferences (channels per "
@@ -383,43 +410,43 @@ msgstr ""
 "tableau de bord utilisateur du module complémentaire d'abonnement, ou "
 "affichez un formulaire de préférences en front-end via un shortcode."
 
-#: includes/admin/class-add-ons.php:168
+#: includes/admin/class-add-ons.php:182
 msgid ""
 "Notifications per user preferences across Email, WhatsApp and SMS (Twilio)."
 msgstr ""
 "Notifications selon les préférences de l'utilisateur par e-mail, WhatsApp et "
 "SMS (Twilio)."
 
-#: includes/admin/class-add-ons.php:169
+#: includes/admin/class-add-ons.php:183
 msgid "Reminders for incomplete quizzes (scheduled follow-ups)."
 msgstr "Rappels pour les quiz incomplets (suivis programmés)."
 
-#: includes/admin/class-add-ons.php:170
+#: includes/admin/class-add-ons.php:184
 msgid "Alerts for badges and certificates earned."
 msgstr "Alertes pour les badges et certificats gagnés."
 
-#: includes/admin/class-add-ons.php:171
+#: includes/admin/class-add-ons.php:185
 msgid ""
 "Front-end preferences page via shortcode [fqi3_notification_preferences]."
 msgstr ""
 "Page de préférences frontales via le shortcode "
 "[fqi3_notification_preferences]."
 
-#: includes/admin/class-add-ons.php:172
+#: includes/admin/class-add-ons.php:186
 msgid "Optional integration with the Subscription addon (user dashboard)."
 msgstr ""
 "Intégration facultative avec le module complémentaire d'abonnement (tableau "
 "de bord utilisateur)."
 
-#: includes/admin/class-add-ons.php:173
+#: includes/admin/class-add-ons.php:187
 msgid "SMTP support for reliable email deliverability."
 msgstr "Prise en charge SMTP pour une délivrabilité fiable des e-mails."
 
-#: includes/admin/class-add-ons.php:174
+#: includes/admin/class-add-ons.php:188
 msgid "Integration with APIs: WhatsApp Cloud API and Twilio (SMS)."
 msgstr "Intégration avec les API : WhatsApp Cloud API et Twilio (SMS)."
 
-#: includes/admin/class-add-ons.php:189
+#: includes/admin/class-add-ons.php:203
 msgid ""
 "Issue verifiable PDF certificates after quiz completion with templates and "
 "public verification."
@@ -427,24 +454,24 @@ msgstr ""
 "Émettez des certificats PDF vérifiables après avoir terminé le quiz avec des "
 "modèles et une vérification publique."
 
-#: includes/admin/class-add-ons.php:191
+#: includes/admin/class-add-ons.php:205
 msgid "Certificate templates with variables and backgrounds."
 msgstr "Modèles de certificats avec variables et arrière-plans."
 
-#: includes/admin/class-add-ons.php:192
+#: includes/admin/class-add-ons.php:206
 msgid "Automatic issuance on passing criteria with unique serials."
 msgstr ""
 "Émission automatique sur critères de réussite avec numéros de série uniques."
 
-#: includes/admin/class-add-ons.php:193
+#: includes/admin/class-add-ons.php:207
 msgid "Public verification page and QR support."
 msgstr "Page de vérification publique et prise en charge QR."
 
-#: includes/admin/class-add-ons.php:194
+#: includes/admin/class-add-ons.php:208
 msgid "Admin listings, revoke, and CSV export."
 msgstr "Listes d'administration, révocation et exportation CSV."
 
-#: includes/admin/class-add-ons.php:208
+#: includes/admin/class-add-ons.php:222
 msgid ""
 "Advanced question banks with Pools/Sections, weighted randomization, per-"
 "attempt snapshots, and optional AI assistance for tagging and curation."
@@ -453,50 +480,50 @@ msgstr ""
 "instantanés par tentative et assistance IA facultative pour le marquage et "
 "la conservation."
 
-#: includes/admin/class-add-ons.php:210
+#: includes/admin/class-add-ons.php:224
 msgid "Banks and sections with tags/difficulty weighting."
 msgstr "Banques et sections avec pondération des balises/difficultés."
 
-#: includes/admin/class-add-ons.php:211
+#: includes/admin/class-add-ons.php:225
 msgid "Randomized draws per attempt with snapshot for consistency."
 msgstr ""
 "Tirages aléatoires par tentative avec instantané pour plus de cohérence."
 
-#: includes/admin/class-add-ons.php:212
+#: includes/admin/class-add-ons.php:226
 msgid "Admin UI for Pools/Sections, import/export CSV/JSON."
 msgstr ""
 "Interface utilisateur d'administration pour les pools/sections, importation/"
 "exportation CSV/JSON."
 
-#: includes/admin/class-add-ons.php:213
+#: includes/admin/class-add-ons.php:227
 msgid "Integration in quiz builder panel."
 msgstr "Intégration dans le panneau de création de quiz."
 
-#: includes/admin/class-add-ons.php:214
+#: includes/admin/class-add-ons.php:228
 msgid "AI-assisted tagging, difficulty suggestions, and pool curation."
 msgstr ""
 "Balisage assisté par l'IA, suggestions de difficulté et conservation de pool."
 
-#: includes/admin/class-add-ons.php:229
+#: includes/admin/class-add-ons.php:242
 msgid ""
 "Sell quizzes, certificates or bundles via WooCommerce and map access rules."
 msgstr ""
 "Vendez des quiz, des certificats ou des packs via WooCommerce et "
 "cartographiez les règles d'accès."
 
-#: includes/admin/class-add-ons.php:231
+#: includes/admin/class-add-ons.php:244
 msgid "Product mapping to quizzes/certificates."
 msgstr "Cartographie des produits vers les quiz/certificats."
 
-#: includes/admin/class-add-ons.php:232
+#: includes/admin/class-add-ons.php:245
 msgid "Score-based access and post-quiz upsells."
 msgstr "Accès basé sur les scores et ventes incitatives après le quiz."
 
-#: includes/admin/class-add-ons.php:233
+#: includes/admin/class-add-ons.php:246
 msgid "Order webhooks and rule-based access."
 msgstr "Webhooks de commande et accès basé sur des règles."
 
-#: includes/admin/class-add-ons.php:247
+#: includes/admin/class-add-ons.php:260
 msgid ""
 "No-code triggers for quiz, subscriptions, and certificates with outbound "
 "webhooks, custom headers, JSON payloads, and HMAC signatures."
@@ -504,26 +531,26 @@ msgstr ""
 "Déclencheurs sans code pour les quiz, abonnements et certificats avec "
 "webhooks sortants, en-têtes personnalisés, charges JSON et signatures HMAC."
 
-#: includes/admin/class-add-ons.php:249
+#: includes/admin/class-add-ons.php:262
 msgid "Trigger flows on quiz/subscription events."
 msgstr "Déclencher des flux sur les événements de quiz/abonnement."
 
-#: includes/admin/class-add-ons.php:250
+#: includes/admin/class-add-ons.php:263
 msgid "HTTP actions with custom headers, JSON body, and HMAC signatures."
 msgstr ""
 "Actions HTTP avec en-têtes personnalisés, corps JSON et signatures HMAC."
 
-#: includes/admin/class-add-ons.php:251
+#: includes/admin/class-add-ons.php:264
 msgid "Replay, rate limits, and logs."
 msgstr "Relecture, limites de débit et journaux."
 
-#: includes/admin/class-add-ons.php:252
+#: includes/admin/class-add-ons.php:265
 msgid "Also supports badges and certificate issuance events."
 msgstr ""
 "Prend également en charge les événements d’attribution de badges et "
 "d’émission de certificats."
 
-#: includes/admin/class-add-ons.php:266
+#: includes/admin/class-add-ons.php:279
 msgid ""
 "Score leads based on answers and engagement, then sync to your CRM: HubSpot, "
 "Salesforce (OAuth), Pipedrive, or via Webhook."
@@ -531,24 +558,24 @@ msgstr ""
 "Scorez les prospects selon les réponses et l’engagement, puis synchronisez "
 "avec votre CRM : HubSpot, Salesforce (OAuth), Pipedrive ou via Webhook."
 
-#: includes/admin/class-add-ons.php:268
+#: includes/admin/class-add-ons.php:281
 msgid "Scoring rules and segments."
 msgstr "Règles et segments de notation."
 
-#: includes/admin/class-add-ons.php:269
+#: includes/admin/class-add-ons.php:282
 msgid "Connectors: HubSpot, Salesforce (OAuth), Pipedrive, Webhook."
 msgstr "Connecteurs : HubSpot, Salesforce (OAuth), Pipedrive, Webhook."
 
-#: includes/admin/class-add-ons.php:270
+#: includes/admin/class-add-ons.php:283
 msgid "Quick tools: Test connection and Manual upsert from settings."
 msgstr ""
 "Outils rapides : Tester la connexion et Upsert manuel depuis les réglages."
 
-#: includes/admin/class-add-ons.php:271
+#: includes/admin/class-add-ons.php:284
 msgid "Dashboards and logs."
 msgstr "Tableaux de bord et journaux."
 
-#: includes/admin/class-add-ons.php:285
+#: includes/admin/class-add-ons.php:298
 msgid ""
 "Add multilingual capabilities focused on Form Quizz FQI3: define default/"
 "available/fallback languages (auto-detected from site locale), display a "
@@ -561,7 +588,7 @@ msgstr ""
 "bonnes pratiques SEO (mode d’URL + hreflang) sans la complexité d’un "
 "framework global."
 
-#: includes/admin/class-add-ons.php:287
+#: includes/admin/class-add-ons.php:300
 msgid ""
 "Language settings: default, available and fallback languages (defaults from "
 "site locale)."
@@ -569,7 +596,7 @@ msgstr ""
 "Paramètres de langue : langues par défaut, disponibles et de secours "
 "(valeurs par défaut depuis la langue du site)."
 
-#: includes/admin/class-add-ons.php:288
+#: includes/admin/class-add-ons.php:301
 msgid ""
 "Language switcher: header/menu/footer or manual via shortcode/PHP, with "
 "optional flags."
@@ -577,21 +604,21 @@ msgstr ""
 "Sélecteur de langue : en-tête/menu/pied de page ou manuel via shortcode/PHP, "
 "avec drapeaux en option."
 
-#: includes/admin/class-add-ons.php:289
+#: includes/admin/class-add-ons.php:302
 msgid ""
 "SEO helpers: language in URL (subdirectory or query param) and hreflang tags."
 msgstr ""
 "Aides SEO : langue dans l’URL (sous-répertoire ou paramètre de requête) et "
 "balises hreflang."
 
-#: includes/admin/class-add-ons.php:290
+#: includes/admin/class-add-ons.php:303
 msgid ""
 "Integrations: auto-create translation placeholders, optional ACF fields sync."
 msgstr ""
 "Intégrations : création automatique d’espaces réservés de traduction, "
 "synchronisation facultative des champs ACF."
 
-#: includes/admin/class-add-ons.php:291
+#: includes/admin/class-add-ons.php:304
 msgid ""
 "Developer hooks: filter languages, positions, and URL modes to extend "
 "behavior."
@@ -599,11 +626,11 @@ msgstr ""
 "Hooks développeur : filtrer les langues, positions et modes d’URL pour "
 "étendre le comportement."
 
-#: includes/admin/class-add-ons.php:460 includes/admin/class-add-ons.php:682
+#: includes/admin/class-add-ons.php:472 includes/admin/class-add-ons.php:1179
 msgid "Installed"
 msgstr "Installé"
 
-#: includes/admin/class-add-ons.php:476 includes/admin/class-dashboard.php:106
+#: includes/admin/class-add-ons.php:490 includes/admin/class-dashboard.php:106
 #: includes/admin/class-view-questions.php:391
 #: includes/admin/class-view-questions.php:506
 #: includes/admin/class-view-questions.php:727 templates/question-form.php:61
@@ -611,150 +638,545 @@ msgid "Free"
 msgstr "Gratuit"
 
 #. translators: %s name of the plugin/addon
-#: includes/admin/class-add-ons.php:493
+#: includes/admin/class-add-ons.php:507
 #, php-format
 msgid "Requires: %s"
 msgstr "Nécessite : %s"
 
-#: includes/admin/class-add-ons.php:506
+#: includes/admin/class-add-ons.php:520
 msgid "Required by:"
 msgstr "Requis par :"
 
-#: includes/admin/class-add-ons.php:523
+#: includes/admin/class-add-ons.php:537
 msgid "Show features"
 msgstr "Afficher les fonctionnalités"
 
-#: includes/admin/class-add-ons.php:539
+#: includes/admin/class-add-ons.php:553
 msgid "Not yet available"
 msgstr "Pas encore disponible"
 
-#: includes/admin/class-add-ons.php:548
+#: includes/admin/class-add-ons.php:562
 msgid "Coming Soon"
 msgstr "Bientôt disponible"
 
-#: includes/admin/class-add-ons.php:556
+#: includes/admin/class-add-ons.php:570
 msgid "Install"
 msgstr "Installer"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:565
+#: includes/admin/class-add-ons.php:579
 #, php-format
 msgid "Requires %s to be installed and activated first"
 msgstr "Nécessite que %s soit d'abord installé et activé"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:568
+#: includes/admin/class-add-ons.php:582
 #, php-format
 msgid "Requires %s"
 msgstr "Nécessite %s"
 
-#: includes/admin/class-add-ons.php:576
+#: includes/admin/class-add-ons.php:590
 msgid "Cannot deactivate because a required dependency is active"
 msgstr "Impossible de désactiver parce qu'une dépendance requise est active"
 
-#: includes/admin/class-add-ons.php:577
+#: includes/admin/class-add-ons.php:591
 msgid "Cannot deactivate because other active add-ons depend on it"
 msgstr ""
 "Impossible de le désactiver car d'autres modules complémentaires actifs en "
 "dépendent"
 
-#: includes/admin/class-add-ons.php:578
+#: includes/admin/class-add-ons.php:592
 msgid "Cannot deactivate"
 msgstr "Impossible de désactiver"
 
 #. translators: %s is the name of the dependency
-#: includes/admin/class-add-ons.php:591
+#: includes/admin/class-add-ons.php:605
 #, php-format
 msgid "Depends on: %s"
 msgstr "Dépend de : %s"
 
-#: includes/admin/class-add-ons.php:593
+#: includes/admin/class-add-ons.php:607
 msgid "Has active dependency"
 msgstr "A une dépendance active"
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:598
+#: includes/admin/class-add-ons.php:612
 #, php-format
 msgid "Required by: %s"
 msgstr "Requis par : %s"
 
-#: includes/admin/class-add-ons.php:609
+#: includes/admin/class-add-ons.php:623
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: includes/admin/class-add-ons.php:616
+#: includes/admin/class-add-ons.php:630
 msgid "Activate"
 msgstr "Activer"
 
-#: includes/admin/class-add-ons.php:623
+#: includes/admin/class-add-ons.php:637
 msgid "Learn more"
 msgstr "En savoir plus"
 
-#: includes/admin/class-add-ons.php:651
+#: includes/admin/class-add-ons.php:670 includes/admin/class-add-ons.php:801
+#: includes/admin/class-add-ons.php:814
+msgid "General"
+msgstr "Général"
+
+#: includes/admin/class-add-ons.php:751 includes/admin/class-add-ons.php:872
+#: includes/admin/class-edit-questions.php:96
+#: includes/admin/class-emails-settings.php:264
+#: includes/admin/class-license-settings.php:155
+msgid "Security check failed."
+msgstr "Échec du test de sécurité."
+
+#: includes/admin/class-add-ons.php:756
+#: includes/admin/class-license-settings.php:162
+msgid "You do not have permission to perform this action."
+msgstr ""
+"Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
+"action."
+
+#: includes/admin/class-add-ons.php:769
+msgid "Please provide a description of the issue."
+msgstr "Veuillez fournir une description du problème."
+
+#. translators: %1$s: Site name, %2$s: Add-on name, %3$s: Issue type
+#: includes/admin/class-add-ons.php:799
+#, php-format
+msgid "[%1$s] New Issue Report - %2$s - %3$s"
+msgstr "[%1$s] Nouveau rapport de problème - %2$s - %3$s"
+
+#: includes/admin/class-add-ons.php:808
+msgid "New Issue Report"
+msgstr "Signalement d’un nouveau problème"
+
+#: includes/admin/class-add-ons.php:813
+msgid "Type of issue"
+msgstr "Type de problème"
+
+#: includes/admin/class-add-ons.php:814
+msgid "Extension concerned"
+msgstr "Extension concernée"
+
+#: includes/admin/class-add-ons.php:815 includes/admin/class-add-ons.php:879
+#: includes/admin/class-add-ons.php:990 includes/admin/class-add-ons.php:1217
+msgid "Description"
+msgstr "Description"
+
+#: includes/admin/class-add-ons.php:818
+msgid "Steps to reproduce"
+msgstr "Étapes à suivre pour reproduire"
+
+#: includes/admin/class-add-ons.php:822
+msgid "Technical Informations"
+msgstr "Informations techniques"
+
+#: includes/admin/class-add-ons.php:823
+msgid "URL"
+msgstr "URL"
+
+#: includes/admin/class-add-ons.php:824 includes/admin/class-attempts.php:195
+msgid "User"
+msgstr "Utilisateur"
+
+#: includes/admin/class-add-ons.php:825
+msgid "Site"
+msgstr "Site"
+
+#: includes/admin/class-add-ons.php:826
+msgid "Browser"
+msgstr "Navigateur"
+
+#: includes/admin/class-add-ons.php:827
+msgid "WordPress Version"
+msgstr "Versions de WordPress"
+
+#: includes/admin/class-add-ons.php:828
+msgid "Plugin Version"
+msgstr "Version du plugin"
+
+#: includes/admin/class-add-ons.php:833
+msgid "This is an automated message. Please do not reply directly."
+msgstr ""
+"Il s'agit d'un message automatisé. Veuillez ne pas y répondre directement."
+
+#: includes/admin/class-add-ons.php:854
+msgid ""
+"Thank you for your report. Our team will investigate the issue as soon as "
+"possible."
+msgstr ""
+"Nous vous remercions pour votre rapport. Notre équipe examinera le problème "
+"dès que possible."
+
+#: includes/admin/class-add-ons.php:858
+msgid ""
+"Your report has been recorded, but an error occurred while sending the "
+"email. Our team has been notified."
+msgstr ""
+"Votre rapport a été enregistré, mais une erreur s'est produite lors de "
+"l'envoi de l'e-mail. Notre équipe a été informée."
+
+#: includes/admin/class-add-ons.php:878
+msgid "Add-on name"
+msgstr "Nom du module complémentaire"
+
+#: includes/admin/class-add-ons.php:880 includes/admin/class-attempts.php:321
+#: includes/admin/class-dashboard.php:243
+msgid "Email"
+msgstr "Email"
+
+#. translators: %s: Field label
+#: includes/admin/class-add-ons.php:890
+#, php-format
+msgid "%s is a required field."
+msgstr "Le champ %s est obligatoire."
+
+#: includes/admin/class-add-ons.php:898
+msgid "Please enter a valid email address."
+msgstr "Veuillez saisir une adresse email valide."
+
+#: includes/admin/class-add-ons.php:903
+msgid "You must agree to the terms to submit a suggestion."
+msgstr "Vous devez accepter les conditions pour soumettre une suggestion."
+
+#: includes/admin/class-add-ons.php:951
+msgid "Thank you for your suggestion! Our team will review it shortly."
+msgstr ""
+"Nous vous remercions de votre suggestion ! Notre équipe l'examinera sous peu."
+
+#: includes/admin/class-add-ons.php:965
+msgid "Report an Issue"
+msgstr "Signalement un bug"
+
+#: includes/admin/class-add-ons.php:966 includes/admin/class-add-ons.php:1202
+msgid "Close"
+msgstr "Fermer"
+
+#: includes/admin/class-add-ons.php:971
+msgid "Related Add-on"
+msgstr "Module complémentaire associé"
+
+#: includes/admin/class-add-ons.php:973
+msgid "General Issue"
+msgstr "Problème général"
+
+#: includes/admin/class-add-ons.php:982
+msgid "Issue Type"
+msgstr "Type de problème"
+
+#: includes/admin/class-add-ons.php:984
+msgid "Bug"
+msgstr "Bug"
+
+#: includes/admin/class-add-ons.php:985
+msgid "Suggestion"
+msgstr "Suggestion"
+
+#: includes/admin/class-add-ons.php:986
+msgid "Other"
+msgstr "Autre"
+
+#: includes/admin/class-add-ons.php:992
+msgid "Please describe the issue in detail..."
+msgstr "Veuillez décrire le problème en détail..."
+
+#: includes/admin/class-add-ons.php:995
+msgid "Steps to Reproduce"
+msgstr "Étapes à suivre pour reproduire"
+
+#: includes/admin/class-add-ons.php:997
+msgid "1. Go to...\\n2. Click on...\\n3. Error occurs when..."
+msgstr ""
+"1. Allez à...\\n2. Cliquez sur...\\n3. Une erreur se produit lorsque..."
+
+#: includes/admin/class-add-ons.php:1004 includes/admin/class-add-ons.php:1264
+#: includes/admin/class-view-questions.php:164
+msgid "Cancel"
+msgstr "Annuler"
+
+#: includes/admin/class-add-ons.php:1007
+msgid "Submit Report"
+msgstr "Soumettre un rapport"
+
+#: includes/admin/class-add-ons.php:1039
+msgid "Failed to save your suggestion. Please try again."
+msgstr "Impossible d'enregistrer votre suggestion. Veuillez réessayer."
+
+#. translators: %1$s: Site name, %2$s: Add-on name
+#: includes/admin/class-add-ons.php:1056
+#, php-format
+msgid "[%1$s] New Add-on Suggestion: %2$s"
+msgstr "[%1$s] Nouvelle suggestion de module complémentaire : %2$s"
+
+#. translators: %s: Site name
+#: includes/admin/class-add-ons.php:1063
+#, php-format
+msgid "A new add-on has been suggested on %s:"
+msgstr "Un nouveau module complémentaire a été suggéré sur %s :"
+
+#. translators: %s: Add-on name
+#: includes/admin/class-add-ons.php:1069
+#, php-format
+msgid "Add-on Name: %s"
+msgstr "Nom du module complémentaire : %s"
+
+#. translators: %s: Add-on description
+#: includes/admin/class-add-ons.php:1072
+#, php-format
+msgid "Description: %s"
+msgstr "Description: %s"
+
+#. translators: %s: Add-on website
+#: includes/admin/class-add-ons.php:1077
+#, php-format
+msgid "Website: %s"
+msgstr "Site Web : %s"
+
+#: includes/admin/class-add-ons.php:1080
+msgid "Submitted by:"
+msgstr "Soumis par :"
+
+#. translators: %s: User name
+#: includes/admin/class-add-ons.php:1083
+#, php-format
+msgid "Name: %s"
+msgstr "Nom: %s"
+
+#. translators: %s: User email
+#: includes/admin/class-add-ons.php:1086
+#, php-format
+msgid "Email: %s"
+msgstr "Email: %s"
+
+#. translators: %s: Site URL
+#: includes/admin/class-add-ons.php:1089
+#, php-format
+msgid "Site: %s"
+msgstr "Site : %s"
+
+#: includes/admin/class-add-ons.php:1122
 msgid "Available Add-Ons"
 msgstr "Modules complémentaires disponibles"
 
-#: includes/admin/class-add-ons.php:652
+#: includes/admin/class-add-ons.php:1123
 msgid "Add-Ons allow you to extend the functionality of Form Quizz FQI3."
 msgstr ""
 "Les modules complémentaires vous permettent d’étendre les fonctionnalités de "
 "Form Quizz FQI3."
 
 #. translators: 1 = singular, %d = number of add-ons
-#: includes/admin/class-add-ons.php:658
+#: includes/admin/class-add-ons.php:1132
 #, php-format
-msgid "Actually %d add-on is available."
-msgid_plural "Actually %d add-ons are available."
-msgstr[0] "Actuellement, %d module complémentaire est disponible."
-msgstr[1] "Actuellement, %d modules complémentaires sont disponibles."
+msgid "Actually %1$d add-on is available on %2$d total."
+msgid_plural "Actually %1$d add-ons are available on %2$d total."
+msgstr[0] ""
+"Actuellement, %1$d module complémentaire est disponible sur %2$d au total."
+msgstr[1] ""
+"Actuellement, %1$d modules complémentaires sont disponibles sur %2$d au "
+"total."
 
-#: includes/admin/class-add-ons.php:674
+#: includes/admin/class-add-ons.php:1149
+msgid "Plugin updater not available"
+msgstr "L'outil de mise à jour des plugins n'est pas disponible"
+
+#: includes/admin/class-add-ons.php:1151
+msgid "Refresh Cache"
+msgstr "Rafraîchir le cache"
+
+#: includes/admin/class-add-ons.php:1159
+msgid "Suggest an Add-on"
+msgstr "Suggérer un module complémentaire"
+
+#: includes/admin/class-add-ons.php:1164
+msgid "Report Issue"
+msgstr "Signaler un bug"
+
+#: includes/admin/class-add-ons.php:1171
 msgid "Search an add-on..."
 msgstr "Recherche d'un module complémentaire…"
 
-#: includes/admin/class-add-ons.php:678 includes/admin/class-attempts.php:126
+#: includes/admin/class-add-ons.php:1175 includes/admin/class-attempts.php:136
 #: includes/admin/class-view-questions.php:405
 msgid "Filter"
 msgstr "Filtrer"
 
-#: includes/admin/class-add-ons.php:681 includes/admin/class-dashboard.php:63
+#: includes/admin/class-add-ons.php:1178 includes/admin/class-dashboard.php:63
 #: includes/admin/class-view-questions.php:354
 msgid "All"
 msgstr "Tous"
 
-#: includes/admin/class-add-ons.php:683
+#: includes/admin/class-add-ons.php:1180
 msgid "Available"
 msgstr "Disponible"
 
-#: includes/admin/class-add-ons.php:727
-msgid "Installed and activated."
-msgstr "Installé et activé."
+#: includes/admin/class-add-ons.php:1200
+msgid "Suggest a New Add-on"
+msgstr "Suggérer un nouveau module complémentaire"
 
-#: includes/admin/class-add-ons.php:735
+#: includes/admin/class-add-ons.php:1210
+msgid "Add-on Name"
+msgstr "Nom du module complémentaire"
+
+#: includes/admin/class-add-ons.php:1221
+msgid ""
+"Please describe what this add-on would do and how it would benefit users."
+msgstr ""
+"Veuillez décrire l'utilité de ce module complémentaire et les avantages "
+"qu'il apporterait aux utilisateurs."
+
+#: includes/admin/class-add-ons.php:1229
+msgid "Website (optional)"
+msgstr "Site Web (facultatif)"
+
+#: includes/admin/class-add-ons.php:1237
+msgid "Your Email"
+msgstr "Votre email"
+
+#: includes/admin/class-add-ons.php:1241
+msgid "In case we need to contact you for more information."
+msgstr ""
+"Au cas où nous aurions besoin de vous contacter pour plus d'informations."
+
+#: includes/admin/class-add-ons.php:1251
+msgid ""
+"I understand that this is only a suggestion and there is no guarantee it "
+"will be implemented."
+msgstr ""
+"Je comprends qu'il ne s'agit que d'une suggestion et qu'il n'y a aucune "
+"garantie qu'elle sera mise en œuvre."
+
+#: includes/admin/class-add-ons.php:1258
+msgid ""
+"Your suggestion will be sent to our development team for review. We "
+"appreciate your input!"
+msgstr ""
+"Votre suggestion sera transmise à notre équipe de développement pour examen. "
+"Nous apprécions votre contribution !"
+
+#: includes/admin/class-add-ons.php:1268
+msgid "Submit Suggestion"
+msgstr "Soumettre une suggestion"
+
+#: includes/admin/class-add-ons.php:1304
+msgid "Missing parameters."
+msgstr "Paramètres manquants."
+
+#: includes/admin/class-add-ons.php:1317
+msgid "Addon not found."
+msgstr "Module complémentaire non trouvé."
+
+#: includes/admin/class-add-ons.php:1334
 msgid "Activated."
 msgstr "Activé."
 
-#: includes/admin/class-add-ons.php:744
+#: includes/admin/class-add-ons.php:1343
 msgid "Cannot deactivate because a required dependency is active."
 msgstr "Impossible de désactiver car une dépendance obligatoire est active."
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:751
+#: includes/admin/class-add-ons.php:1350
 #, php-format
 msgid "Cannot deactivate because it is required by: %s"
 msgstr "Impossible de le désactiver car il est requis par : %s"
 
-#: includes/admin/class-add-ons.php:756
+#: includes/admin/class-add-ons.php:1355
 msgid "Cannot deactivate due to dependency constraints."
 msgstr "Impossible de désactiver en raison de contraintes de dépendance."
 
-#: includes/admin/class-add-ons.php:759
+#: includes/admin/class-add-ons.php:1358
 msgid "Deactivated."
 msgstr "Désactivé."
 
-#: includes/admin/class-add-ons.php:762
+#: includes/admin/class-add-ons.php:1361
 msgid "Invalid action."
 msgstr "Action invalide."
+
+#: includes/admin/class-add-ons.php:1387
+msgid "GitHub token is not configured."
+msgstr "Le jeton GitHub n'est pas configuré."
+
+#. translators: %s error message
+#: includes/admin/class-add-ons.php:1406
+#, php-format
+msgid "GitHub API error: %s"
+msgstr "Erreur d'API GitHub : %s"
+
+#. translators: %s status response GitHub API
+#: includes/admin/class-add-ons.php:1415
+#, php-format
+msgid "GitHub API responded with status %d."
+msgstr "L'API GitHub a répondu avec le statut %d."
+
+#: includes/admin/class-add-ons.php:1422
+msgid "No release found for this addon."
+msgstr "Aucune version trouvée pour cet addon."
+
+#. translators: %s status response GitHub API
+#: includes/admin/class-add-ons.php:1449
+#, php-format
+msgid "Download failed with status %d."
+msgstr "Le téléchargement a échoué avec le statut %d."
+
+#: includes/admin/class-add-ons.php:1456
+msgid "Downloaded file is too small or empty."
+msgstr "Le fichier téléchargé est trop petit ou vide."
+
+#: includes/admin/class-add-ons.php:1525
+msgid "Plugin installed but folder not found."
+msgstr "Plugin installé mais dossier introuvable."
+
+#: includes/admin/class-add-ons.php:1548
+msgid "Plugin installed but activation failed."
+msgstr "Plugin installé mais l'activation a échoué."
+
+#: includes/admin/class-add-ons.php:1552
+msgid "Plugin installed and activated successfully!"
+msgstr "Plugin installé et activé avec succès !"
+
+#: includes/admin/class-add-ons.php:1558
+msgid "Plugin installed successfully but could not auto-activate."
+msgstr ""
+"Le plugin a été installé avec succès mais n'a pas pu s'activer "
+"automatiquement."
+
+#: includes/admin/class-add-ons.php:1656
+msgid "Plugin updater is not available."
+msgstr "L'outil de mise à jour des plugins n'est pas disponible."
+
+#. translators: 1 = add-on slug, 2 = error message
+#: includes/admin/class-add-ons.php:1673
+#, php-format
+msgid "Error refreshing %1$s: %2$s"
+msgstr "Erreur d'actualisation %1$s : %2$s"
+
+#. translators: %d = number of refreshed add-ons
+#: includes/admin/class-add-ons.php:1688
+#, php-format
+msgid "Successfully refreshed cache for %d add-on."
+msgid_plural "Successfully refreshed cache for %d add-ons."
+msgstr[0] ""
+"Le cache a été rafraîchi avec succès pour le module complémentaire %d."
+msgstr[1] ""
+"Le cache a été rafraîchi avec succès pour les module complémentaires %d."
+
+#: includes/admin/class-add-ons.php:1766
+msgid "Updates Available"
+msgstr "Mises à jour disponibles"
+
+#: includes/admin/class-add-ons.php:1767
+msgid "The following add-ons have updates available:"
+msgstr ""
+"Les modules complémentaires suivants ont des mises à jour disponibles :"
+
+#. translators: 1 = current version, 2 = latest version
+#: includes/admin/class-add-ons.php:1774
+#, php-format
+msgid "Version %1$s → %2$s"
+msgstr "Version %1$s → %2$s"
+
+#: includes/admin/class-add-ons.php:1779
+msgid "Update Now"
+msgstr "Mettre à jour maintenant"
 
 #: includes/admin/class-add-questions.php:45 templates/question-form.php:150
 msgid "Add question"
@@ -1023,8 +1445,8 @@ msgid "Quizzes"
 msgstr "Quiz"
 
 #: includes/admin/class-api-settings.php:304
-#: includes/admin/class-statistics.php:56
-#: includes/fqi3-config-functions.php:157
+#: includes/admin/class-statistics.php:113
+#: includes/fqi3-config-functions.php:176
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -1065,128 +1487,139 @@ msgid "You do not have sufficient permissions to access this page."
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour accéder à cette page."
 
-#: includes/admin/class-attempts.php:72 includes/fqi3-config-functions.php:160
+#: includes/admin/class-attempts.php:71 includes/fqi3-config-functions.php:179
 msgid "Attempts (Audit)"
 msgstr "Tentatives (Audit)"
 
-#: includes/admin/class-attempts.php:93 includes/admin/class-attempts.php:186
-#: includes/admin/class-attempts.php:312 includes/admin/class-dashboard.php:99
+#. translators: %1$d is the number of days after which attempts are automatically purged, %2$s is a link to the settings page
+#: includes/admin/class-attempts.php:75
+#, php-format
+msgid ""
+"This page displays all the attempts made by users on the quizzes. You can "
+"filter the attempts by level, user ID, from date, and to date. You can also "
+"export the attempts to a CSV file. You can also purge the attempts. The "
+"purge is automatic after <strong>%1$d</strong> days (<a href=\"%2$s\">View "
+"settings</a>)."
+msgstr ""
+"Cette page affiche toutes les tentatives effectuées par les utilisateurs aux "
+"quiz. Vous pouvez filtrer les tentatives par niveau, identifiant "
+"utilisateur, date de début et date de fin. Vous pouvez également exporter "
+"les tentatives vers un fichier CSV. Vous pouvez également les purger. La "
+"purge est automatique après <strong>%1$d</strong> jours (<a "
+"href=\"%2$s\">Afficher les paramètres</a>)."
+
+#: includes/admin/class-attempts.php:103 includes/admin/class-attempts.php:196
+#: includes/admin/class-attempts.php:322 includes/admin/class-dashboard.php:99
 #: includes/admin/class-view-questions.php:118 includes/FQI3_Statistics.php:614
 #: includes/FQI3_Statistics.php:949
 msgid "Level"
 msgstr "Niveau"
 
-#: includes/admin/class-attempts.php:95
+#: includes/admin/class-attempts.php:105
 msgid "All levels"
 msgstr "Tous les niveaux"
 
-#: includes/admin/class-attempts.php:106 includes/admin/class-attempts.php:309
-#: includes/admin/class-statistics.php:146
+#: includes/admin/class-attempts.php:116 includes/admin/class-attempts.php:319
+#: includes/admin/class-statistics.php:204
 msgid "User ID"
 msgstr "ID de l’utilisateur"
 
-#: includes/admin/class-attempts.php:112
+#: includes/admin/class-attempts.php:122
 msgid "From"
 msgstr "De"
 
-#: includes/admin/class-attempts.php:118
+#: includes/admin/class-attempts.php:128
 msgid "To"
 msgstr "À"
 
-#: includes/admin/class-attempts.php:146
+#: includes/admin/class-attempts.php:156
 #: includes/admin/class-view-questions.php:423
 msgid "Export CSV"
 msgstr "Exporter au format CSV"
 
-#: includes/admin/class-attempts.php:156
+#: includes/admin/class-attempts.php:166
 msgid "Purge now"
 msgstr "Purger maintenant"
 
 #. translators: %d is the number of attempts that were successfully purged
-#: includes/admin/class-attempts.php:175
+#: includes/admin/class-attempts.php:185
 #, php-format
 msgid "%d attempts purged successfully."
 msgstr "%d tentatives purgées avec succès."
 
-#: includes/admin/class-attempts.php:184 includes/admin/class-attempts.php:308
+#: includes/admin/class-attempts.php:194 includes/admin/class-attempts.php:318
 #: includes/admin/class-view-questions.php:116
 #: includes/admin/class-view-questions.php:132
 msgid "ID"
 msgstr "ID"
 
-#: includes/admin/class-attempts.php:185
-msgid "User"
-msgstr "Utilisateur"
-
-#: includes/admin/class-attempts.php:187 includes/admin/class-attempts.php:313
+#: includes/admin/class-attempts.php:197 includes/admin/class-attempts.php:323
 msgid "Score"
 msgstr "Score"
 
-#: includes/admin/class-attempts.php:188 includes/admin/class-attempts.php:314
+#: includes/admin/class-attempts.php:198 includes/admin/class-attempts.php:324
 msgid "Started"
 msgstr "Commencé"
 
-#: includes/admin/class-attempts.php:189 includes/admin/class-attempts.php:315
+#: includes/admin/class-attempts.php:199 includes/admin/class-attempts.php:325
 msgid "Completed"
 msgstr "Terminé"
 
-#: includes/admin/class-attempts.php:206
+#: includes/admin/class-attempts.php:216
 msgid "No attempts found."
 msgstr "Aucune tentative trouvée."
 
-#: includes/admin/class-attempts.php:226
+#: includes/admin/class-attempts.php:236
 msgid "Attempts pagination"
 msgstr "Pagination des tentatives"
 
-#: includes/admin/class-attempts.php:266
+#: includes/admin/class-attempts.php:276
 msgid "You do not have sufficient permissions to export."
 msgstr "Vous ne disposez pas des autorisations suffisantes pour exporter."
 
-#: includes/admin/class-attempts.php:272
+#: includes/admin/class-attempts.php:282
 msgid "Invalid export request (nonce)."
 msgstr "Demande d'exportation non valide (nonce)."
 
-#: includes/admin/class-attempts.php:310
+#: includes/admin/class-attempts.php:320
 msgid "Display Name"
 msgstr "Nom affiché"
 
-#: includes/admin/class-attempts.php:311 includes/admin/class-dashboard.php:243
-msgid "Email"
-msgstr "Email"
-
-#: includes/admin/class-attempts.php:342
+#: includes/admin/class-attempts.php:352
 msgid "You do not have sufficient permissions to purge."
 msgstr "Vous ne disposez pas des autorisations suffisantes pour purger."
 
-#: includes/admin/class-attempts.php:348
+#: includes/admin/class-attempts.php:358
 msgid "Invalid purge request (nonce)."
 msgstr "Demande de purge non valide (nonce)."
 
 #: includes/admin/class-badges-settings.php:55
-#: includes/admin/class-badges-settings.php:99
+#: includes/admin/class-badges-settings.php:109
 msgid "Disable badges"
 msgstr "Désactiver les badges"
 
 #: includes/admin/class-badges-settings.php:62
-#: includes/admin/class-badges-settings.php:121
+#: includes/admin/class-badges-settings.php:131
 msgid "Disable badges legend"
 msgstr "Désactiver la légende des badges"
 
-#: includes/admin/class-badges-settings.php:69
-#: includes/admin/class-badges-settings.php:240
-msgid "Quiz Completion Badge Level"
-msgstr "Badge Niveau d’achèvement de quiz"
+#: includes/admin/class-badges-settings.php:70
+msgid "🎯 Correct Answers Badges (Total Correct Answers)"
+msgstr "🎯 Badges de réponses correctes (total des réponses correctes)"
 
-#: includes/admin/class-badges-settings.php:76
-#: includes/admin/class-badges-settings.php:273
-msgid "Success Rate Badge Level"
-msgstr "Badge Niveau du taux de réussite"
+#: includes/admin/class-badges-settings.php:78
+msgid "🏆 Progression Badges (Quizzes Completed)"
+msgstr "🏆 Badges de progression (Quizz terminés)"
 
-#: includes/admin/class-badges-settings.php:101
+#: includes/admin/class-badges-settings.php:86
+msgid "⭐ Performance Badges (Success Rate)"
+msgstr "⭐ Badges de performance (taux de réussite)"
+
+#: includes/admin/class-badges-settings.php:111
 msgid "Check this to disable the badges system."
 msgstr "Cochez cette case pour désactiver le système de badges."
 
-#: includes/admin/class-badges-settings.php:102
+#: includes/admin/class-badges-settings.php:112
 msgid ""
 "Please note that this option only works if statistics are not disabled in "
 "general settings."
@@ -1194,7 +1627,7 @@ msgstr ""
 "Veuillez noter que cette option ne fonctionne que si les statistiques ne "
 "sont pas désactivées dans les paramètres généraux."
 
-#: includes/admin/class-badges-settings.php:123
+#: includes/admin/class-badges-settings.php:133
 msgid ""
 "Check this to disable the display of the badges legend below the user earned "
 "badges display section."
@@ -1202,49 +1635,74 @@ msgstr ""
 "Cochez cette case pour désactiver l'affichage de la légende des badges sous "
 "la section d'affichage des badges gagnés par l'utilisateur."
 
-#: includes/admin/class-badges-settings.php:155
-#: includes/admin/class-badges-settings.php:198 includes/FQI3_Awards.php:487
+#: includes/admin/class-badges-settings.php:165
+#: includes/admin/class-badges-settings.php:208 includes/FQI3_Awards.php:601
 msgid "Threshold:"
 msgstr "Seuil:"
 
-#: includes/admin/class-badges-settings.php:161
-#: includes/admin/class-badges-settings.php:204
+#: includes/admin/class-badges-settings.php:171
+#: includes/admin/class-badges-settings.php:214
 msgid "Badge Name:"
 msgstr "Nom du badge:"
 
-#: includes/admin/class-badges-settings.php:167
-#: includes/admin/class-badges-settings.php:210
+#: includes/admin/class-badges-settings.php:177
+#: includes/admin/class-badges-settings.php:220
 msgid "Badge Image:"
 msgstr "Image de badge :"
 
-#: includes/admin/class-badges-settings.php:172
-#: includes/admin/class-badges-settings.php:176
-#: includes/admin/class-badges-settings.php:212
+#: includes/admin/class-badges-settings.php:182
+#: includes/admin/class-badges-settings.php:186
+#: includes/admin/class-badges-settings.php:222
 #: includes/admin/class-emails-settings.php:126
 #: includes/admin/class-emails-settings.php:130
 msgid "Remove Image"
 msgstr "Supprimer l’image"
 
-#: includes/admin/class-badges-settings.php:175
-#: includes/admin/class-badges-settings.php:211
+#: includes/admin/class-badges-settings.php:185
+#: includes/admin/class-badges-settings.php:221
 #: includes/admin/class-emails-settings.php:129
 msgid "Upload Image"
 msgstr "Télécharger l’image"
 
-#: includes/admin/class-badges-settings.php:183
-#: includes/admin/class-badges-settings.php:217
+#: includes/admin/class-badges-settings.php:193
+#: includes/admin/class-badges-settings.php:227
 msgid "Remove this badge"
 msgstr "Supprimer ce badge"
 
-#: includes/admin/class-badges-settings.php:190
+#: includes/admin/class-badges-settings.php:200
 msgid "Add a badge"
 msgstr "Ajouter un badge"
 
-#: includes/admin/class-badges-settings.php:269
+#: includes/admin/class-badges-settings.php:245
+msgid "Enable multi-level correct answers badges"
+msgstr "Activer les badges de réponses correctes à plusieurs niveaux"
+
+#: includes/admin/class-badges-settings.php:247
+msgid ""
+"When enabled, correct answers Badges will be awarded based on total correct "
+"answers across all levels combined."
+msgstr ""
+"Lorsque cette option est activée, les badges de réponses correctes seront "
+"attribués en fonction du nombre total de réponses correctes sur tous les "
+"niveaux combinés."
+
+#: includes/admin/class-badges-settings.php:250
+msgid "Correct Answers Badge Level"
+msgstr "Badge de réponses correctes Niveau"
+
+#: includes/admin/class-badges-settings.php:274
+msgid "Quiz Completion Badge Level"
+msgstr "Badge Niveau d’achèvement de quiz"
+
+#: includes/admin/class-badges-settings.php:303
 msgid "Minimum quizzes completed to start assigning success rate badges:"
 msgstr ""
 "Nombre minimum de questionnaires terminés pour commencer à attribuer des "
 "badges de taux de réussite :"
+
+#: includes/admin/class-badges-settings.php:307
+msgid "Success Rate Badge Level"
+msgstr "Badge Niveau du taux de réussite"
 
 #: includes/admin/class-content-settings.php:45
 msgid "RTL mode for table"
@@ -1343,7 +1801,7 @@ msgstr "Voir tout"
 msgid "List of badges"
 msgstr "Liste des badges"
 
-#: includes/admin/class-dashboard.php:134 includes/FQI3_Awards.php:484
+#: includes/admin/class-dashboard.php:134 includes/FQI3_Awards.php:598
 msgid "Badge Type"
 msgstr "Type du badge"
 
@@ -1386,7 +1844,7 @@ msgstr "Nom"
 msgid "Register Date"
 msgstr "Date d’inscription"
 
-#: includes/admin/class-developper.php:42 includes/admin/class-infos.php:82
+#: includes/admin/class-developper.php:42 includes/admin/class-infos.php:86
 #: templates/form-manually-save-stats.php:8
 msgid "New"
 msgstr "Nouveau"
@@ -1666,10 +2124,11 @@ msgstr "Un objet contenant des détails sur le badge :"
 
 #: includes/admin/class-developper.php:251
 msgid ""
-"The type of badge (e.g., \"completion-badge\" or \"success-rate-badge\")."
+"The type of badge (e.g., \"correct-answers-badge\" , \"completion-badge\" or "
+"\"success-rate-badge\")."
 msgstr ""
-"Le type de badge (par exemple, « completion-badge » ou « success-rate-"
-"badge »)."
+"Le type de badge (par exemple, « correct-answers-badge », « completion-"
+"badge » ou « success-rate-badge »)."
 
 #: includes/admin/class-developper.php:252
 msgid "The name of the badge."
@@ -1766,8 +2225,8 @@ msgid "Each property corresponds to an exposed setting in the selected group."
 msgstr ""
 "Chaque propriété correspond à un paramètre exposé dans le groupe sélectionné."
 
-#: includes/admin/class-developper.php:355 includes/admin/class-infos.php:91
-#: includes/fqi3-config-functions.php:162
+#: includes/admin/class-developper.php:355 includes/admin/class-infos.php:95
+#: includes/fqi3-config-functions.php:180
 msgid "Changelog and User Guide"
 msgstr "Guide et changelog"
 
@@ -2133,11 +2592,6 @@ msgstr ""
 msgid "Edit question"
 msgstr "Modifier la question"
 
-#: includes/admin/class-edit-questions.php:96
-#: includes/admin/class-emails-settings.php:264
-msgid "Security check failed."
-msgstr "Échec du test de sécurité."
-
 #: includes/admin/class-edit-questions.php:131
 msgid "Question not found."
 msgstr "Question non trouvée."
@@ -2211,7 +2665,7 @@ msgid "Test Cron Execution"
 msgstr "Tester l’exécution de Cron"
 
 #: includes/admin/class-emails-settings.php:177
-#: includes/fqi3-config-functions.php:279
+#: includes/fqi3-config-functions.php:315
 msgid "Go to the site"
 msgstr "Visitez le site"
 
@@ -2332,7 +2786,7 @@ msgid "Questions"
 msgstr "Questions"
 
 #: includes/admin/class-import-export.php:36
-#: includes/admin/class-statistics.php:148
+#: includes/admin/class-statistics.php:206
 msgid "Levels"
 msgstr "Niveaux"
 
@@ -2377,7 +2831,7 @@ msgid "All Users"
 msgstr "Tous les utilisateurs"
 
 #: includes/admin/class-import-export.php:145
-#: includes/admin/class-infos.php:139
+#: includes/admin/class-infos.php:143
 msgid "Export"
 msgstr "Exporter"
 
@@ -2440,11 +2894,11 @@ msgstr ""
 msgid "Import failed: %s"
 msgstr "Échec de l’importation : %s"
 
-#: includes/admin/class-infos.php:48
+#: includes/admin/class-infos.php:52
 msgid "Render the main quiz form interface."
 msgstr "Rendre l'interface principale du formulaire de quiz."
 
-#: includes/admin/class-infos.php:52
+#: includes/admin/class-infos.php:56
 msgid ""
 "Legacy alias for the quiz form (backward compatibility). Prefer "
 "[fqi3_quizz_form]."
@@ -2452,28 +2906,28 @@ msgstr ""
 "Alias hérité pour le formulaire de quiz (rétrocompatibilité). Préférez "
 "[fqi3_quizz_form]."
 
-#: includes/admin/class-infos.php:56
+#: includes/admin/class-infos.php:60
 msgid "Display detailed user statistics across posts, pages, or widgets."
 msgstr ""
 "Affiche des statistiques détaillées sur les utilisateurs dans les articles, "
 "les pages ou les widgets."
 
-#: includes/admin/class-infos.php:60
+#: includes/admin/class-infos.php:64
 msgid ""
 "Show the number of remaining free quiz attempts with a user-friendly message."
 msgstr ""
 "Affiche le nombre de tentatives de quiz libres restantes avec un message "
 "convivial."
 
-#: includes/admin/class-infos.php:64
+#: includes/admin/class-infos.php:68
 msgid "Display comparative statistics between users."
 msgstr "Affiche les statistiques comparatives entre les utilisateurs."
 
-#: includes/admin/class-infos.php:68
+#: includes/admin/class-infos.php:72
 msgid "Display the badges awarded to the currently logged-in user."
 msgstr "Affiche les badges attribués à l'utilisateur actuellement connecté."
 
-#: includes/admin/class-infos.php:72
+#: includes/admin/class-infos.php:76
 msgid ""
 "Display the periodic statistics (weekly and monthly) of a user, including "
 "success rates and quiz performance by level."
@@ -2482,23 +2936,23 @@ msgstr ""
 "utilisateur, y compris les taux de réussite et les performances au quiz par "
 "niveau."
 
-#: includes/admin/class-infos.php:107
+#: includes/admin/class-infos.php:111
 msgid "User Guide"
 msgstr "Guide d'utilisation"
 
-#: includes/admin/class-infos.php:109
+#: includes/admin/class-infos.php:113
 msgid "Here you can find the user guide for the plugin."
 msgstr "Vous trouverez ici le guide d'utilisation du plugin."
 
-#: includes/admin/class-infos.php:111
+#: includes/admin/class-infos.php:115
 msgid "Available Shortcodes:"
 msgstr "Shortcodes disponibles :"
 
-#: includes/admin/class-infos.php:116
+#: includes/admin/class-infos.php:120
 msgid "Gutenberg Blocks (Server‑Rendered):"
 msgstr "Blocs Gutenberg (rendu par le serveur) :"
 
-#: includes/admin/class-infos.php:117
+#: includes/admin/class-infos.php:121
 msgid ""
 "These blocks are available in the custom category “Form Quizz FQI3”. They "
 "render on the server and mirror the shortcodes for better editor UX."
@@ -2507,41 +2961,41 @@ msgstr ""
 "FQI3 ». Ils s'affichent sur le serveur et reproduisent les shortcodes pour "
 "une meilleure expérience utilisateur de l'éditeur."
 
-#: includes/admin/class-infos.php:119 assets/js/fqi3-blocks-editor.js:12
+#: includes/admin/class-infos.php:123 assets/js/fqi3-blocks-editor.js:12
 msgid "Quiz Form"
 msgstr "Formulaire de quiz"
 
-#: includes/admin/class-infos.php:120 assets/js/fqi3-blocks-editor.js:18
+#: includes/admin/class-infos.php:124 assets/js/fqi3-blocks-editor.js:18
 msgid "Remaining Attempts"
 msgstr "Tentatives restantes"
 
-#: includes/admin/class-infos.php:121 assets/js/fqi3-blocks-editor.js:24
+#: includes/admin/class-infos.php:125 assets/js/fqi3-blocks-editor.js:24
 msgid "User Statistics"
 msgstr "Statistiques des utilisateurs"
 
-#: includes/admin/class-infos.php:122 includes/FQI3_Statistics.php:945
+#: includes/admin/class-infos.php:126 includes/FQI3_Statistics.php:945
 #: assets/js/fqi3-blocks-editor.js:30
 msgid "Comparative Statistics"
 msgstr "Statistiques comparatives"
 
-#: includes/admin/class-infos.php:123 assets/js/fqi3-blocks-editor.js:36
+#: includes/admin/class-infos.php:127 assets/js/fqi3-blocks-editor.js:36
 msgid "Current User Badges"
 msgstr "Badges d'utilisateur actuels"
 
-#: includes/admin/class-infos.php:124 assets/js/fqi3-blocks-editor.js:42
+#: includes/admin/class-infos.php:128 assets/js/fqi3-blocks-editor.js:42
 msgid "Periodic Statistics"
 msgstr "Statistiques périodiques"
 
-#: includes/admin/class-infos.php:126
+#: includes/admin/class-infos.php:130
 msgid "Hooks are documented in the Developer → Hooks section below."
 msgstr ""
 "Les hooks sont documentés dans la section Développeur → Hooks ci-dessous."
 
-#: includes/admin/class-infos.php:129
+#: includes/admin/class-infos.php:133
 msgid "Attempts storage"
 msgstr "Stockage de tentatives"
 
-#: includes/admin/class-infos.php:129
+#: includes/admin/class-infos.php:133
 msgid ""
 "Core creates a lightweight table wp_fqi3_quiz_attempts with columns (id, "
 "user_id, level, score, started_at, completed_at). The current attempt_id is "
@@ -2552,60 +3006,60 @@ msgstr ""
 "attempt_id actuel est également transmis via des réponses AJAX pour les "
 "intégrations front-end."
 
-#: includes/admin/class-infos.php:132
+#: includes/admin/class-infos.php:136
 msgid "Admin: Attempts (Audit)"
 msgstr "Admin : Tentatives (Audit)"
 
-#: includes/admin/class-infos.php:133
+#: includes/admin/class-infos.php:137
 msgid "An admin page is available to audit quiz attempts."
 msgstr ""
 "Une page d'administration est disponible pour auditer les tentatives de quiz."
 
-#: includes/admin/class-infos.php:135
+#: includes/admin/class-infos.php:139
 msgid "Location"
 msgstr "Emplacement"
 
-#: includes/admin/class-infos.php:135
+#: includes/admin/class-infos.php:139
 msgid "Form Quizz FQI3 → Attempts (Audit)"
 msgstr "Form Quizz FQI3 → Tentatives (Audit)"
 
-#: includes/admin/class-infos.php:136
+#: includes/admin/class-infos.php:140
 msgid "Filters"
 msgstr "Filtres"
 
-#: includes/admin/class-infos.php:136
+#: includes/admin/class-infos.php:140
 msgid "Level (dropdown from fqi3_quiz_levels), User ID, Date range (From/To)"
 msgstr ""
 "Niveau (liste déroulante de fqi3_quiz_levels), ID utilisateur, plage de "
 "dates (de/à)"
 
-#: includes/admin/class-infos.php:137
+#: includes/admin/class-infos.php:141
 msgid "Columns"
 msgstr "Colonnes"
 
-#: includes/admin/class-infos.php:137
+#: includes/admin/class-infos.php:141
 msgid "ID, User, Level, Score, Started, Completed"
 msgstr "ID, Utilisateur, Niveau, Score, Commencé, Terminé"
 
-#: includes/admin/class-infos.php:138
+#: includes/admin/class-infos.php:142
 msgid "Pagination"
 msgstr "Pagination"
 
-#: includes/admin/class-infos.php:138
+#: includes/admin/class-infos.php:142
 msgid "Built-in with per‑page controls (Screen Options)"
 msgstr "Intégré avec des commandes par page (Options d'écran)"
 
-#: includes/admin/class-infos.php:139
+#: includes/admin/class-infos.php:143
 msgid "CSV export respects active filters"
 msgstr "L'exportation CSV respecte les filtres actifs"
 
-#: includes/admin/class-infos.php:142
+#: includes/admin/class-infos.php:146
 msgid "Question Bank Pro (Add‑on): Core Settings Integration"
 msgstr ""
 "Banque de questions Pro (module complémentaire) : intégration des paramètres "
 "de base"
 
-#: includes/admin/class-infos.php:143
+#: includes/admin/class-infos.php:147
 msgid ""
 "When the Question Bank Pro add‑on is active, a new “Question Bank” tab "
 "appears inside the core Settings page."
@@ -2613,65 +3067,65 @@ msgstr ""
 "Lorsque le module complémentaire Question Bank Pro est actif, un nouvel "
 "onglet « Banque de questions » apparaît dans la page Paramètres principale."
 
-#: includes/admin/class-infos.php:145
+#: includes/admin/class-infos.php:149
 msgid "Where"
 msgstr "Où"
 
-#: includes/admin/class-infos.php:145
+#: includes/admin/class-infos.php:149
 msgid "Form Quizz FQI3 → Settings → Question Bank"
 msgstr "Form Quizz FQI3 → Paramètres → Banque de questions"
 
-#: includes/admin/class-infos.php:146
+#: includes/admin/class-infos.php:150
 msgid "Fields"
 msgstr "Champs"
 
-#: includes/admin/class-infos.php:146
+#: includes/admin/class-infos.php:150
 msgid "Enable Question Bank, Allowed roles, Levels config (JSON)."
 msgstr ""
 "Activer la banque de questions, les rôles autorisés, la configuration des "
 "niveaux (JSON)."
 
-#: includes/admin/class-infos.php:147
+#: includes/admin/class-infos.php:151
 msgid "Storage"
 msgstr "Stockage"
 
-#: includes/admin/class-infos.php:147
+#: includes/admin/class-infos.php:151
 msgid "(saved through the core form)."
 msgstr "(enregistré via le formulaire principal)."
 
-#: includes/admin/class-infos.php:150
+#: includes/admin/class-infos.php:154
 msgid "Example JSON"
 msgstr "Exemple de JSON"
 
-#: includes/admin/class-infos.php:172
+#: includes/admin/class-infos.php:177
 msgid "Copy shortcode"
 msgstr "Copier le shortcode"
 
-#: includes/admin/class-infos.php:175
+#: includes/admin/class-infos.php:180
 msgid "Deprecated"
 msgstr "Déprécié"
 
-#: includes/admin/class-infos.php:193
+#: includes/admin/class-infos.php:198
 msgid "Changelog"
 msgstr "Journal des modifications"
 
-#: includes/admin/class-infos.php:216
+#: includes/admin/class-infos.php:221
 msgid "Changelog file is not readable."
 msgstr "Le fichier changelog n’est pas lisible."
 
-#: includes/admin/class-infos.php:221
+#: includes/admin/class-infos.php:226
 msgid "Failed to read changelog file."
 msgstr "Échec de la lecture du fichier journal des modifications."
 
-#: includes/admin/class-infos.php:239
+#: includes/admin/class-infos.php:244
 msgid "No changelog section found."
 msgstr "Aucune section de journal des modifications trouvée."
 
-#: includes/admin/class-infos.php:248
+#: includes/admin/class-infos.php:253
 msgid "No version entries found."
 msgstr "Aucune entrée de version trouvée."
 
-#: includes/admin/class-infos.php:273
+#: includes/admin/class-infos.php:278
 msgid "No changelog entries found."
 msgstr "Aucune entrée du journal des modifications trouvée."
 
@@ -2726,6 +3180,87 @@ msgstr "Intermédiaire"
 msgid "Advance"
 msgstr "Avancé"
 
+#: includes/admin/class-license-settings.php:48
+msgid "GitHub Personal Token"
+msgstr "Jeton personnel GitHub"
+
+#: includes/admin/class-license-settings.php:59
+#: assets/js/driverjs-strings.js:15
+msgid ""
+"Configure your GitHub personal token here to enable access to add-ons and "
+"receive updates for the core plugin and installed add-ons."
+msgstr ""
+"Configurez votre jeton personnel GitHub ici pour activer l'accès aux modules "
+"complémentaires et recevoir des mises à jour pour le plugin principal et les "
+"modules complémentaires installés."
+
+#: includes/admin/class-license-settings.php:79
+msgid "Enter your GitHub personal token"
+msgstr "Saisissez votre jeton personnel GitHub"
+
+#: includes/admin/class-license-settings.php:84
+msgid "Save Token"
+msgstr "Enregistrer le jeton"
+
+#: includes/admin/class-license-settings.php:95
+msgid "Enter your GitHub personal token for API access."
+msgstr "Saisissez votre jeton personnel GitHub pour accéder à l'API."
+
+#: includes/admin/class-license-settings.php:100
+msgid "Create a new token on GitHub"
+msgstr "Créer un nouveau jeton sur GitHub"
+
+#: includes/admin/class-license-settings.php:106
+msgid "Current token:"
+msgstr "Jeton actuel:"
+
+#: includes/admin/class-license-settings.php:170
+msgid "Token cannot be empty."
+msgstr "Le jeton ne peut pas être vide."
+
+#: includes/admin/class-license-settings.php:177
+msgid ""
+"Invalid token format. GitHub tokens should contain only letters, numbers, "
+"and underscores."
+msgstr ""
+"Format de jeton non valide. Les jetons GitHub ne doivent contenir que des "
+"lettres, des chiffres et des traits de soulignement."
+
+#: includes/admin/class-license-settings.php:203
+#: includes/admin/class-license-settings.php:298
+msgid "Token cannot be empty"
+msgstr "Le jeton ne peut pas être vide"
+
+#: includes/admin/class-license-settings.php:209
+msgid "wp-config.php not found."
+msgstr "wp-config.php non trouvé."
+
+#: includes/admin/class-license-settings.php:213
+msgid "wp-config.php is not writable. Please check file permissions."
+msgstr ""
+"wp-config.php n'est pas accessible en écriture. Veuillez vérifier les "
+"permissions du fichier."
+
+#: includes/admin/class-license-settings.php:219
+msgid "Failed to create backup of wp-config.php"
+msgstr "Échec de la création de la sauvegarde de wp-config.php"
+
+#: includes/admin/class-license-settings.php:225
+msgid "Failed to read wp-config.php"
+msgstr "Échec de la lecture de wp-config.php"
+
+#: includes/admin/class-license-settings.php:276
+msgid "Failed to write to wp-config.php"
+msgstr "Échec de l'écriture dans wp-config.php"
+
+#: includes/admin/class-license-settings.php:311
+msgid "Failed to validate token with GitHub API."
+msgstr "Échec de la validation du jeton avec l'API GitHub."
+
+#: includes/admin/class-license-settings.php:317
+msgid "Invalid GitHub token."
+msgstr "Jeton GitHub non valide."
+
 #: includes/admin/class-options.php:36
 msgid "Form Quizz FQI3 Settings"
 msgstr "Réglages Form Quizz FQI3"
@@ -2738,15 +3273,47 @@ msgstr "Démarrez la visite guidée"
 msgid "Save settings"
 msgstr "Enregistrer les paramètres"
 
-#: includes/admin/class-statistics.php:59
+#. translators: 1 = plugin name, 2 = details URL, 3 = new version, 4 = update URL
+#: includes/admin/class-plugin-updater.php:154
+#, php-format
+msgid ""
+"There is a new version of %1$s available. <a href=\"%2$s\" class=\"thickbox "
+"open-plugin-details-modal\">View version %3$s details</a> or <a "
+"href=\"%4$s\">update now</a>."
+msgstr ""
+"Une nouvelle version de %1$s est disponible. <a href=\"%2$s\" "
+"class=\"thickbox open-plugin-details-modal\">Consultez les détails de la "
+"version %3$s </a> ou <a href=\"%4$s\">mettez-la à jour maintenant.</a>."
+
+#: includes/admin/class-plugin-updater.php:251
+msgid "No changelog available."
+msgstr "Journal des modifications non disponible."
+
+#: includes/admin/class-statistics.php:52
+msgid "Very Good"
+msgstr "Très bon"
+
+#: includes/admin/class-statistics.php:57
+msgid "Good"
+msgstr "Bon"
+
+#: includes/admin/class-statistics.php:62
+msgid "Average"
+msgstr "Moyen"
+
+#: includes/admin/class-statistics.php:67
+msgid "Poor"
+msgstr "Faible"
+
+#: includes/admin/class-statistics.php:116
 msgid "Refresh Statistics"
 msgstr "Actualiser les statistiques"
 
-#: includes/admin/class-statistics.php:64
+#: includes/admin/class-statistics.php:121
 msgid "Info"
 msgstr "Info"
 
-#: includes/admin/class-statistics.php:68
+#: includes/admin/class-statistics.php:125
 msgid ""
 "On this page, only Premium users appear. Administrators can be displayed if "
 "the option has been enabled for testing purposes."
@@ -2755,54 +3322,54 @@ msgstr ""
 "administrateurs peuvent être affichés si l’option a été activée à des fins "
 "de test."
 
-#: includes/admin/class-statistics.php:95
+#: includes/admin/class-statistics.php:153
 msgid "Color codes:"
 msgstr "Codes de couleur :"
 
-#: includes/admin/class-statistics.php:147
+#: includes/admin/class-statistics.php:205
 msgid "Username"
 msgstr "Nom d’utilisateur"
 
-#: includes/admin/class-statistics.php:149
+#: includes/admin/class-statistics.php:207
 msgid "Awards / Badges"
 msgstr "Récompenses / Badges"
 
-#: includes/admin/class-statistics.php:171
+#: includes/admin/class-statistics.php:229
 msgid "No user statistics available yet."
 msgstr "Aucune statistique utilisateur n’est encore disponible."
 
-#: includes/admin/class-statistics.php:187
+#: includes/admin/class-statistics.php:245
 msgid "Admin"
 msgstr "Admin"
 
-#: includes/admin/class-statistics.php:233 includes/FQI3_Awards.php:488
+#: includes/admin/class-statistics.php:291 includes/FQI3_Awards.php:602
 #: includes/FQI3_Statistics.php:666
 msgid "N/A"
 msgstr "N/A"
 
 #. translators: %s is the number of quizzes
-#: includes/admin/class-statistics.php:248
+#: includes/admin/class-statistics.php:306
 #, php-format
 msgid "%s quiz"
 msgid_plural "%s quizzes"
 msgstr[0] "%s quiz"
 msgstr[1] "%s quiz"
 
-#: includes/admin/class-statistics.php:289
+#: includes/admin/class-statistics.php:347
 msgid "No badges awarded yet!"
 msgstr "Aucun badge n’a encore été attribué !"
 
-#: includes/admin/class-statistics.php:290
+#: includes/admin/class-statistics.php:348
 msgid "This user has not yet earned a badge."
 msgstr "Cet utilisateur n’a pas encore obtenu de badge."
 
 #. translators: %s is the date the badge was awarded
-#: includes/admin/class-statistics.php:317
+#: includes/admin/class-statistics.php:375
 #, php-format
 msgid "earned at %s"
 msgstr "attribué le %s"
 
-#: includes/admin/class-statistics.php:393
+#: includes/admin/class-statistics.php:451
 msgid "Deleted User"
 msgstr "Utilisateur supprimé"
 
@@ -2879,10 +3446,6 @@ msgstr "Confirmation de suppression"
 msgid "Are you sure you want to delete this question?"
 msgstr "Êtes-vous certain de vouloir supprimer cette question ?"
 
-#: includes/admin/class-view-questions.php:164
-msgid "Cancel"
-msgstr "Annuler"
-
 #: includes/admin/class-view-questions.php:165
 msgid "Delete question"
 msgstr "Supprimer la question"
@@ -2946,27 +3509,31 @@ msgstr "Aucune question n'a été trouvée pour l’export"
 msgid "Export Error"
 msgstr "Erreur d’exportation"
 
-#: includes/fqi3-config-functions.php:153
+#: includes/fqi3-config-functions.php:172
 msgid "Dashboard"
-msgstr "Tableau de bord"
+msgstr "Tableaux de bord"
 
-#: includes/fqi3-config-functions.php:154
+#: includes/fqi3-config-functions.php:173
 msgid "View Questions"
 msgstr "Voir les questions"
 
-#: includes/fqi3-config-functions.php:155
+#: includes/fqi3-config-functions.php:174
 msgid "Add Question"
 msgstr "Ajouter une question"
 
-#: includes/fqi3-config-functions.php:156
+#: includes/fqi3-config-functions.php:175
 msgid "Edit Question"
 msgstr "Modifier la question"
 
-#: includes/fqi3-config-functions.php:159
+#: includes/fqi3-config-functions.php:178
 msgid "Import/Export"
 msgstr "Import / Export"
 
-#: includes/fqi3-config-functions.php:161
+#: includes/fqi3-config-functions.php:181
+msgid "Developper"
+msgstr "Développeur"
+
+#: includes/fqi3-config-functions.php:192
 msgid ""
 "<span style=\"color:yellow;\"><i class=\"bi bi-star-fill\"></i> Add-ons</"
 "span>"
@@ -2974,39 +3541,39 @@ msgstr ""
 "<span style=\"color:yellow;\"><i class=\"bi bi-star-fill\"></i> Modules</"
 "span>"
 
-#: includes/fqi3-config-functions.php:163
-msgid "Developper"
-msgstr "Développeur"
+#: includes/fqi3-config-functions.php:235 assets/js/driverjs-strings.js:14
+msgid "License"
+msgstr "Licence"
 
-#: includes/fqi3-config-functions.php:204 assets/js/driverjs-strings.js:14
+#: includes/fqi3-config-functions.php:240 assets/js/driverjs-strings.js:24
 msgid "General Settings"
 msgstr "Réglages généraux"
 
-#: includes/fqi3-config-functions.php:209 assets/js/driverjs-strings.js:24
+#: includes/fqi3-config-functions.php:245 assets/js/driverjs-strings.js:34
 msgid "Levels Settings"
 msgstr "Réglages des niveaux"
 
-#: includes/fqi3-config-functions.php:214 assets/js/driverjs-strings.js:31
+#: includes/fqi3-config-functions.php:250 assets/js/driverjs-strings.js:41
 msgid "Access Control"
 msgstr "Contrôle d'accès"
 
-#: includes/fqi3-config-functions.php:219
+#: includes/fqi3-config-functions.php:255
 msgid "Emails Options"
 msgstr "Options Emails"
 
-#: includes/fqi3-config-functions.php:224 assets/js/driverjs-strings.js:51
+#: includes/fqi3-config-functions.php:260 assets/js/driverjs-strings.js:61
 msgid "Content Options"
 msgstr "Options de contenu"
 
-#: includes/fqi3-config-functions.php:229
+#: includes/fqi3-config-functions.php:265
 msgid "Badges Options"
 msgstr "Options Badges"
 
-#: includes/fqi3-config-functions.php:234 assets/js/driverjs-strings.js:71
+#: includes/fqi3-config-functions.php:270 assets/js/driverjs-strings.js:81
 msgid "API Options"
 msgstr "Options de l'API"
 
-#: includes/fqi3-config-functions.php:239 assets/js/driverjs-strings.js:78
+#: includes/fqi3-config-functions.php:275 assets/js/driverjs-strings.js:88
 msgid "Tools"
 msgstr "Outils"
 
@@ -3030,69 +3597,78 @@ msgstr "Portée insuffisante pour ce point de terminaison."
 msgid "Database error occurred"
 msgstr "Une erreur de base de données s’est produite"
 
-#: includes/FQI3_Api.php:916
+#: includes/FQI3_Api.php:915
 msgid "User ID and level are required."
 msgstr "L'identifiant utilisateur et le niveau sont requis."
 
-#: includes/FQI3_Api.php:928
+#: includes/FQI3_Api.php:927
 msgid "Failed to save user performance."
 msgstr "Impossible de sauvegarder les performances de l'utilisateur."
 
-#: includes/FQI3_Api.php:943
+#: includes/FQI3_Api.php:942
 msgid "Performance updated successfully."
 msgstr "Performances mises à jour avec succès."
 
-#: includes/FQI3_Api.php:956
+#: includes/FQI3_Api.php:955
 msgid "Failed to update performance"
 msgstr "Échec de la mise à jour des performances"
 
-#: includes/FQI3_Api.php:1035
+#: includes/FQI3_Api.php:1034
 msgid "Invalid badge type specified"
 msgstr "Type de badge spécifié non valide"
 
-#: includes/FQI3_Awards.php:453 includes/FQI3_Awards.php:458
+#: includes/FQI3_Awards.php:559 includes/FQI3_Awards.php:564
+#: includes/FQI3_Statistics.php:617
+msgid "Correct Answers"
+msgstr "Réponses correctes"
+
+#: includes/FQI3_Awards.php:563
+msgid "reach a total number of correct answers"
+msgstr "atteindre un nombre total de réponses correctes"
+
+#: includes/FQI3_Awards.php:567 includes/FQI3_Awards.php:572
 msgid "Completed Quizzes"
 msgstr "Quiz complétés"
 
-#: includes/FQI3_Awards.php:457
+#: includes/FQI3_Awards.php:571
 msgid "achieve a specific number of quizzes"
 msgstr "atteindre un nombre spécifique de quiz"
 
-#: includes/FQI3_Awards.php:461 includes/FQI3_Statistics.php:184
+#: includes/FQI3_Awards.php:575 includes/FQI3_Statistics.php:184
 #: includes/FQI3_Statistics.php:188 includes/FQI3_Statistics.php:619
 msgid "Success Rate"
 msgstr "Taux de réussite"
 
 #. translators: %s is the number of quizzes that the user has completed to achieve a specific success rate.
-#: includes/FQI3_Awards.php:467
+#: includes/FQI3_Awards.php:581
 #, php-format
 msgid "have a specific success rate since a specific number of quizzes (%s)"
 msgstr ""
 "avoir un taux de réussite spécifique depuis un nombre spécifique de quiz (%s)"
 
-#: includes/FQI3_Awards.php:483
+#: includes/FQI3_Awards.php:597
 msgid "List of existing badges"
 msgstr "Liste des badges existants"
 
-#: includes/FQI3_Awards.php:485
+#: includes/FQI3_Awards.php:599
 msgid "How to get it"
 msgstr "Comment l’obtenir"
 
-#: includes/FQI3_Awards.php:486
+#: includes/FQI3_Awards.php:600
 msgid "Badges versions"
 msgstr "Versions des badges"
 
 #. translators: %s represents the action or condition that needs to be fulfilled, e.g., 'complete a quiz' or 'reach a score.'
-#: includes/FQI3_Awards.php:490
+#: includes/FQI3_Awards.php:604
 #, php-format
 msgid "You need to %s"
 msgstr "Vous devez %s"
 
-#: includes/FQI3_Backend.php:477
+#: includes/FQI3_Backend.php:487
 msgid "Questions per page"
 msgstr "Questions par page"
 
-#: includes/FQI3_Backend.php:498
+#: includes/FQI3_Backend.php:508
 msgid "Attempts per page"
 msgstr "Tentatives par page"
 
@@ -3326,10 +3902,6 @@ msgstr "Total des quiz"
 msgid "Total Questions Answered"
 msgstr "Nombre total de questions répondues"
 
-#: includes/FQI3_Statistics.php:617
-msgid "Correct Answers"
-msgstr "Réponses correctes"
-
 #: includes/FQI3_Statistics.php:618
 msgid "Overall average"
 msgstr "Moyenne générale"
@@ -3514,7 +4086,7 @@ msgstr "QCM illimités"
 msgid "Upgrade to unlimited"
 msgstr "Passez à illimité"
 
-#: assets/js/driverjs-strings.js:15
+#: assets/js/driverjs-strings.js:25
 msgid ""
 "Configure the plugin's core options, such as sales page link, daily/free "
 "trial limits and question limits. Data deletion, social sharing, statistics "
@@ -3525,66 +4097,67 @@ msgstr ""
 "questions. Les outils de suppression de données, de partage sur les réseaux "
 "sociaux, de statistiques et de purge sont disponibles dans l'onglet Outils."
 
-#: assets/js/driverjs-strings.js:25
+#: assets/js/driverjs-strings.js:35
 msgid "Set the quiz levels: id, name and free or not"
 msgstr "Définissez les niveaux du quiz : identifiant, nom et gratuit ou non"
 
-#: assets/js/driverjs-strings.js:32
+#: assets/js/driverjs-strings.js:42
 msgid ""
 "This access control system allows you to define granular roles and "
 "permissions for different features and grant Premium features to "
 "administrators."
 msgstr ""
-"Ce système de contrôle d’accès vous permet de définir des rôles et des "
-"autorisations granulaires pour différentes fonctionnalités et d’accorder des "
+"Ce système de contrôle d'accès vous permet de définir des rôles et des "
+"autorisations granulaires pour différentes fonctionnalités et d'accorder des "
 "fonctionnalités Premium aux administrateurs."
 
-#: assets/js/driverjs-strings.js:41
+#: assets/js/driverjs-strings.js:51
 msgid "Email Options"
-msgstr "Options Emails"
+msgstr "Options Email"
 
-#: assets/js/driverjs-strings.js:42
+#: assets/js/driverjs-strings.js:52
 msgid ""
 "Configure email notifications, disable them if necessary, upload an image "
 "for emails, set the time to send reminders, and test sending emails to the "
 "administrator."
 msgstr ""
 "Configurez les notifications par e-mail, désactivez-les si nécessaire, "
-"téléchargez une image pour les e-mails, définissez l’heure d’envoi des "
-"rappels, et testez l’envoi d’e-mails à l’administrateur."
+"téléchargez une image pour les e-mails, définissez l'heure d'envoi des "
+"rappels et testez l'envoi d'e-mails à l'administrateur."
 
-#: assets/js/driverjs-strings.js:52
+#: assets/js/driverjs-strings.js:62
 msgid ""
 "Enable RTL mode for right-to-left languages, customize the title/description "
 "before the quiz form, and set text, background, and button colors for an "
 "interface that suits your needs."
 msgstr ""
 "Activez le mode RTL pour les langues de droite à gauche, personnalisez le "
-"titre/description avant le formulaire de quiz, et définissez les couleurs du "
-"texte, du fond et des boutons pour une interface adaptée à vos besoins."
+"titre/la description avant le formulaire de quiz et définissez les couleurs "
+"du texte, de l'arrière-plan et des boutons pour une interface adaptée à vos "
+"besoins."
 
-#: assets/js/driverjs-strings.js:61
+#: assets/js/driverjs-strings.js:71
 msgid "Badge Management"
 msgstr "Gestion des badges"
 
-#: assets/js/driverjs-strings.js:62
+#: assets/js/driverjs-strings.js:72
 msgid ""
 "Disable badges or their legends, and manage badges related to quiz "
 "completion level and success rate, provided that statistics are enabled."
 msgstr ""
-"Désactivez les badges ou leur légende, et gérez les badges liés au niveau "
-"d’achèvement des quiz et au taux de réussite, sous réserve que les "
+"Désactivez les badges ou leurs légendes et gérez les badges liés au niveau "
+"d'achèvement du quiz et au taux de réussite, à condition que les "
 "statistiques soient activées."
 
-#: assets/js/driverjs-strings.js:72
+#: assets/js/driverjs-strings.js:82
 msgid ""
 "Enable access to plugin data via REST API and generate an API token to "
 "secure requests."
 msgstr ""
-"Activez l’accès aux données du plugin via l’API REST et générez un jeton API "
+"Activez l'accès aux données du plugin via l'API REST et générez un jeton API "
 "pour sécuriser les requêtes."
 
-#: assets/js/driverjs-strings.js:79
+#: assets/js/driverjs-strings.js:89
 msgid ""
 "Maintenance and utilities: enable automatic purge of attempts via daily "
 "cron, set the retention period (days), run a manual purge from the Attempts "
@@ -3597,11 +4170,11 @@ msgstr ""
 "données (supprimer les données lors de la désinstallation, désactiver le "
 "partage social et les statistiques)."
 
-#: assets/js/driverjs-strings.js:94
+#: assets/js/driverjs-strings.js:104
 msgid "Questions Bank"
 msgstr "Banque de questions"
 
-#: assets/js/driverjs-strings.js:95
+#: assets/js/driverjs-strings.js:105
 msgid ""
 "Create, manage, and reuse shared questions across quizzes. This tab is "
 "provided by the Questions Bank add-on."
@@ -3632,61 +4205,3 @@ msgstr "Afficher les badges gagnés par l'utilisateur actuel."
 #: assets/js/fqi3-blocks-editor.js:44
 msgid "Show periodic statistics for the current user."
 msgstr "Afficher les statistiques périodiques pour l'utilisateur actuel."
-
-#~ msgid ""
-#~ "The unique identifier for the user whose performance is being updated. "
-#~ "This is a required parameter."
-#~ msgstr ""
-#~ "Identifiant unique de l’utilisateur dont les performances sont mises à "
-#~ "jour. Il s’agit d’un paramètre obligatoire."
-
-#~ msgid ""
-#~ "The total number of quizzes attempted by the user at the specified level. "
-#~ "This is a required parameter."
-#~ msgstr ""
-#~ "Nombre total de quiz tentés par l’utilisateur au niveau spécifié. Il "
-#~ "s’agit d’un paramètre obligatoire."
-
-#~ msgid ""
-#~ "The total number of questions answered by the user at the specified "
-#~ "level. This is a required parameter."
-#~ msgstr ""
-#~ "Nombre total de questions auxquelles l’utilisateur a répondu au niveau "
-#~ "spécifié. Il s’agit d’un paramètre obligatoire."
-
-#~ msgid ""
-#~ "The total number of correct answers provided by the user at the specified "
-#~ "level. This is a required parameter."
-#~ msgstr ""
-#~ "Nombre total de réponses correctes fournies par l’utilisateur au niveau "
-#~ "spécifié. Il s’agit d’un paramètre obligatoire."
-
-#~ msgid ""
-#~ "The percentage of correct answers calculated as (total good answers / "
-#~ "total questions answered) * 100. This is a required parameter."
-#~ msgstr ""
-#~ "Le pourcentage de réponses correctes calculé comme (total des bonnes "
-#~ "réponses / total des questions répondues) * 100. Il s’agit d’un paramètre "
-#~ "obligatoire."
-
-#~ msgid ""
-#~ "The highest score achieved by the user at the specified level. This is a "
-#~ "required parameter."
-#~ msgstr ""
-#~ "Le score le plus élevé atteint par l’utilisateur au niveau spécifié. Il "
-#~ "s’agit d’un paramètre obligatoire."
-
-#~ msgid "Failed to retrieve quiz: "
-#~ msgstr "Impossible de récupérer le questionnaire : "
-
-#~ msgid "Failed to retrieve quizzes due to a database error"
-#~ msgstr ""
-#~ "Impossible de récupérer les questionnaires en raison d’une erreur de base "
-#~ "de données"
-
-#~ msgid "An error occurred while retrieving user badges."
-#~ msgstr ""
-#~ "Une erreur s’est produite lors de la récupération des badges utilisateur."
-
-#~ msgid "Failed to retrieve performance data"
-#~ msgstr "Impossible de récupérer les données de performances"

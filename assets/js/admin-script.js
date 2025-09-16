@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
             this.activateDriverJs();
             this.setupChangelogObserver();
             this.initAddQuestionAjaxValidation();
+            this.initAddonSuggestion();
+            this.initReportIssue();
         }
 
         setupSelectAllCheckbox(selectAllSelector, checkboxSelector) {
@@ -733,6 +735,162 @@ document.addEventListener('DOMContentLoaded', () => {
             // Initial state
             updateSticky();
         }
+
+         /**
+         * Initialise la gestion des suggestions d'add-ons
+         */
+         initAddonSuggestion() {
+            const suggestForm = document.getElementById('suggestAddonForm');
+            if (!suggestForm || typeof fqi3AddonsAjax === 'undefined') return;
+
+            suggestForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleSuggestAddon(suggestForm);
+            });
+        }
+
+        /**
+         * Initialize the report issue functionality
+         */
+        initReportIssue() {
+            const reportButton = document.querySelector('.report-issue');
+            if (!reportButton) return;
+
+            // Gestion de l'ouverture du modal
+            reportButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modal = new bootstrap.Modal(document.getElementById('reportIssueModal'));
+                modal.show();
+            });
+
+            // Gestion de la soumission du formulaire
+            const submitBtn = document.getElementById('submitIssueReport');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const form = document.getElementById('reportIssueForm');
+                    if (!form) return;
+                    
+                    const spinner = submitBtn.querySelector('.spinner-border');
+                    const originalText = submitBtn.textContent.trim();
+                    
+                    // Afficher l'indicateur de chargement
+                    submitBtn.disabled = true;
+                    spinner.classList.remove('d-none');
+                    submitBtn.innerHTML = spinner.outerHTML + ' ' + originalText;
+                    
+                    // Récupérer les données du formulaire
+                    const formData = new FormData(form);
+                    formData.append('action', 'fqi3_report_issue');
+                    formData.append('security', fqi3AddonsAjax.nonce_issue);
+                    
+                    // Ajouter les informations utilisateur et navigateur
+                    formData.append('user_agent', navigator.userAgent);
+                    
+                    // Envoyer la requête AJAX
+                    fetch(ajaxurl, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Cacher l'indicateur de chargement
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        
+                        // Afficher un message de succès
+                        if (data.success) {
+                            alert(data.data.message || 'Merci pour votre signalement ! Notre équipe va examiner le problème dès que possible.');
+                            
+                            // Fermer le modal
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('reportIssueModal'));
+                            modal.hide();
+                            
+                            // Réinitialiser le formulaire
+                            form.reset();
+                        } else {
+                            alert(data.data || 'Une erreur est survenue lors de l\'envoi du signalement. Veuillez réessayer.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de l\'envoi du signalement :', error);
+                        alert('Une erreur est survenue lors de la communication avec le serveur. Veuillez réessayer.');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
+                });
+            }
+        }
+
+        /**
+         * Gestion de la soumission du formulaire de suggestion d'add-on
+         * @param {HTMLFormElement} form - Le formulaire de suggestion
+         */
+        async handleSuggestAddon(form) {
+            const submitButton = document.getElementById('submitAddonSuggestion') || form.querySelector('button[type="submit"]');
+            if (!submitButton) {
+                console.error('Submit button not found in the form');
+                return;
+            }
+
+            const originalButtonText = submitButton.innerHTML;
+            
+            // Désactiver le bouton et afficher le loader
+            submitButton.disabled = true;
+            submitButton.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> ${fqi3AddonsAjax.strings.submitting || 'Submitting...'}`;
+
+            // Préparer les données du formulaire
+            const formData = new FormData(form);
+            formData.append('action', 'fqi3_suggest_addon');
+            formData.append('security', fqi3AddonsAjax.nonce_suggest);
+
+            try {
+                const response = await fetch(fqi3AddonsAjax.ajaxurl, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Afficher un message de succès
+                    this.showAddonNotice('success', data.data.message || 'Your suggestion has been submitted successfully!');
+                    // Réinitialiser le formulaire
+                    form.reset();
+                    // Fermer la modal après 2 secondes
+                    setTimeout(() => {                     
+                        const modal = bootstrap.Modal.getInstance(document.getElementById('suggestAddonModal'));                     
+                        if (modal) modal.hide();                 
+                    }, 2000);
+                } else {
+                    // Afficher un message d'erreur
+                    this.showAddonNotice('error', data.data.message || 'An error occurred while submitting your suggestion.');
+                }
+            } catch (error) {
+                console.error('Error submitting suggestion:', error);
+                this.showAddonNotice('error', 'An error occurred while submitting your suggestion.');
+            } finally {
+                // Réactiver le bouton
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        }
+
+        showAddonNotice(type, message) {
+            const notice = document.getElementById('addon-notice');
+            if (!notice) return;
+
+            notice.classList.remove('alert-success', 'alert-danger');
+            notice.classList.add(type === 'success' ? 'alert-success' : 'alert-danger');
+            notice.textContent = message;
+            notice.style.display = 'block';
+
+            setTimeout(() => {
+                notice.style.display = 'none';
+            }, 5000);
+        }
     }
 
     // Initialize the Quiz Manager
@@ -995,6 +1153,173 @@ jQuery(document).ready(function($) {
         });
     }
 
+    // ========== GESTION GITHUB TOKEN ==========
+    function handleGithubToken() {
+        // Vérifier si les variables AJAX sont disponibles
+        if (typeof fqi3GitHubAjax === 'undefined') {
+            return;
+        }
+    
+        // Gestionnaire du bouton Save Token
+        $('#fqi3-save-github-token').on('click', function(e) {
+            e.preventDefault();
+            
+            const $button = $(this);
+            const $input = $('#fqi3_github_token');
+            const $spinner = $('.spinner');
+            const $message = $('#fqi3-github-token-message');
+            const token = $input.val().trim();
+            
+            // Validation côté client
+            if (!token) {
+                showGithubMessage('error', fqi3GitHubAjax.strings.empty_token || 'Veuillez entrer un token GitHub.');
+                return;
+            }
+            
+            if (token.length < 20) {
+                showGithubMessage('error', fqi3GitHubAjax.strings.invalid_length || 'Le token GitHub doit contenir au moins 20 caractères.');
+                return;
+            }
+            
+            // Démarrer le processus de sauvegarde
+            $button.prop('disabled', true);
+            $spinner.addClass('is-active');
+            $message.hide();
+            
+            // Requête AJAX
+            $.ajax({
+                url: fqi3GitHubAjax.ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'fqi3_save_github_token',
+                    token: token,
+                    nonce: fqi3GitHubAjax.nonce
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showGithubMessage('success', response.data.message);
+                        $input.val(''); // Vider le champ après succès
+                        
+                        // Mettre à jour l'affichage du token
+                        updateTokenDisplay(response.data.masked_token);
+                        
+                    } else {
+                        showGithubMessage('error', response.data.message || fqi3GitHubAjax.strings.error);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    showGithubMessage('error', fqi3GitHubAjax.strings.ajax_error || 'Erreur de communication avec le serveur.');
+                },
+                complete: function() {
+                    $button.prop('disabled', false);
+                    $spinner.removeClass('is-active');
+                }
+            });
+        });
+        
+        // Function to display messages
+        function showGithubMessage(type, message) {
+            const $message = $('#fqi3-github-token-message');
+            
+            $message
+                .removeClass('notice-success notice-error')
+                .addClass('notice-' + type)
+                .html('<p>' + message + '</p>')
+                .fadeIn();
+            
+            // Masquer automatiquement après 5 secondes pour les messages de succès
+            if (type === 'success') {
+                setTimeout(() => {
+                    $message.fadeOut();
+                }, 5000);
+            }
+        }
+        
+        // Fonction pour mettre à jour l'affichage du token
+        function updateTokenDisplay(maskedToken) {
+            const $displayContainer = $('#current-token-display');
+            
+            // Supprimer l'ancien affichage
+            $displayContainer.find('.current-token-info').remove();
+            
+            // Ajouter le nouveau
+            if (maskedToken) {
+                const tokenDisplay = '<p class="description current-token-info">' +
+                    '<strong>' + (fqi3GitHubAjax.strings.current_token || 'Token actuel') + ' :</strong> ' +
+                    '<code>' + maskedToken + '</code>' +
+                    '</p>';
+                $displayContainer.html(tokenDisplay);
+            } else {
+                $displayContainer.empty();
+            }
+            
+            // Mettre à jour le placeholder
+            $('#fqi3_github_token').attr('placeholder', fqi3GitHubAjax.strings.update_placeholder || 'Entrer un nouveau token pour le mettre à jour');
+        }
+        
+        // Permettre d'appuyer sur Entrée pour sauvegarder
+        $('#fqi3_github_token').on('keypress', function(e) {
+            if (e.which === 13) { // Touche Entrée
+                e.preventDefault();
+                $('#fqi3-save-github-token').click();
+            }
+        });
+        
+        // Effacer les messages d'erreur quand l'utilisateur tape
+        $('#fqi3_github_token').on('input', function() {
+            const $message = $('#fqi3-github-token-message');
+            if ($message.hasClass('notice-error')) {
+                $message.fadeOut();
+            }
+        });
+    }
+
+    // ========== GESTION REFRESH CACHE ==========
+    function handleRefreshCache() {
+        // Gestionnaire du bouton Refresh Cache
+        $('#refresh-cache').on('click', function(e) {
+            e.preventDefault();
+    
+            const $btn = $(this);
+            if ($btn.hasClass('disabled')) {
+                return false;
+            }
+    
+            const originalText = $btn.html();
+    
+            $btn.prop('disabled', true)
+                .html('<i class="bi bi-arrow-clockwise"></i> ' + (fqi3GitHubAjax?.strings?.refreshing || 'Refreshing...'));
+    
+            $.post(fqi3GitHubAjax.ajaxurl, {
+                action: 'refresh_addon_cache',
+                nonce: fqi3GitHubAjax.nonce_refresh_cache
+            })
+            .done(function(response) {
+                if (response.success) {
+                    // Afficher message de succès
+                    $('<div class="notice notice-success is-dismissible"><p>' + response.data.message + '</p></div>')
+                        .insertAfter('.wrap h2')
+                        .delay(3000)
+                        .fadeOut();
+    
+                    // Recharger la page après 1 seconde pour afficher les données mises à jour
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    alert('Error: ' + (response.data.message || 'Unexpected error.'));
+                }
+            })
+            .fail(function() {
+                alert(fqi3GitHubAjax?.strings?.refresh_error || 'An error occurred while refreshing cache.');
+            })
+            .always(function() {
+                $btn.prop('disabled', false).html(originalText);
+            });
+        });
+    }    
+
     // Initialisation de la gestion des éléments, des onglets et des statistiques
     function initialize() {
         initializeItemManagement();
@@ -1003,6 +1328,8 @@ jQuery(document).ready(function($) {
         handleApiTest();
         handleAddonsSearch();
         handleAddonActions(); 
+        handleGithubToken();
+        handleRefreshCache();
     }
 
     // Démarrer toutes les initialisations

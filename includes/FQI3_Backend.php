@@ -76,6 +76,8 @@ class FQI3_Backend {
             'class-levels-settings',
             'class-api-settings',
             'class-tools-settings',
+            'class-license-settings',
+            'class-plugin-updater',
             // Pages Admin
             'class-dashboard',
             'class-view-questions',
@@ -287,13 +289,18 @@ class FQI3_Backend {
     public function add_menu_pages(): void {
         $pages = fqi3_get_admin_pages();
         $allowed_roles = $this->get_allowed_roles();
-        $test = [];
 
         foreach ($pages as $key => $page) {
-            $property = isset($page['property']) ? $page['property'] : null;
-            $callback = isset($page['callback']) ? $page['callback'] : null;
-            $thisCallback = !empty($property) && property_exists($this, $property) ? [$this->$property, $callback] : [$this, $page['callback']];
-            if ($page['restricted'] && !$this->user_has_any_role($allowed_roles)) {
+            $property = $page['property'] ?? null;
+            $callback = $page['callback'] ?? '__return_false';
+            $restricted = $page['restricted'] ?? false;
+            $capability = $page['capability'] ?? 'manage_options';
+            $slug = $page['slug'] ?? '';
+            $icon = $page['icon'] ?? '';
+            $position = $page['position'] ?? null;
+
+            $thisCallback = !empty($property) && property_exists($this, $property) ? [$this->$property, $callback] : [$this, $callback];
+            if ($restricted && !$this->user_has_any_role($allowed_roles)) {
                 continue;
             }
 
@@ -302,30 +309,33 @@ class FQI3_Backend {
                 add_menu_page(
                     __($page['title'], 'form-quizz-fqi3'),
                     __($page['title'], 'form-quizz-fqi3'),
-                    $page['capability'],
-                    $page['slug'],
+                    $capability,
+                    $slug,
                     '__return_false',
-                    $page['icon'],
-                    $page['position']
+                    $icon,
+                    $position
                 );
             } else {
                 // Add submenus
-                add_submenu_page(
-                    $pages['main']['slug'],
-                    __($page['title'], 'form-quizz-fqi3'),
-                    __($page['title'], 'form-quizz-fqi3'),
-                    $page['capability'],
-                    $page['slug'],
-                    $thisCallback
-                );
+                if (!empty($pages['main']['slug'])) {
+                    add_submenu_page(
+                        $pages['main']['slug'],
+                        __($page['title'], 'form-quizz-fqi3'),
+                        __($page['title'], 'form-quizz-fqi3'),
+                        $capability,
+                        $slug,
+                        $thisCallback
+                    );
+                }
             }
-            $test[] = $page['title'];
         };
 
         $this->register_submenus();
 
         // Remove the main menu entry from submenus
-        remove_submenu_page($pages['main']['slug'], $pages['main']['slug']);
+        if (!empty($pages['main']['slug'])) {
+            remove_submenu_page($pages['main']['slug'], $pages['main']['slug']);
+        }
     }
 
     /**

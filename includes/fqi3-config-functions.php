@@ -2,6 +2,18 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+if ( ! function_exists( 'fqi3_has_github_token' ) ) {
+    /**
+     * Check if a GitHub token is defined
+     *
+     * @return bool
+     */
+    function fqi3_has_github_token() {
+        return \Form_Quizz_FQI3\FQI3_License_Settings::has_github_token();
+    }
+}
+
 /**
  * Returns the array of quiz levels with translated labels and free status.
  * 
@@ -146,23 +158,41 @@ function fqi3_get_admin_pages_raw() {
  */
 function fqi3_get_admin_pages() {
     $pages = fqi3_get_admin_pages_raw();
-    
+
+    // Remove Add-ons if GitHub token does not exist
+    if (!function_exists('fqi3_has_github_token') || !fqi3_has_github_token()) {
+        unset($pages['add_ons']);
+    }
+
     // Apply translations if available and textdomain is loaded
     if (function_exists('__') && did_action('init')) {
-        $pages['main']['title'] = __('Form Quizz FQI3', 'form-quizz-fqi3');
-        $pages['dashboard']['title'] = __('Dashboard', 'form-quizz-fqi3');
-        $pages['view_questions']['title'] = __('View Questions', 'form-quizz-fqi3');
-        $pages['add_questions']['title'] = __('Add Question', 'form-quizz-fqi3');
-        $pages['edit_questions']['title'] = __('Edit Question', 'form-quizz-fqi3');
-        $pages['statistics']['title'] = __('Statistics', 'form-quizz-fqi3');
-        $pages['options']['title'] = __('Settings', 'form-quizz-fqi3');
-        $pages['import_export']['title'] = __('Import/Export', 'form-quizz-fqi3');
-        $pages['attempts']['title'] = __('Attempts (Audit)', 'form-quizz-fqi3');
-        $pages['add_ons']['title'] = __('<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>', 'form-quizz-fqi3');
-        $pages['infos']['title'] = __('Changelog and User Guide', 'form-quizz-fqi3');
-        $pages['developper']['title'] = __('Developper', 'form-quizz-fqi3');
+        // <-- ici on appelle __() avec des littéraux pour que les outils d'extraction les trouvent
+        $translate_map = [
+            'main'        => __('Form Quizz FQI3', 'form-quizz-fqi3'),
+            'dashboard'   => __('Dashboard', 'form-quizz-fqi3'),
+            'view_questions'  => __('View Questions', 'form-quizz-fqi3'),
+            'add_questions'   => __('Add Question', 'form-quizz-fqi3'),
+            'edit_questions'  => __('Edit Question', 'form-quizz-fqi3'),
+            'statistics'      => __('Statistics', 'form-quizz-fqi3'),
+            'options'         => __('Settings', 'form-quizz-fqi3'),
+            'import_export'   => __('Import/Export', 'form-quizz-fqi3'),
+            'attempts'        => __('Attempts (Audit)', 'form-quizz-fqi3'),
+            'infos'           => __('Changelog and User Guide', 'form-quizz-fqi3'),
+            'developper'      => __('Developper', 'form-quizz-fqi3'),
+        ];
+
+        foreach ($translate_map as $key => $translated_title) {
+            if (isset($pages[$key])) {
+                $pages[$key]['title'] = $translated_title;
+            }
+        }
+
+        // Traduire Add-ons seulement si elle existe (avec HTML)
+        if (isset($pages['add_ons'])) {
+            $pages['add_ons']['title'] = __('<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>', 'form-quizz-fqi3');
+        }
     }
-    
+
     return $pages;
 }
 
@@ -196,9 +226,15 @@ function fqi3_options_settings_sections() {
             'FQI3_Badges_Settings',
             'FQI3_Levels_Settings',
             'FQI3_Api_Settings',
-            'FQI3_Tools_Settings'
+            'FQI3_Tools_Settings',
+            'FQI3_License_Settings'
         ],
         'sections' => [
+            'license_settings' => [
+                'id' => 'fqi3_license_section',
+                'title' => __('License', 'form-quizz-fqi3'),
+                'icon' => 'bi-key',
+            ],
             'general_settings' => [
                 'id' => 'fqi3_general_section',
                 'title' => __('General Settings', 'form-quizz-fqi3'),

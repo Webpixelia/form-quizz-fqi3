@@ -2,9 +2,10 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 3.1.0
+ * Version: 3.2.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
+ * Update URI: https://github.com/Webpixelia/form-quizz-fqi3
  * Requires PHP: 8.0
  * Requires at least: 5.0
  * Tested up to: 6.7.1
@@ -14,7 +15,7 @@
  * Domain Path: /languages
  *
  * @package Form_Quizz_FQI3
- */
+*/
 
 declare(strict_types=1);
 
@@ -27,6 +28,30 @@ if (!defined('ABSPATH')) {
 
 // Composer autoload
 require_once __DIR__ . '/vendor/autoload.php';
+
+// Desactivate update check on wordpress.org
+add_filter('http_request_args', function($args, $url) {
+    // Desactivate update check for this plugin
+    if (str_contains($url, '//api.wordpress.org/plugins/update-check/1.1/') && isset($args['body']['plugins'])) {
+        $plugins = json_decode($args['body']['plugins'], true);
+        if (isset($plugins['plugins']['form-quizz-fqi3/form-quizz-fqi3.php'])) {
+            unset($plugins['plugins']['form-quizz-fqi3/form-quizz-fqi3.php']);
+            $args['body']['plugins'] = wp_json_encode($plugins);
+        }
+    }
+    return $args;
+}, 5, 2);
+
+// Desactivate infos get on wordpress.org
+add_filter('plugins_api', function($res, $action, $args) {
+    if (isset($args->slug) && $args->slug === 'form-quizz-fqi3') {
+        return new WP_Error(
+            'plugins_api_disabled',
+            __('This plugin is not listed in the WordPress.org directory.', 'form-quizz-fqi3')
+        );
+    }
+    return $res;
+}, 10, 3);
 
 /**
  * Main plugin class
@@ -44,7 +69,7 @@ final class FormQuizzFQI3 {
      *
      * @var string
      */
-    private const FQI3_VERSION = '3.1.0';
+    private const FQI3_VERSION = '3.2.0';
 
     /**
      * Required PHP version
@@ -438,12 +463,17 @@ final class FormQuizzFQI3 {
     */
     private function getAdminPageSlugs(): array {
         $pages = fqi3_get_admin_pages();
-
+    
         $plugin_pages = array_map(function ($page) {
-            return 'form-quizz-fqi3_page_' . $page['slug'];
+            return $page['slug'] ?? null;
         }, $pages);
     
-        // Filter to allow addons extend pages list
+        $plugin_pages = array_filter($plugin_pages); // supprime les null
+    
+        $plugin_pages = array_map(function ($slug) {
+            return 'form-quizz-fqi3_page_' . $slug;
+        }, $plugin_pages);
+    
         return apply_filters('fqi3_admin_page_slugs', $plugin_pages);
     }
 
@@ -468,11 +498,11 @@ final class FormQuizzFQI3 {
         wp_enqueue_style('fqi3-admin-style', FQI3_ASSETS . '/css/admin-style.css', [], self::FQI3_VERSION, 'all');
         // Load translatable Driver.js steps first (exposes window.fqi3GetDriverSteps)
         wp_enqueue_script('fqi3-driver-strings', FQI3_ASSETS . '/js/driverjs-strings.js', ['wp-i18n'], self::FQI3_VERSION, true);
-        wp_set_script_translations('fqi3-driver-strings', 'form-quizz-fqi3');
+        wp_set_script_translations('fqi3-driver-strings', 'form-quizz-fqi3', FQI3_PATH . '/languages/');
 
         // Main admin script depends on jQuery, wp-i18n and our driver strings
         wp_enqueue_script('fqi3-admin-script', FQI3_ASSETS . '/js/admin-script.js', ['jquery', 'wp-i18n', 'fqi3-driver-strings'], self::FQI3_VERSION, true);
-        wp_set_script_translations('fqi3-admin-script', 'form-quizz-fqi3');
+        wp_set_script_translations('fqi3-admin-script', 'form-quizz-fqi3', FQI3_PATH . '/languages/');
     }
 
     private function localizeAdminScript(): void {
@@ -509,6 +539,8 @@ final class FormQuizzFQI3 {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce_search' => wp_create_nonce('fqi3_addons_search'),
             'nonce_action' => wp_create_nonce('fqi3_addon_action'),
+            'nonce_issue' => wp_create_nonce('fqi3_report_issue'),
+            'nonce_suggest' => wp_create_nonce('fqi3_suggest_addon'),
             'strings' => [
                 'noResults' => __('No add-ons found.', 'form-quizz-fqi3'),
                 'loading'   => __('Please wait...', 'form-quizz-fqi3'),
@@ -518,6 +550,7 @@ final class FormQuizzFQI3 {
                 'deactivating' => __('Deactivating add-on...', 'form-quizz-fqi3'),
                 'notAllowed'   => __('You are not allowed to perform this action.', 'form-quizz-fqi3'),
                 'invalidNonce' => __('Invalid security token.', 'form-quizz-fqi3'),
+                'submitting' => __('Submitting...', 'form-quizz-fqi3'),
             ]
         ]);
 
@@ -525,6 +558,22 @@ final class FormQuizzFQI3 {
         wp_localize_script('fqi3-admin-script', 'fqi3QuestionsAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce_validate_add' => wp_create_nonce('fqi3_validate_add_question'),
+        ]);
+
+        // GitHub Token AJAX
+        wp_localize_script('fqi3-admin-script', 'fqi3GitHubAjax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('fqi3_save_github_token_nonce'),
+            'nonce_refresh_cache' => wp_create_nonce('fqi3_refresh_cache'),
+            'strings' => [
+                'empty_token' => __('Please enter a GitHub token.', 'form-quizz-fqi3'),
+                'invalid_length' => __('GitHub token must contain at least 20 characters.', 'form-quizz-fqi3'),
+                'error' => __('An unexpected error occurred.', 'form-quizz-fqi3'),
+                'ajax_error' => __('Server communication error.', 'form-quizz-fqi3'),
+                'current_token' => __('Current token', 'form-quizz-fqi3'),
+                'update_placeholder' => __('Enter new token to update', 'form-quizz-fqi3'),
+                'success' => __('GitHub token saved successfully!', 'form-quizz-fqi3'),
+            ]
         ]);
     }
 
@@ -750,3 +799,13 @@ final class FormQuizzFQI3 {
 
 // Initialize plugin
 FormQuizzFQI3::getInstance();
+
+// Initialize GitHub updater for the main plugin
+if (is_admin()) {
+    require_once __DIR__ . '/includes/admin/class-plugin-updater.php';
+    new \Form_Quizz_FQI3\Plugin_Updater(
+        'form-quizz-fqi3/form-quizz-fqi3.php',
+        'form-quizz-fqi3',
+        'Webpixelia'
+    );
+}

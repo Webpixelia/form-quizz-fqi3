@@ -568,7 +568,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                     'callback' => [$this, 'get_badge_settings'],
                     'permission_callback' => $badge_perm,
                 ],
-                '/badges/settings/(?P<type>completion-badge|success-rate-badge)' => [
+                '/badges/settings/(?P<type>correct-answers-badge|completion-badge|success-rate-badge)' => [
                     'methods' => 'GET',
                     'callback' => [$this, 'get_badge_settings_by_type'],
                     'permission_callback' => $badge_perm,
@@ -824,7 +824,6 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
         
             return $this->create_cached_response($result['data'], $result['cache_hit'], 'badges');
         }
-        
 
         /**
          * Get user performance with optimized query and caching.
@@ -1329,6 +1328,10 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                 'enabled' => !$settings['fqi3_disable_badges'],
                 'show_legend' => !$settings['fqi3_disable_badges_legend'],
                 'min_quizzes_for_success_rate' => $settings['fqi3_min_quizzes_for_success_rate'],
+                'enable_multi_level_badges' => (bool) $settings['fqi3_enable_multi_level_badges'],
+                'correct_answers' => [
+                    'badges' => []
+                ],
                 'quizzes_completed' => [
                     'badges' => []
                 ],
@@ -1336,6 +1339,17 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
                     'badges' => []
                 ]
             ];
+
+            // Format correct answers badges
+            if (!empty($settings['fqi3_participation_thresholds'])) {
+                foreach ($settings['fqi3_participation_thresholds'] as $index => $threshold) {
+                    $formatted['correct_answers']['badges'][] = [
+                        'threshold' => $threshold,
+                        'name' => $settings['fqi3_participation_badge_names'][$index] ?? '',
+                        'image_id' => $settings['fqi3_participation_badge_images'][$index] ?? 0
+                    ];
+                }
+            }
 
             // Format quizzes completed badges
             if (!empty($settings['fqi3_quizzes_completed_thresholds'])) {
@@ -1379,6 +1393,9 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
 
             $settings = [];
             switch ($type) {
+                case 'correct-answers-badge':
+                    $settings = self::$badge_settings_cache['participation'];
+                    break;
                 case 'completion-badge':
                     $settings = self::$badge_settings_cache['quizzes_completed'];
                     break;
@@ -1470,6 +1487,18 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * @return array|null
          */
         private function find_badge_details(int $badge_id, array $badge_settings): ?array {
+            // Check correct answers badges
+            foreach ($badge_settings['fqi3_participation_badge_images'] as $index => $image_id) {
+                if ($badge_id == $image_id) {
+                    return [
+                        'type' => 'correct-answers-badge',
+                        'name' => $badge_settings['fqi3_participation_badge_names'][$index] ?? 'Unknown',
+                        'threshold' => $badge_settings['fqi3_participation_thresholds'][$index] ?? null,
+                        'image_id' => $image_id
+                    ];
+                }
+            }
+
             // Check completion badges
             foreach ($badge_settings['fqi3_quizzes_completed_badge_images'] as $index => $image_id) {
                 if ($badge_id == $image_id) {

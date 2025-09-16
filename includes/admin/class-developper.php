@@ -225,7 +225,7 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                     [
                         'title' => __('Get Specific Badge Type Settings:', 'form-quizz-fqi3'),
                         'endpoint' => 'GET /wp-json/fqi3/v1/badges/settings/{type}',
-                        'att' => '(completion-badge|success-rate-badge)'
+                        'att' => '(correct-answers-badge|completion-badge|success-rate-badge)'
                     ],
                     [
                         'title' => __('Get All Users Badges:', 'form-quizz-fqi3'),
@@ -248,7 +248,7 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                             'badge' => [
                                 'description' => __('An object containing details about the badge:', 'form-quizz-fqi3'),
                                 'fields' => [
-                                    'type' => __('The type of badge (e.g., "completion-badge" or "success-rate-badge").', 'form-quizz-fqi3'),
+                                    'type' => __('The type of badge (e.g., "correct-answers-badge" , "completion-badge" or "success-rate-badge").', 'form-quizz-fqi3'),
                                     'name' => __('The name of the badge.', 'form-quizz-fqi3'),
                                     'threshold' => __('The threshold required to earn the badge, or null if not applicable.', 'form-quizz-fqi3'),
                                     'image_id' => __('The ID of the image associated with the badge.', 'form-quizz-fqi3'),

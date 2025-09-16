@@ -5,7 +5,7 @@
  */
 ?>
 <div class="wrap container mt-5">
-    <h2 class="page-title mb-4"><?php _e('Manually Record Weekly Statistics', 'form-quizz-fqi3'); ?> <span class="badge text-bg-info"><?php _e('New', 'form-quizz-fqi3'); ?></span></h2>
+    <h2 class="page-title mb-4"><?php _e('Manually Record Weekly Statistics', 'form-quizz-fqi3'); ?></h2>
 
     <form method="POST" action="" class="border p-4 rounded shadow-sm bg-light">
         <?php wp_nonce_field('record_weekly_stats_nonce', 'stats_nonce'); ?>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="mb-3 text-center">
-            <input type="submit" name="record_weekly_stats" value="<?php _e('Record Statistics', 'form-quizz-fqi3'); ?>" class="btn btn-primary">
+            <input type="submit" name="record_weekly_stats" value="<?php _e('Record Statistics', 'form-quizz-fqi3'); ?>" class="btn btn-sm btn-primary">
         </div>
     </form>
 </div>

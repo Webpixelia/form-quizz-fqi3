@@ -66,12 +66,22 @@ class FQI3_Attempts_Page {
         $current_slug = $pages['attempts']['slug'];
 
         echo '<div class="wrap container-fluid">';
-
             echo '<div class="row mb-4">';
                 echo '<div class="col">';
                     echo '<h2 class="wp-heading-inline page-title">' . esc_html__('Attempts (Audit)', 'form-quizz-fqi3') . '</h2><hr>';
+                    echo '<p>' . 
+                        sprintf(
+                            /* translators: %1$d is the number of days after which attempts are automatically purged, %2$s is a link to the settings page */
+                            __(
+                                'This page displays all the attempts made by users on the quizzes. You can filter the attempts by level, user ID, from date, and to date. You can also export the attempts to a CSV file. You can also purge the attempts. The purge is automatic after <strong>%1$d</strong> days (<a href="%2$s">View settings</a>).',
+                                'form-quizz-fqi3'
+                            ),
+                            (int) get_option('fqi3_attempts_retention_days', 30),
+                            esc_url(admin_url('admin.php?page=fqi3-options-quiz-questions'))
+                        )
+                    . '</p>';
                 echo '</div>'; // .col
-            echo '</div>'; // .row.mb-4
+            echo '</div>'; // .row.mb-4    
     
             // Filters + Export + Purge
             echo '<div class="container-fluid mt-4">';
@@ -349,26 +359,28 @@ class FQI3_Attempts_Page {
         }
 
         global $wpdb;
-        $options = fqi3_get_options();
-        $days = isset($options['fqi3_attempts_retention_days']) ? absint($options['fqi3_attempts_retention_days']) : 30;
-        if ($days <= 0) { $days = 30; }
+        //$options = fqi3_get_options();
+        //$days = isset($options['fqi3_attempts_retention_days']) ? absint($options['fqi3_attempts_retention_days']) : 30;
+        //if ($days <= 0) { $days = 30; }
 
         $table = $wpdb->prefix . 'fqi3_quiz_attempts';
         // Count to be deleted
-        $to_delete = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE started_at < (NOW() - INTERVAL %d DAY)",
-            $days
-        ));
+        //$to_delete = (int) $wpdb->get_var($wpdb->prepare(
+        //    "SELECT COUNT(*) FROM {$table} WHERE started_at < (NOW() - INTERVAL %d DAY)",
+        //    $days
+        //));
+        $to_delete = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$table}");
 
         // Delete in batches
         $batch = 1000;
         do {
-            $deleted = $wpdb->query(
-                $wpdb->prepare(
-                    "DELETE FROM {$table} WHERE started_at < (NOW() - INTERVAL %d DAY) LIMIT {$batch}",
-                    $days
-                )
-            );
+            //$deleted = $wpdb->query(
+            //    $wpdb->prepare(
+            //        "DELETE FROM {$table} WHERE started_at < (NOW() - INTERVAL %d DAY) LIMIT {$batch}",
+            //        $days
+            //    )
+            //);
+            $deleted = $wpdb->query("DELETE FROM {$table} LIMIT {$batch}");
         } while ($deleted === $batch);
 
         // Redirect back with notice

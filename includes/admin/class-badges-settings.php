@@ -64,16 +64,26 @@ class FQI3_Badges_Settings {
             fqi3_get_options_page_slug(),
             'fqi3_badges_section'
         );
+        // === Correct Answers Badges ===
+        add_settings_field(
+            'fqi3_participation_badges',
+            __('🎯 Correct Answers Badges (Total Correct Answers)', 'form-quizz-fqi3'),
+            [$this, 'render_correct_answers_badge_level'],
+            fqi3_get_options_page_slug(),
+            'fqi3_badges_section'
+        );
+        // === Progression Badges ===
         add_settings_field(
             'fqi3_completion_badges',
-            __('Quiz Completion Badge Level', 'form-quizz-fqi3'),
+            __('🏆 Progression Badges (Quizzes Completed)', 'form-quizz-fqi3'),
             [$this, 'render_quiz_completion_badge_level'],
             fqi3_get_options_page_slug(),
             'fqi3_badges_section'
         );
+        // === Performance Badges ===
         add_settings_field(
             'fqi3_success_rate_badges',
-            __('Success Rate Badge Level', 'form-quizz-fqi3'),
+            __('⭐ Performance Badges (Success Rate)', 'form-quizz-fqi3'),
             [$this, 'render_success_rate_badge_level'],
             fqi3_get_options_page_slug(),
             'fqi3_badges_section'
@@ -219,7 +229,31 @@ class FQI3_Badges_Settings {
         
         echo '</div>';
         echo '</div>';
-    }    
+    }
+    
+    /**
+     * Renders the fields for Correct Answers Badges (total correct answers).
+     *
+     * @since 3.2.0
+     */
+    public function render_correct_answers_badge_level() {
+        $badges_options = get_option('fqi3_badges', array());
+        $checked = !empty($badges_options['fqi3_enable_multi_level_badges']) ? 'checked' : '';
+        
+        echo '<div class="form-check form-switch">';
+        echo '<input class="form-check-input" type="checkbox" name="fqi3_badges[fqi3_enable_multi_level_badges]" value="1" ' . esc_attr($checked) . '>';
+        echo '<label class="form-check-label">' . esc_html__('Enable multi-level correct answers badges', 'form-quizz-fqi3') . '</label>';
+        echo '</div>';
+        echo '<p class="description">' . esc_html__('When enabled, correct answers Badges will be awarded based on total correct answers across all levels combined.', 'form-quizz-fqi3') . '</p>';
+
+        $this->render_badge_levels(
+            __('Correct Answers Badge Level', 'form-quizz-fqi3'), 
+            'fqi3_participation_thresholds', 
+            'fqi3_participation_badge_names', 
+            'fqi3_participation_badge_images', 
+            count(get_option('fqi3_badges')['fqi3_participation_thresholds'] ?? [0])
+        );
+    }
 
     /**
      * Renders the fields for quiz completion badge levels dynamically.
@@ -277,8 +311,6 @@ class FQI3_Badges_Settings {
             count(get_option('fqi3_badges')['fqi3_success_rate_thresholds'] ?? [0])
         );
     }
-    
-    
 
     /**
      * Sanitize the plugin options before saving them to the database.
@@ -293,6 +325,12 @@ class FQI3_Badges_Settings {
     
         $sanitized_input['fqi3_disable_badges'] = isset($input['fqi3_disable_badges']) ? 1 : 0;
         $sanitized_input['fqi3_disable_badges_legend'] = isset($input['fqi3_disable_badges_legend']) ? 1 : 0;
+
+        // Handle correct answers badges (total correct answers)
+        $sanitized_input['fqi3_enable_multi_level_badges'] = isset($input['fqi3_enable_multi_level_badges']) ? 1 : 0;
+        $sanitized_input['fqi3_participation_thresholds'] = array_filter(array_map('absint', $input['fqi3_participation_thresholds'] ?? []));
+        $sanitized_input['fqi3_participation_badge_names'] = array_filter(array_map('sanitize_text_field', $input['fqi3_participation_badge_names'] ?? []));
+        $sanitized_input['fqi3_participation_badge_images'] = array_filter(array_map('absint', $input['fqi3_participation_badge_images'] ?? []));
     
         // Handle quiz completion badges
         $sanitized_input['fqi3_quizzes_completed_thresholds'] = array_filter(array_map('absint', $input['fqi3_quizzes_completed_thresholds'] ?? []));
@@ -304,6 +342,15 @@ class FQI3_Badges_Settings {
         $sanitized_input['fqi3_success_rate_badge_names'] = array_filter(array_map('sanitize_text_field', $input['fqi3_success_rate_badge_names'] ?? []));
         $sanitized_input['fqi3_success_rate_badge_images'] = array_filter(array_map('absint', $input['fqi3_success_rate_badge_images'] ?? []));
         $sanitized_input['fqi3_min_quizzes_for_success_rate'] = isset($input['fqi3_min_quizzes_for_success_rate']) ? absint($input['fqi3_min_quizzes_for_success_rate']) : 20;
+
+        // If any of the correct answers badge fields are empty, clear all correct answers badge data
+        if (empty($sanitized_input['fqi3_participation_thresholds']) || 
+            empty($sanitized_input['fqi3_participation_badge_names']) || 
+            empty($sanitized_input['fqi3_participation_badge_images'])) {
+            $sanitized_input['fqi3_participation_thresholds'] = [];
+            $sanitized_input['fqi3_participation_badge_names'] = [];
+            $sanitized_input['fqi3_participation_badge_images'] = [];
+        }
 
         // If any of the quiz completion badge fields are empty, clear all quiz completion badge data
         if (empty($sanitized_input['fqi3_quizzes_completed_thresholds']) || 

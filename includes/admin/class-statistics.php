@@ -22,7 +22,7 @@ class FQI3_Statistics_Page {
     private ?FQI3_Awards $awards = null;
     
     // Made constants private since they're only used internally
-    private const PERFORMANCE_LEVELS = [
+    private const PERFORMANCE_CONFIG = [
         'very_good' => ['min' => 90, 'class' => 'bg-success text-white'],
         'good' => ['min' => 70, 'class' => 'bg-info text-white'],
         'average' => ['min' => 40, 'class' => 'bg-warning'],
@@ -42,6 +42,63 @@ class FQI3_Statistics_Page {
     }
 
     /**
+     * Return performance levels with translations
+     * 
+     * @return array
+     */
+    private function get_performance_levels(): array {
+        return [
+            'very_good' => [
+                'label' => __('Very Good', 'form-quizz-fqi3'),
+                'min' => self::PERFORMANCE_CONFIG['very_good']['min'],
+                'class' => self::PERFORMANCE_CONFIG['very_good']['class']
+            ],
+            'good' => [
+                'label' => __('Good', 'form-quizz-fqi3'),
+                'min' => self::PERFORMANCE_CONFIG['good']['min'],
+                'class' => self::PERFORMANCE_CONFIG['good']['class']
+            ],
+            'average' => [
+                'label' => __('Average', 'form-quizz-fqi3'),
+                'min' => self::PERFORMANCE_CONFIG['average']['min'],
+                'class' => self::PERFORMANCE_CONFIG['average']['class']
+            ],
+            'poor' => [
+                'label' => __('Poor', 'form-quizz-fqi3'),
+                'min' => self::PERFORMANCE_CONFIG['poor']['min'],
+                'class' => self::PERFORMANCE_CONFIG['poor']['class']
+            ]
+        ];
+    }
+
+    /**
+     * Determines performance level based on score
+     * 
+     * @param float $score
+     * @return array
+     */
+    public function get_performance_level_for_score(float $score): array {
+        $levels = $this->get_performance_levels();
+        
+        foreach ($levels as $level => $data) {
+            if ($score >= $data['min']) {
+                return [
+                    'level' => $level,
+                    'label' => $data['label'],
+                    'class' => $data['class']
+                ];
+            }
+        }
+        
+        // Fallback to the lowest level
+        return [
+            'level' => 'poor',
+            'label' => $levels['poor']['label'],
+            'class' => $levels['poor']['class']
+        ];
+    }
+
+    /**
      * Renders the main statistics page in the WordPress admin area.
      * 
      * This method generates a page displaying user statistics with a refresh button,
@@ -54,7 +111,7 @@ class FQI3_Statistics_Page {
         <div class="wrap container-fluid mt-4">
             <div class="d-flex justify-content-between align-items-center mb-1">
                 <h2 class="page-title"><?php _e('Statistics', 'form-quizz-fqi3'); ?></h2>
-                <button type="button" class="btn btn-success refresh-stats">
+                <button type="button" class="btn btn-success btn-sm refresh-stats">
                     <i class="bi bi-arrow-clockwise text-light me-3"></i>
                     <?php _e('Refresh Statistics', 'form-quizz-fqi3'); ?>
                 </button>
@@ -90,14 +147,15 @@ class FQI3_Statistics_Page {
      * @return void
      */
     private function render_performance_legend(): void {
+        $performance_levels = $this->get_performance_levels();
         ?>
         <div class="mb-4">
             <h5><strong><?php _e('Color codes:', 'form-quizz-fqi3'); ?></strong></h5>
             <ul class="list-group list-group-horizontal-sm">
-                <?php foreach (self::PERFORMANCE_LEVELS as $level => $data): ?>
+                <?php foreach ($performance_levels as $level => $data): ?>
                     <li class="list-group-item d-flex align-items-center">
                         <span class="badge <?php echo esc_attr($data['class']); ?> text-dark p-1">
-                            <?php echo esc_html(ucfirst(str_replace('_', ' ', $level))); ?>
+                            <?php echo esc_html($data['label']); ?>
                         </span>
                     </li>
                 <?php endforeach; ?>
@@ -405,7 +463,7 @@ class FQI3_Statistics_Page {
      * Determines the performance badge class based on success rate.
      * 
      * Maps a user's success rate to a color-coded performance level using
-     * the PERFORMANCE_LEVELS class constant.
+     * the PERFORMANCE_CONFIG class constant.
      * 
      * @param float|string $success_rate User's quiz success rate
      * @return string CSS class representing performance level
@@ -415,7 +473,7 @@ class FQI3_Statistics_Page {
             return 'bg-secondary';
         }
         
-        foreach (self::PERFORMANCE_LEVELS as $level) {
+        foreach (self::PERFORMANCE_CONFIG as $level) {
             if ($success_rate >= $level['min']) {
                 return $level['class'];
             }

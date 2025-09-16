@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.8.2
-Stable tag: 3.1.0
+Stable tag: 3.2.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -117,6 +117,18 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 8. Developer page View
 
 == Changelog ==
+= 3.2.0 =
+* Improvement: Added support for `vendor/` folder in GitHub repository.
+* Improvement: Redesigned addon installation and activation via GitHub. Now, the addon is downloaded from GitHub and installed automatically.
+* Improvement: Admin menu now shows Add-ons page only if a valid GitHub personal token is configured.
+* Improvement: Added manual purge option for quiz attempts, independent of automatic retention period.
+* Added: License settings page to configure GitHub personal token.
+* Added: Integrated update notifications for available addon updates directly in the admin panel.
+* Added: New badge type **Correct Answers Badges (Total Correct Answers)**.
+* Added: Option for Correct Answers Badges → **Enable multi-level correct answers badges**.
+* Added: Extended REST API endpoint `GET /wp-json/fqi3/v1/badges/settings/{type}` to support `participation-badge` in addition to `completion-badge` and `success-rate-badge`.
+* Fix/Improvement: Added missing 'github_repo' entries for certain addons to enable automatic installation from GitHub.
+
 = 3.1.0 =
 * Improvement: Restructured the API return format to group badges with their corresponding thresholds, names, and images
 * Improvement: Refactored the statistics update process for efficiency and enhanced the API to store user performance data in the database.

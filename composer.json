@@ -1,7 +1,6 @@
 {
     "name": "jonathan-webpixelia/form-quizz-fqi3",
     "description": "A plugin to create and manage free quizzes with premium features.",
-    "require": {},
     "license": "GPL-2.0+",
     "authors": [
         {

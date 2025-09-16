@@ -173,7 +173,6 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
                 }
     
                 $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
-                //$level = filter_input(INPUT_POST, 'level', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 $level = isset($_POST['level']) ? sanitize_text_field($_POST['level']) : '';
     
                 if (!$user_id || !$level) {
@@ -196,6 +195,9 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
          *
          * @param int $user_id The ID of the user to award the badge to.
          * @param string $level The level (beginner, intermediate, advanced) for which badges are being awarded.
+         * 
+         * @return void
+         * @throws \Exception If the user ID is invalid.
          */
         public function award_badges_based_on_criteria(int $user_id, string $level): void {
             $badges_options = $this->get_cached_badges_options();
@@ -206,14 +208,60 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
     
             $quizzes_completed = $this->get_completed_quiz_count($user_id, $level);
             $success_rate = $this->get_user_success_rate($user_id, $level);
+            $total_correct_answers = $this->get_total_correct_answers($user_id, $level);
             $min_quizzes = (int) ($badges_options['fqi3_min_quizzes_for_success_rate'] ?? 20);
     
-            // Process completion badges
+            // 🎯 Correct answers badges
+            $this->process_correct_answers_badges($user_id, $level, $total_correct_answers, $badges_options);
+
+            // 🏆 Completion badges
             $this->process_completion_badges($user_id, $level, $quizzes_completed, $badges_options);
     
-            // Process success rate badges if minimum quiz requirement met
+            // ⭐ Success rate badges
             if ($quizzes_completed >= $min_quizzes) {
                 $this->process_success_rate_badges($user_id, $level, $success_rate, $badges_options);
+            }
+        }
+
+        /**
+         * Process correct answers-based badges (total correct answers).
+         * 
+         * This function awards badges based on the total number of correct answers a user has given across all quizzes.
+         * It checks if multi-level badges are enabled and adjusts the total correct answers accordingly.
+         * 
+         * @param int $user_id The ID of the user to award the badge to.
+         * @param string $level The level (beginner, intermediate, advanced) for which badges are being awarded.
+         * @param int $total_correct The total number of correct answers given by the user.
+         * @param array $badges_options The options for badges.
+         * 
+         * @return void
+         * @throws \Exception If the user ID is invalid.
+         * 
+         * @since 3.2.0
+         */
+        private function process_correct_answers_badges(int $user_id, string $level, int $total_correct, array $badges_options): void {
+            if (empty($badges_options['fqi3_participation_thresholds'])) {
+                return;
+            }
+        
+            // Check if multi-level badges are enabled
+            $multi_level = !empty($badges_options['fqi3_enable_multi_level_badges']);
+        
+            // If multi-level is enabled, get total correct answers across all levels
+            if ($multi_level) {
+                $total_correct = $this->get_total_correct_answers_all_levels($user_id);
+            }
+        
+            foreach ($badges_options['fqi3_participation_thresholds'] as $index => $threshold) {
+                if ($total_correct >= (int)$threshold) {
+                    $badge_name = $badges_options['fqi3_participation_badge_names'][$index] ?? '';
+                    if ($badge_name) {
+                        $badge_id = $this->get_badge_id_by_name($badge_name);
+                        // For multi-level badges, don't append level name to the badge display name
+                        $badge_display_name = $multi_level ? $badge_name : "{$badge_name} " . ucfirst($level);
+                        $this->award_badge($user_id, $badge_display_name, $badge_id);
+                    }
+                }
             }
         }
 
@@ -253,6 +301,63 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
                     }
                 }
             }
+        }
+
+        /**
+         * Get the total number of correct answers by the user for a specific level.
+         *
+         * @param int $user_id The ID of the user.
+         * @param string $level The level for which the total correct answers is retrieved.
+         * @return int The total number of correct answers.
+         * 
+         * @since 3.2.0
+         */
+        private function get_total_correct_answers(int $user_id, string $level): int {
+            $cache_key = "correct_answers_{$user_id}_{$level}";
+            $count = wp_cache_get($cache_key, self::CACHE_GROUP);
+
+            if ($count === false) {
+                $stats = $this->get_statistics_instance()->get_user_statistics($user_id);
+                $count = 0;
+                foreach ($stats as $stat) {
+                    if (isset($stat['level']) && $stat['level'] === $level) {
+                        $count = (int)($stat['total_good_answers'] ?? 0);
+                        break;
+                    }
+                }
+
+                wp_cache_set($cache_key, $count, self::CACHE_GROUP, self::CACHE_EXPIRATION);
+            }
+
+            return $count;
+        }
+
+        /**
+         * Get the total number of correct answers across all levels for a user.
+         *
+         * @param int $user_id The ID of the user.
+         * @return int The total number of correct answers across all levels.
+         * 
+         * @since 3.2.0
+         */
+        private function get_total_correct_answers_all_levels(int $user_id): int {
+            $cache_key = "correct_answers_all_levels_{$user_id}";
+            $total = wp_cache_get($cache_key, self::CACHE_GROUP);
+        
+            if ($total === false) {
+                $stats = $this->get_statistics_instance()->get_user_statistics($user_id);
+                $total = 0;
+            
+                foreach ($stats as $stat) {
+                    if (isset($stat['total_good_answers'])) {
+                        $total += (int)$stat['total_good_answers'];
+                    }
+                }
+            
+                wp_cache_set($cache_key, $total, self::CACHE_GROUP, self::CACHE_EXPIRATION);
+            }
+        
+            return $total;
         }
 
         /**
@@ -397,7 +502,8 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
         private function find_badge_id_in_options(array $badges, string $badge_name): ?int {
             $badge_types = [
                 ['names' => 'fqi3_quizzes_completed_badge_names', 'images' => 'fqi3_quizzes_completed_badge_images'],
-                ['names' => 'fqi3_success_rate_badge_names', 'images' => 'fqi3_success_rate_badge_images']
+                ['names' => 'fqi3_success_rate_badge_names', 'images' => 'fqi3_success_rate_badge_images'],
+                ['names' => 'fqi3_participation_badge_names', 'images' => 'fqi3_participation_badge_images']
             ];
 
             foreach ($badge_types as $type) {
@@ -449,6 +555,14 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
             $badges_options = $this->get_cached_badges_options();
             
             return [
+                [
+                    'type' => __('Correct Answers', 'form-quizz-fqi3'),
+                    'names' => $badges_options['fqi3_participation_badge_names'] ?? [],
+                    'images' => $badges_options['fqi3_participation_badge_images'] ?? [],
+                    'thresholds' => $badges_options['fqi3_participation_thresholds'] ?? [],
+                    'howget' => __('reach a total number of correct answers', 'form-quizz-fqi3'),
+                    'unity' => __('Correct Answers', 'form-quizz-fqi3')
+                ],
                 [
                     'type' => __('Completed Quizzes', 'form-quizz-fqi3'),
                     'names' => $badges_options['fqi3_quizzes_completed_badge_names'] ?? [],
