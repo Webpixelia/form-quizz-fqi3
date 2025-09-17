@@ -116,7 +116,7 @@ class Plugin_Updater {
     /**
      * Get plugin information for the update popup
      * 
-     * @param mixed $res
+     * @param mixed  $res
      * @param string $action
      * @param object $args
      * @return mixed
@@ -129,29 +129,28 @@ class Plugin_Updater {
         }
 
         $remote = $this->get_latest_release();
-        if (!$remote) {
+        if (!$remote || !isset($remote['version'])) {
             return $res;
         }
 
         $res = new \stdClass();
-        $res->name = $this->plugin_data['Name'];
-        $res->slug = $this->plugin_slug;
-        $res->plugin_name = $this->plugin_file;
-        $res->version = $remote['version'];
-        $res->author = $this->plugin_data['Author'];
-        $res->author_profile = $this->plugin_data['AuthorURI'] ?? '';
-        $res->last_updated = $remote['last_updated'];
-        $res->homepage = $this->plugin_data['PluginURI'] ?? '';
-        $res->requires = $this->extract_requirement('Requires at least');
-        $res->tested = $this->extract_requirement('Tested up to');
-        $res->requires_php = $this->extract_requirement('Requires PHP');
-        $res->sections = array(
+        $res->name           = $this->plugin_data['Name']        ?? $this->plugin_slug;
+        $res->slug           = $this->plugin_slug;
+        $res->plugin_name    = $this->plugin_file;
+        $res->version        = $remote['version']                ?? '';
+        $res->author         = $this->plugin_data['Author']      ?? 'Unknown';
+        $res->author_profile = $this->plugin_data['AuthorURI']   ?? '';
+        $res->last_updated   = $remote['last_updated']           ?? '';
+        $res->homepage       = $this->plugin_data['PluginURI']   ?? '';
+        $res->requires       = $this->extract_requirement('Requires at least') ?? '';
+        $res->tested         = $this->extract_requirement('Tested up to')      ?? '';
+        $res->requires_php   = $this->extract_requirement('Requires PHP')      ?? '';
+        $res->sections       = [
             'description' => $this->plugin_data['Description'] ?? '',
-            'changelog' => $remote['changelog'] ?? ''
-        );
-        
-        $res->download_link = $remote['download_url'];
-        
+            'changelog'   => $remote['changelog'] ?? __('No changelog available.', 'form-quizz-fqi3'),
+        ];
+        $res->download_link  = $remote['download_url']            ?? '';
+
         return $res;
     }
     
@@ -186,79 +185,71 @@ class Plugin_Updater {
     private function get_latest_release() {
         $transient_key = 'fqi3_release_check_' . md5($this->github_username . '/' . $this->github_repo);
         $cached = get_transient($transient_key);
-        
+            
         // If we have a valid cache and no release, return false
         if ($cached === 'no_release') {
             return false;
         }
-        
-        // If we have a valid cache with data, return it
-        if (is_array($cached) && !empty($cached)) {
+    
+        // If we have a cached *formatted* response, return it
+        if (is_array($cached) && isset($cached['version'])) {
             return $cached;
         }
-        
+    
         $url = sprintf('https://api.github.com/repos/%s/%s/releases/latest', $this->github_username, $this->github_repo);
-        
-        $args = array(
-            'headers' => array(
-                'Accept' => 'application/vnd.github.v3+json',
+    
+        $args = [
+            'headers' => [
+                'Accept'     => 'application/vnd.github.v3+json',
                 'User-Agent' => 'WordPress-Form-Quizz-Plugin',
-            ),
-            'timeout' => 15
-        );
-        
+            ],
+            'timeout' => 15,
+        ];
+    
         if (!empty($this->github_token)) {
             $args['headers']['Authorization'] = 'token ' . $this->github_token;
         }
-        
+    
         $response = wp_remote_get($url, $args);
-        
+    
         if (is_wp_error($response)) {
-            error_log('FQI3 Update Error: ' . $response->get_error_message());
-            // Cache the failure for 1 hour
             set_transient($transient_key, 'no_release', HOUR_IN_SECONDS);
             return false;
         }
-        
+    
         $response_code = wp_remote_retrieve_response_code($response);
-        
-        // If no release found (404), cache this result for 24h
+    
         if ($response_code === 404) {
             set_transient($transient_key, 'no_release', DAY_IN_SECONDS);
             return false;
         }
-        
-        // For other errors, log and cache for 1h
+    
         if ($response_code !== 200) {
-            error_log('FQI3 Update Error: GitHub API returned ' . $response_code);
             set_transient($transient_key, 'no_release', HOUR_IN_SECONDS);
             return false;
         }
-        
+    
         $release = json_decode(wp_remote_retrieve_body($response), true);
-        
+    
         if (empty($release) || !isset($release['tag_name'])) {
-            error_log('FQI3 Update Error: Invalid release data');
             set_transient($transient_key, 'no_release', HOUR_IN_SECONDS);
             return false;
         }
-        
-        // Cache the valid response for 12 hours
-        set_transient($transient_key, $release, 12 * HOUR_IN_SECONDS);
-        
+    
         // Format the release data
-        $release_data = array(
-            'version' => ltrim($release['tag_name'], 'v'),
+        $release_data = [
+            'version'      => ltrim($release['tag_name'], 'v'),
             'download_url' => $this->get_download_url($release),
-            'last_updated' => $release['published_at'],
-            'changelog' => $this->parse_changelog($release['body'] ?? '')
-        );
-        
-        // Cache the result for 12 hours
-        set_transient($this->cache_key, $release_data, $this->cache_expiration);
-        
+            'last_updated' => $release['published_at'] ?? '',
+            'changelog'    => $this->parse_changelog($release['body'] ?? '')
+        ];
+    
+        // Cache the *formatted* result for 12 hours
+        set_transient($transient_key, $release_data, 12 * HOUR_IN_SECONDS);
+    
         return $release_data;
     }
+    
     
     /**
      * Get the download URL from release data
@@ -336,8 +327,10 @@ class Plugin_Updater {
         $transient_key = 'fqi3_release_check_' . md5($this->github_username . '/' . $this->github_repo);
         delete_transient($transient_key);
     
-        return $this->get_latest_release();
-    }
+        $release = $this->get_latest_release();
+    
+        return is_array($release) ? (object) $release : ($release ?? new \stdClass());
+    }    
     
     /**
      * Get current version
@@ -354,12 +347,16 @@ class Plugin_Updater {
      * @return bool
      */
     public function is_update_available(): bool {
+        $this->load_plugin_data();
         $latest = $this->get_latest_release();
         if (!$latest || empty($latest['version'])) {
             return false;
         }
         
-        return version_compare($latest['version'], $this->get_current_version(), '>');
+        $current_version = $this->get_current_version();
+        $is_update = version_compare($latest['version'], $current_version, '>');
+        
+        return $is_update;
     }
 }
 

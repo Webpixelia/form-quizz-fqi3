@@ -467,9 +467,20 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
                 <div class="col">
                     <div class="card h-100 shadow-sm" role="article" aria-labelledby="addon-title-<?php echo esc_attr($addon['slug']); ?>">
                     <div class="overlay"></div>
-                        <?php if ($addon['status'] === 'installed'): ?>
+                        <?php if ($addon['status'] === 'installed'): 
+                            $plugin_file = $addon['slug'] . '/' . $addon['slug'] . '.php';
+                            $plugin_data = get_plugin_data(WP_PLUGIN_DIR . '/' . $plugin_file);
+                            $version = $plugin_data['Version'] ?? '';
+                        ?>
                             <div class="position-absolute top-0 end-0 m-3 z-3">
-                                <span class="badge bg-success"><?php _e('Installed', 'form-quizz-fqi3'); ?></span>
+                                <span class="badge bg-success">
+                                    <?php 
+                                    _e('Installed', 'form-quizz-fqi3'); 
+                                    if ($version) {
+                                        echo ' - v' . esc_html($version);
+                                    }
+                                    ?>
+                                </span>
                             </div>
                         <?php endif; ?>
                         
@@ -1595,20 +1606,23 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
             foreach ($this->available_addons as $addon) {
                 $plugin_file = $addon['slug'] . '/' . $addon['slug'] . '.php';
                 
-                // Only initialize updater if plugin is installed
-                if ($this->get_addon_status($addon['slug']) === 'installed') {
-                    $github_repo = $this->extract_github_repo($addon['github_repo'] ?? '');
+                // Only initialize updater if plugin is installed and has a github repo
+                if ($this->get_addon_status($addon['slug']) === 'installed' && !empty($addon['github_repo'])) {
+                    $github_repo = $this->extract_github_repo($addon['github_repo']);
                     
-                    if (!empty($github_repo)) {
-                        try {
-                            $this->updaters[$addon['slug']] = new \Form_Quizz_FQI3\Plugin_Updater(
-                                $plugin_file,
-                                $github_repo,
-                                'Webpixelia'
-                            );
-                        } catch (Exception $e) {
-                            error_log('FQI3: Failed to initialize updater for ' . $addon['slug'] . ': ' . $e->getMessage());
-                        }
+                    // Skip if no github repo is set
+                    if (empty($github_repo)) {
+                        continue;
+                    }
+                    
+                    try {
+                        $this->updaters[$addon['slug']] = new \Form_Quizz_FQI3\Plugin_Updater(
+                            $plugin_file,
+                            $github_repo,
+                            'Webpixelia'
+                        );
+                    } catch (Exception $e) {
+                        error_log('FQI3: Failed to initialize updater for ' . $addon['slug'] . ': ' . $e->getMessage());
                     }
                 }
             }
@@ -1728,8 +1742,8 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
     
                 return [
                     'current_version' => $updater->get_current_version(),
-                    'latest_version' => $latest['version'] ?? '',
-                    'update_available' => !empty($latest['version']),
+                    'latest_version' => $latest['version'],
+                    'update_available' => true,
                     'changelog' => $latest['changelog'] ?? ''
                 ];
             } catch (Exception $e) {

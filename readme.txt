@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.8.2
-Stable tag: 3.2.0
+Stable tag: 3.2.1
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -117,6 +117,11 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 8. Developer page View
 
 == Changelog ==
+= 3.2.1 =
+* Fix: Corrected undefined array key warnings in the plugin updater (GitHub API integration).
+* Fix: Replaced invalid cache key "participation" with "correct_answers" in badge settings to prevent API endpoint 500 error.
+* Improvement: Added version number display next to "Installed" status in add-ons list for better version management.
+
 = 3.2.0 =
 * Improvement: Added support for `vendor/` folder in GitHub repository.
 * Improvement: Redesigned addon installation and activation via GitHub. Now, the addon is downloaded from GitHub and installed automatically.

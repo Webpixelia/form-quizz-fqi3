@@ -1394,7 +1394,7 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
             $settings = [];
             switch ($type) {
                 case 'correct-answers-badge':
-                    $settings = self::$badge_settings_cache['participation'];
+                    $settings = self::$badge_settings_cache['correct_answers'];
                     break;
                 case 'completion-badge':
                     $settings = self::$badge_settings_cache['quizzes_completed'];

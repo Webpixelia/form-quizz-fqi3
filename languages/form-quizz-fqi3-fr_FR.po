@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Form Quizz FQI3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
-"POT-Creation-Date: 2025-09-16T09:44:51+00:00\n"
-"PO-Revision-Date: 2025-09-16 22:06+0100\n"
+"POT-Creation-Date: 2025-09-17T21:23:33+00:00\n"
+"PO-Revision-Date: 2025-09-17 22:24+0100\n"
 "Last-Translator: \n"
 "Language-Team: Jonathan Webpixelia <contact@webpixelia.com>\n"
 "Language: fr\n"
@@ -15,7 +15,7 @@ msgstr ""
 "X-Domain: form-quizz-fqi3\n"
 
 #. Plugin Name of the plugin
-#: form-quizz-fqi3.php form-quizz-fqi3.php:143
+#: form-quizz-fqi3.php form-quizz-fqi3.php:168
 #: includes/fqi3-config-functions.php:171
 msgid "Form Quizz FQI3"
 msgstr "Form Quizz FQI3"
@@ -37,8 +37,12 @@ msgstr "Jonathan Webpixelia"
 msgid "https://webpixelia.com"
 msgstr "https://webpixelia.com"
 
+#: form-quizz-fqi3.php:50
+msgid "This plugin is not listed in the WordPress.org directory."
+msgstr "Ce plugin n'est pas répertorié dans le répertoire WordPress.org."
+
 #. translators: 1: Current PHP version 2: Required PHP version
-#: form-quizz-fqi3.php:197
+#: form-quizz-fqi3.php:222
 #, php-format
 msgid ""
 "Form Quizz FQI3 requires PHP version %2$s or higher. Your current version is "
@@ -47,119 +51,119 @@ msgstr ""
 "Le formulaire Quizz FQI3 nécessite la version PHP %2$s ou supérieure. Votre "
 "version actuelle est %1$s."
 
-#: form-quizz-fqi3.php:485
+#: form-quizz-fqi3.php:510
 msgid "Are you sure you want to revoke the API token?"
 msgstr "Êtes-vous sûr de vouloir révoquer le jeton API ?"
 
-#: form-quizz-fqi3.php:486
+#: form-quizz-fqi3.php:511
 msgid "Unable to copy the shortcode. Please try again."
 msgstr "Impossible de copier le code court. Veuillez réessayer."
 
-#: form-quizz-fqi3.php:487
+#: form-quizz-fqi3.php:512
 msgid "Insert image"
 msgstr "Insérer une image"
 
-#: form-quizz-fqi3.php:488
+#: form-quizz-fqi3.php:513
 msgid "Use this image"
 msgstr "Utiliser cette image"
 
-#: form-quizz-fqi3.php:489
+#: form-quizz-fqi3.php:514
 msgid "Upload image"
 msgstr "Télécharger l’image"
 
-#: form-quizz-fqi3.php:490
+#: form-quizz-fqi3.php:515
 msgid "Answer choice"
 msgstr "Choix de réponse"
 
-#: form-quizz-fqi3.php:491 templates/question-form.php:105
+#: form-quizz-fqi3.php:516 templates/question-form.php:105
 msgid "Remove Answer Option"
 msgstr "Supprimer l’option de réponse"
 
-#: form-quizz-fqi3.php:492
+#: form-quizz-fqi3.php:517
 msgid "You must have at least 4 answer options."
 msgstr "Vous devez avoir au moins 4 options de réponse."
 
-#: form-quizz-fqi3.php:520 includes/admin/class-add-ons.php:436
+#: form-quizz-fqi3.php:545 includes/admin/class-add-ons.php:436
 msgid "No add-ons found."
 msgstr "Aucun module complémentaire trouvé."
 
-#: form-quizz-fqi3.php:521
+#: form-quizz-fqi3.php:546
 msgid "Please wait..."
 msgstr "Veuillez patienter…"
 
-#: form-quizz-fqi3.php:522 form-quizz-fqi3.php:546
+#: form-quizz-fqi3.php:547 form-quizz-fqi3.php:571
 msgid "An unexpected error occurred."
 msgstr "Une erreur inattendue s’est produite."
 
-#: form-quizz-fqi3.php:523
+#: form-quizz-fqi3.php:548
 msgid "Installing add-on..."
 msgstr "Installation du module complémentaire..."
 
-#: form-quizz-fqi3.php:524
+#: form-quizz-fqi3.php:549
 msgid "Activating add-on..."
 msgstr "Activation du module complémentaire..."
 
-#: form-quizz-fqi3.php:525
+#: form-quizz-fqi3.php:550
 msgid "Deactivating add-on..."
 msgstr "Désactivation du module complémentaire..."
 
-#: form-quizz-fqi3.php:526 includes/admin/class-add-ons.php:1293
-#: includes/admin/class-add-ons.php:1650
+#: form-quizz-fqi3.php:551 includes/admin/class-add-ons.php:1304
+#: includes/admin/class-add-ons.php:1664
 #: includes/admin/class-add-questions.php:76
 msgid "You are not allowed to perform this action."
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
 "action."
 
-#: form-quizz-fqi3.php:527 includes/admin/class-add-questions.php:83
+#: form-quizz-fqi3.php:552 includes/admin/class-add-questions.php:83
 msgid "Invalid security token."
 msgstr "Jeton de sécurité non valide."
 
-#: form-quizz-fqi3.php:528
+#: form-quizz-fqi3.php:553
 msgid "Submitting..."
 msgstr "Envoi en cours..."
 
-#: form-quizz-fqi3.php:544
+#: form-quizz-fqi3.php:569
 msgid "Please enter a GitHub token."
 msgstr "Veuillez saisir un jeton GitHub."
 
-#: form-quizz-fqi3.php:545
+#: form-quizz-fqi3.php:570
 msgid "GitHub token must contain at least 20 characters."
 msgstr "La clé GitHub doit contenir au moins 20 caractères."
 
-#: form-quizz-fqi3.php:547
+#: form-quizz-fqi3.php:572
 msgid "Server communication error."
 msgstr "Erreur de communication avec le serveur."
 
-#: form-quizz-fqi3.php:548
+#: form-quizz-fqi3.php:573
 msgid "Current token"
 msgstr "Jeton actuel"
 
-#: form-quizz-fqi3.php:549 includes/admin/class-license-settings.php:78
+#: form-quizz-fqi3.php:574 includes/admin/class-license-settings.php:78
 msgid "Enter new token to update"
 msgstr "Entrez un nouveau jeton pour mettre à jour"
 
-#: form-quizz-fqi3.php:550 includes/admin/class-license-settings.php:190
+#: form-quizz-fqi3.php:575 includes/admin/class-license-settings.php:190
 msgid "GitHub token saved successfully!"
 msgstr "Le jeton GitHub a été enregistré avec succès !"
 
-#: form-quizz-fqi3.php:583 includes/admin/class-api-settings.php:304
+#: form-quizz-fqi3.php:608 includes/admin/class-api-settings.php:304
 #: includes/admin/class-developper.php:282
 #: includes/admin/class-import-export.php:52
 #: includes/fqi3-config-functions.php:177
 msgid "Settings"
 msgstr "Réglages"
 
-#: form-quizz-fqi3.php:586 templates/header.php:27
+#: form-quizz-fqi3.php:611 templates/header.php:27
 msgid "Support"
 msgstr "Support"
 
-#: form-quizz-fqi3.php:664
+#: form-quizz-fqi3.php:689
 msgid "Please select a level before starting the quiz."
 msgstr "Sélectionne un niveau avant de commencer le quiz."
 
 #. Translators: %s is the limit number of quiz per day
-#: form-quizz-fqi3.php:666
+#: form-quizz-fqi3.php:691
 #, php-format
 msgid ""
 "You have reached the limit of %s quizzes per day as a free logged in user."
@@ -168,37 +172,37 @@ msgstr ""
 "connecté gratuitement."
 
 #. Translators: %1$s is the number of correct answer if singular, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:668
+#: form-quizz-fqi3.php:693
 #, php-format
 msgid "You have %1$s correct answer on %2$s. (%3$s%) for the %4$s level"
 msgstr "Vous avez %1$s réponse correcte sur %2$s. (%3$s%) pour le niveau %4$s"
 
 #. Translators: %1$s is the number of correct answers if plural, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:670
+#: form-quizz-fqi3.php:695
 #, php-format
 msgid "You have %1$s correct answers on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 "Vous avez %1$s réponses correctes sur %2$s. (%3$s%) pour le niveau %4$s"
 
-#: form-quizz-fqi3.php:671
+#: form-quizz-fqi3.php:696
 msgid "Select an answer before moving on to the next question."
 msgstr "Sélectionne une réponse avant de passer à la question suivante."
 
-#: form-quizz-fqi3.php:672 includes/admin/class-view-questions.php:123
+#: form-quizz-fqi3.php:697 includes/admin/class-view-questions.php:123
 #: templates/partials/quiz-results.php:50
 msgid "Question"
 msgstr "Question"
 
-#: form-quizz-fqi3.php:673
+#: form-quizz-fqi3.php:698
 msgid "on"
 msgstr "sur"
 
-#: form-quizz-fqi3.php:674
+#: form-quizz-fqi3.php:699
 msgid "Oops! Your time is up! Feel free to try again."
 msgstr "Oups ! Votre temps est écoulé! N’hésite pas à réessayer."
 
 #. Translators: %1$s is the URL site, %2$s is  the number of correct answers, %3$s is the total number of questions, %3$s is the percentage of correct answers
-#: form-quizz-fqi3.php:676
+#: form-quizz-fqi3.php:701
 #, php-format
 msgid ""
 "I just finished the quiz on %1$s and I answered %2$s of %3$s questions "
@@ -626,11 +630,11 @@ msgstr ""
 "Hooks développeur : filtrer les langues, positions et modes d’URL pour "
 "étendre le comportement."
 
-#: includes/admin/class-add-ons.php:472 includes/admin/class-add-ons.php:1179
+#: includes/admin/class-add-ons.php:478 includes/admin/class-add-ons.php:1190
 msgid "Installed"
 msgstr "Installé"
 
-#: includes/admin/class-add-ons.php:490 includes/admin/class-dashboard.php:106
+#: includes/admin/class-add-ons.php:501 includes/admin/class-dashboard.php:106
 #: includes/admin/class-view-questions.php:391
 #: includes/admin/class-view-questions.php:506
 #: includes/admin/class-view-questions.php:727 templates/question-form.php:61
@@ -638,169 +642,169 @@ msgid "Free"
 msgstr "Gratuit"
 
 #. translators: %s name of the plugin/addon
-#: includes/admin/class-add-ons.php:507
+#: includes/admin/class-add-ons.php:518
 #, php-format
 msgid "Requires: %s"
 msgstr "Nécessite : %s"
 
-#: includes/admin/class-add-ons.php:520
+#: includes/admin/class-add-ons.php:531
 msgid "Required by:"
 msgstr "Requis par :"
 
-#: includes/admin/class-add-ons.php:537
+#: includes/admin/class-add-ons.php:548
 msgid "Show features"
 msgstr "Afficher les fonctionnalités"
 
-#: includes/admin/class-add-ons.php:553
+#: includes/admin/class-add-ons.php:564
 msgid "Not yet available"
 msgstr "Pas encore disponible"
 
-#: includes/admin/class-add-ons.php:562
+#: includes/admin/class-add-ons.php:573
 msgid "Coming Soon"
 msgstr "Bientôt disponible"
 
-#: includes/admin/class-add-ons.php:570
+#: includes/admin/class-add-ons.php:581
 msgid "Install"
 msgstr "Installer"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:579
+#: includes/admin/class-add-ons.php:590
 #, php-format
 msgid "Requires %s to be installed and activated first"
 msgstr "Nécessite que %s soit d'abord installé et activé"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:582
+#: includes/admin/class-add-ons.php:593
 #, php-format
 msgid "Requires %s"
 msgstr "Nécessite %s"
 
-#: includes/admin/class-add-ons.php:590
+#: includes/admin/class-add-ons.php:601
 msgid "Cannot deactivate because a required dependency is active"
 msgstr "Impossible de désactiver parce qu'une dépendance requise est active"
 
-#: includes/admin/class-add-ons.php:591
+#: includes/admin/class-add-ons.php:602
 msgid "Cannot deactivate because other active add-ons depend on it"
 msgstr ""
 "Impossible de le désactiver car d'autres modules complémentaires actifs en "
 "dépendent"
 
-#: includes/admin/class-add-ons.php:592
+#: includes/admin/class-add-ons.php:603
 msgid "Cannot deactivate"
 msgstr "Impossible de désactiver"
 
 #. translators: %s is the name of the dependency
-#: includes/admin/class-add-ons.php:605
+#: includes/admin/class-add-ons.php:616
 #, php-format
 msgid "Depends on: %s"
 msgstr "Dépend de : %s"
 
-#: includes/admin/class-add-ons.php:607
+#: includes/admin/class-add-ons.php:618
 msgid "Has active dependency"
 msgstr "A une dépendance active"
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:612
+#: includes/admin/class-add-ons.php:623
 #, php-format
 msgid "Required by: %s"
 msgstr "Requis par : %s"
 
-#: includes/admin/class-add-ons.php:623
+#: includes/admin/class-add-ons.php:634
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: includes/admin/class-add-ons.php:630
+#: includes/admin/class-add-ons.php:641
 msgid "Activate"
 msgstr "Activer"
 
-#: includes/admin/class-add-ons.php:637
+#: includes/admin/class-add-ons.php:648
 msgid "Learn more"
 msgstr "En savoir plus"
 
-#: includes/admin/class-add-ons.php:670 includes/admin/class-add-ons.php:801
-#: includes/admin/class-add-ons.php:814
+#: includes/admin/class-add-ons.php:681 includes/admin/class-add-ons.php:812
+#: includes/admin/class-add-ons.php:825
 msgid "General"
 msgstr "Général"
 
-#: includes/admin/class-add-ons.php:751 includes/admin/class-add-ons.php:872
+#: includes/admin/class-add-ons.php:762 includes/admin/class-add-ons.php:883
 #: includes/admin/class-edit-questions.php:96
 #: includes/admin/class-emails-settings.php:264
 #: includes/admin/class-license-settings.php:155
 msgid "Security check failed."
 msgstr "Échec du test de sécurité."
 
-#: includes/admin/class-add-ons.php:756
+#: includes/admin/class-add-ons.php:767
 #: includes/admin/class-license-settings.php:162
 msgid "You do not have permission to perform this action."
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
 "action."
 
-#: includes/admin/class-add-ons.php:769
+#: includes/admin/class-add-ons.php:780
 msgid "Please provide a description of the issue."
 msgstr "Veuillez fournir une description du problème."
 
 #. translators: %1$s: Site name, %2$s: Add-on name, %3$s: Issue type
-#: includes/admin/class-add-ons.php:799
+#: includes/admin/class-add-ons.php:810
 #, php-format
 msgid "[%1$s] New Issue Report - %2$s - %3$s"
 msgstr "[%1$s] Nouveau rapport de problème - %2$s - %3$s"
 
-#: includes/admin/class-add-ons.php:808
+#: includes/admin/class-add-ons.php:819
 msgid "New Issue Report"
 msgstr "Signalement d’un nouveau problème"
 
-#: includes/admin/class-add-ons.php:813
+#: includes/admin/class-add-ons.php:824
 msgid "Type of issue"
 msgstr "Type de problème"
 
-#: includes/admin/class-add-ons.php:814
+#: includes/admin/class-add-ons.php:825
 msgid "Extension concerned"
 msgstr "Extension concernée"
 
-#: includes/admin/class-add-ons.php:815 includes/admin/class-add-ons.php:879
-#: includes/admin/class-add-ons.php:990 includes/admin/class-add-ons.php:1217
+#: includes/admin/class-add-ons.php:826 includes/admin/class-add-ons.php:890
+#: includes/admin/class-add-ons.php:1001 includes/admin/class-add-ons.php:1228
 msgid "Description"
 msgstr "Description"
 
-#: includes/admin/class-add-ons.php:818
+#: includes/admin/class-add-ons.php:829
 msgid "Steps to reproduce"
 msgstr "Étapes à suivre pour reproduire"
 
-#: includes/admin/class-add-ons.php:822
+#: includes/admin/class-add-ons.php:833
 msgid "Technical Informations"
 msgstr "Informations techniques"
 
-#: includes/admin/class-add-ons.php:823
+#: includes/admin/class-add-ons.php:834
 msgid "URL"
 msgstr "URL"
 
-#: includes/admin/class-add-ons.php:824 includes/admin/class-attempts.php:195
+#: includes/admin/class-add-ons.php:835 includes/admin/class-attempts.php:195
 msgid "User"
 msgstr "Utilisateur"
 
-#: includes/admin/class-add-ons.php:825
+#: includes/admin/class-add-ons.php:836
 msgid "Site"
 msgstr "Site"
 
-#: includes/admin/class-add-ons.php:826
+#: includes/admin/class-add-ons.php:837
 msgid "Browser"
 msgstr "Navigateur"
 
-#: includes/admin/class-add-ons.php:827
+#: includes/admin/class-add-ons.php:838
 msgid "WordPress Version"
 msgstr "Versions de WordPress"
 
-#: includes/admin/class-add-ons.php:828
+#: includes/admin/class-add-ons.php:839
 msgid "Plugin Version"
 msgstr "Version du plugin"
 
-#: includes/admin/class-add-ons.php:833
+#: includes/admin/class-add-ons.php:844
 msgid "This is an automated message. Please do not reply directly."
 msgstr ""
 "Il s'agit d'un message automatisé. Veuillez ne pas y répondre directement."
 
-#: includes/admin/class-add-ons.php:854
+#: includes/admin/class-add-ons.php:865
 msgid ""
 "Thank you for your report. Our team will investigate the issue as soon as "
 "possible."
@@ -808,7 +812,7 @@ msgstr ""
 "Nous vous remercions pour votre rapport. Notre équipe examinera le problème "
 "dès que possible."
 
-#: includes/admin/class-add-ons.php:858
+#: includes/admin/class-add-ons.php:869
 msgid ""
 "Your report has been recorded, but an error occurred while sending the "
 "email. Our team has been notified."
@@ -816,156 +820,156 @@ msgstr ""
 "Votre rapport a été enregistré, mais une erreur s'est produite lors de "
 "l'envoi de l'e-mail. Notre équipe a été informée."
 
-#: includes/admin/class-add-ons.php:878
+#: includes/admin/class-add-ons.php:889
 msgid "Add-on name"
 msgstr "Nom du module complémentaire"
 
-#: includes/admin/class-add-ons.php:880 includes/admin/class-attempts.php:321
+#: includes/admin/class-add-ons.php:891 includes/admin/class-attempts.php:321
 #: includes/admin/class-dashboard.php:243
 msgid "Email"
 msgstr "Email"
 
 #. translators: %s: Field label
-#: includes/admin/class-add-ons.php:890
+#: includes/admin/class-add-ons.php:901
 #, php-format
 msgid "%s is a required field."
 msgstr "Le champ %s est obligatoire."
 
-#: includes/admin/class-add-ons.php:898
+#: includes/admin/class-add-ons.php:909
 msgid "Please enter a valid email address."
 msgstr "Veuillez saisir une adresse email valide."
 
-#: includes/admin/class-add-ons.php:903
+#: includes/admin/class-add-ons.php:914
 msgid "You must agree to the terms to submit a suggestion."
 msgstr "Vous devez accepter les conditions pour soumettre une suggestion."
 
-#: includes/admin/class-add-ons.php:951
+#: includes/admin/class-add-ons.php:962
 msgid "Thank you for your suggestion! Our team will review it shortly."
 msgstr ""
 "Nous vous remercions de votre suggestion ! Notre équipe l'examinera sous peu."
 
-#: includes/admin/class-add-ons.php:965
+#: includes/admin/class-add-ons.php:976
 msgid "Report an Issue"
 msgstr "Signalement un bug"
 
-#: includes/admin/class-add-ons.php:966 includes/admin/class-add-ons.php:1202
+#: includes/admin/class-add-ons.php:977 includes/admin/class-add-ons.php:1213
 msgid "Close"
 msgstr "Fermer"
 
-#: includes/admin/class-add-ons.php:971
+#: includes/admin/class-add-ons.php:982
 msgid "Related Add-on"
 msgstr "Module complémentaire associé"
 
-#: includes/admin/class-add-ons.php:973
+#: includes/admin/class-add-ons.php:984
 msgid "General Issue"
 msgstr "Problème général"
 
-#: includes/admin/class-add-ons.php:982
+#: includes/admin/class-add-ons.php:993
 msgid "Issue Type"
 msgstr "Type de problème"
 
-#: includes/admin/class-add-ons.php:984
+#: includes/admin/class-add-ons.php:995
 msgid "Bug"
 msgstr "Bug"
 
-#: includes/admin/class-add-ons.php:985
+#: includes/admin/class-add-ons.php:996
 msgid "Suggestion"
 msgstr "Suggestion"
 
-#: includes/admin/class-add-ons.php:986
+#: includes/admin/class-add-ons.php:997
 msgid "Other"
 msgstr "Autre"
 
-#: includes/admin/class-add-ons.php:992
+#: includes/admin/class-add-ons.php:1003
 msgid "Please describe the issue in detail..."
 msgstr "Veuillez décrire le problème en détail..."
 
-#: includes/admin/class-add-ons.php:995
+#: includes/admin/class-add-ons.php:1006
 msgid "Steps to Reproduce"
 msgstr "Étapes à suivre pour reproduire"
 
-#: includes/admin/class-add-ons.php:997
+#: includes/admin/class-add-ons.php:1008
 msgid "1. Go to...\\n2. Click on...\\n3. Error occurs when..."
 msgstr ""
 "1. Allez à...\\n2. Cliquez sur...\\n3. Une erreur se produit lorsque..."
 
-#: includes/admin/class-add-ons.php:1004 includes/admin/class-add-ons.php:1264
+#: includes/admin/class-add-ons.php:1015 includes/admin/class-add-ons.php:1275
 #: includes/admin/class-view-questions.php:164
 msgid "Cancel"
 msgstr "Annuler"
 
-#: includes/admin/class-add-ons.php:1007
+#: includes/admin/class-add-ons.php:1018
 msgid "Submit Report"
 msgstr "Soumettre un rapport"
 
-#: includes/admin/class-add-ons.php:1039
+#: includes/admin/class-add-ons.php:1050
 msgid "Failed to save your suggestion. Please try again."
 msgstr "Impossible d'enregistrer votre suggestion. Veuillez réessayer."
 
 #. translators: %1$s: Site name, %2$s: Add-on name
-#: includes/admin/class-add-ons.php:1056
+#: includes/admin/class-add-ons.php:1067
 #, php-format
 msgid "[%1$s] New Add-on Suggestion: %2$s"
 msgstr "[%1$s] Nouvelle suggestion de module complémentaire : %2$s"
 
 #. translators: %s: Site name
-#: includes/admin/class-add-ons.php:1063
+#: includes/admin/class-add-ons.php:1074
 #, php-format
 msgid "A new add-on has been suggested on %s:"
 msgstr "Un nouveau module complémentaire a été suggéré sur %s :"
 
 #. translators: %s: Add-on name
-#: includes/admin/class-add-ons.php:1069
+#: includes/admin/class-add-ons.php:1080
 #, php-format
 msgid "Add-on Name: %s"
 msgstr "Nom du module complémentaire : %s"
 
 #. translators: %s: Add-on description
-#: includes/admin/class-add-ons.php:1072
+#: includes/admin/class-add-ons.php:1083
 #, php-format
 msgid "Description: %s"
 msgstr "Description: %s"
 
 #. translators: %s: Add-on website
-#: includes/admin/class-add-ons.php:1077
+#: includes/admin/class-add-ons.php:1088
 #, php-format
 msgid "Website: %s"
 msgstr "Site Web : %s"
 
-#: includes/admin/class-add-ons.php:1080
+#: includes/admin/class-add-ons.php:1091
 msgid "Submitted by:"
 msgstr "Soumis par :"
 
 #. translators: %s: User name
-#: includes/admin/class-add-ons.php:1083
+#: includes/admin/class-add-ons.php:1094
 #, php-format
 msgid "Name: %s"
 msgstr "Nom: %s"
 
 #. translators: %s: User email
-#: includes/admin/class-add-ons.php:1086
+#: includes/admin/class-add-ons.php:1097
 #, php-format
 msgid "Email: %s"
 msgstr "Email: %s"
 
 #. translators: %s: Site URL
-#: includes/admin/class-add-ons.php:1089
+#: includes/admin/class-add-ons.php:1100
 #, php-format
 msgid "Site: %s"
 msgstr "Site : %s"
 
-#: includes/admin/class-add-ons.php:1122
+#: includes/admin/class-add-ons.php:1133
 msgid "Available Add-Ons"
 msgstr "Modules complémentaires disponibles"
 
-#: includes/admin/class-add-ons.php:1123
+#: includes/admin/class-add-ons.php:1134
 msgid "Add-Ons allow you to extend the functionality of Form Quizz FQI3."
 msgstr ""
 "Les modules complémentaires vous permettent d’étendre les fonctionnalités de "
 "Form Quizz FQI3."
 
 #. translators: 1 = singular, %d = number of add-ons
-#: includes/admin/class-add-ons.php:1132
+#: includes/admin/class-add-ons.php:1143
 #, php-format
 msgid "Actually %1$d add-on is available on %2$d total."
 msgid_plural "Actually %1$d add-ons are available on %2$d total."
@@ -975,69 +979,69 @@ msgstr[1] ""
 "Actuellement, %1$d modules complémentaires sont disponibles sur %2$d au "
 "total."
 
-#: includes/admin/class-add-ons.php:1149
+#: includes/admin/class-add-ons.php:1160
 msgid "Plugin updater not available"
 msgstr "L'outil de mise à jour des plugins n'est pas disponible"
 
-#: includes/admin/class-add-ons.php:1151
+#: includes/admin/class-add-ons.php:1162
 msgid "Refresh Cache"
 msgstr "Rafraîchir le cache"
 
-#: includes/admin/class-add-ons.php:1159
+#: includes/admin/class-add-ons.php:1170
 msgid "Suggest an Add-on"
 msgstr "Suggérer un module complémentaire"
 
-#: includes/admin/class-add-ons.php:1164
+#: includes/admin/class-add-ons.php:1175
 msgid "Report Issue"
 msgstr "Signaler un bug"
 
-#: includes/admin/class-add-ons.php:1171
+#: includes/admin/class-add-ons.php:1182
 msgid "Search an add-on..."
 msgstr "Recherche d'un module complémentaire…"
 
-#: includes/admin/class-add-ons.php:1175 includes/admin/class-attempts.php:136
+#: includes/admin/class-add-ons.php:1186 includes/admin/class-attempts.php:136
 #: includes/admin/class-view-questions.php:405
 msgid "Filter"
 msgstr "Filtrer"
 
-#: includes/admin/class-add-ons.php:1178 includes/admin/class-dashboard.php:63
+#: includes/admin/class-add-ons.php:1189 includes/admin/class-dashboard.php:63
 #: includes/admin/class-view-questions.php:354
 msgid "All"
 msgstr "Tous"
 
-#: includes/admin/class-add-ons.php:1180
+#: includes/admin/class-add-ons.php:1191
 msgid "Available"
 msgstr "Disponible"
 
-#: includes/admin/class-add-ons.php:1200
+#: includes/admin/class-add-ons.php:1211
 msgid "Suggest a New Add-on"
 msgstr "Suggérer un nouveau module complémentaire"
 
-#: includes/admin/class-add-ons.php:1210
+#: includes/admin/class-add-ons.php:1221
 msgid "Add-on Name"
 msgstr "Nom du module complémentaire"
 
-#: includes/admin/class-add-ons.php:1221
+#: includes/admin/class-add-ons.php:1232
 msgid ""
 "Please describe what this add-on would do and how it would benefit users."
 msgstr ""
 "Veuillez décrire l'utilité de ce module complémentaire et les avantages "
 "qu'il apporterait aux utilisateurs."
 
-#: includes/admin/class-add-ons.php:1229
+#: includes/admin/class-add-ons.php:1240
 msgid "Website (optional)"
 msgstr "Site Web (facultatif)"
 
-#: includes/admin/class-add-ons.php:1237
+#: includes/admin/class-add-ons.php:1248
 msgid "Your Email"
 msgstr "Votre email"
 
-#: includes/admin/class-add-ons.php:1241
+#: includes/admin/class-add-ons.php:1252
 msgid "In case we need to contact you for more information."
 msgstr ""
 "Au cas où nous aurions besoin de vous contacter pour plus d'informations."
 
-#: includes/admin/class-add-ons.php:1251
+#: includes/admin/class-add-ons.php:1262
 msgid ""
 "I understand that this is only a suggestion and there is no guarantee it "
 "will be implemented."
@@ -1045,7 +1049,7 @@ msgstr ""
 "Je comprends qu'il ne s'agit que d'une suggestion et qu'il n'y a aucune "
 "garantie qu'elle sera mise en œuvre."
 
-#: includes/admin/class-add-ons.php:1258
+#: includes/admin/class-add-ons.php:1269
 msgid ""
 "Your suggestion will be sent to our development team for review. We "
 "appreciate your input!"
@@ -1053,104 +1057,104 @@ msgstr ""
 "Votre suggestion sera transmise à notre équipe de développement pour examen. "
 "Nous apprécions votre contribution !"
 
-#: includes/admin/class-add-ons.php:1268
+#: includes/admin/class-add-ons.php:1279
 msgid "Submit Suggestion"
 msgstr "Soumettre une suggestion"
 
-#: includes/admin/class-add-ons.php:1304
+#: includes/admin/class-add-ons.php:1315
 msgid "Missing parameters."
 msgstr "Paramètres manquants."
 
-#: includes/admin/class-add-ons.php:1317
+#: includes/admin/class-add-ons.php:1328
 msgid "Addon not found."
 msgstr "Module complémentaire non trouvé."
 
-#: includes/admin/class-add-ons.php:1334
+#: includes/admin/class-add-ons.php:1345
 msgid "Activated."
 msgstr "Activé."
 
-#: includes/admin/class-add-ons.php:1343
+#: includes/admin/class-add-ons.php:1354
 msgid "Cannot deactivate because a required dependency is active."
 msgstr "Impossible de désactiver car une dépendance obligatoire est active."
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:1350
+#: includes/admin/class-add-ons.php:1361
 #, php-format
 msgid "Cannot deactivate because it is required by: %s"
 msgstr "Impossible de le désactiver car il est requis par : %s"
 
-#: includes/admin/class-add-ons.php:1355
+#: includes/admin/class-add-ons.php:1366
 msgid "Cannot deactivate due to dependency constraints."
 msgstr "Impossible de désactiver en raison de contraintes de dépendance."
 
-#: includes/admin/class-add-ons.php:1358
+#: includes/admin/class-add-ons.php:1369
 msgid "Deactivated."
 msgstr "Désactivé."
 
-#: includes/admin/class-add-ons.php:1361
+#: includes/admin/class-add-ons.php:1372
 msgid "Invalid action."
 msgstr "Action invalide."
 
-#: includes/admin/class-add-ons.php:1387
+#: includes/admin/class-add-ons.php:1398
 msgid "GitHub token is not configured."
 msgstr "Le jeton GitHub n'est pas configuré."
 
 #. translators: %s error message
-#: includes/admin/class-add-ons.php:1406
+#: includes/admin/class-add-ons.php:1417
 #, php-format
 msgid "GitHub API error: %s"
 msgstr "Erreur d'API GitHub : %s"
 
 #. translators: %s status response GitHub API
-#: includes/admin/class-add-ons.php:1415
+#: includes/admin/class-add-ons.php:1426
 #, php-format
 msgid "GitHub API responded with status %d."
 msgstr "L'API GitHub a répondu avec le statut %d."
 
-#: includes/admin/class-add-ons.php:1422
+#: includes/admin/class-add-ons.php:1433
 msgid "No release found for this addon."
 msgstr "Aucune version trouvée pour cet addon."
 
 #. translators: %s status response GitHub API
-#: includes/admin/class-add-ons.php:1449
+#: includes/admin/class-add-ons.php:1460
 #, php-format
 msgid "Download failed with status %d."
 msgstr "Le téléchargement a échoué avec le statut %d."
 
-#: includes/admin/class-add-ons.php:1456
+#: includes/admin/class-add-ons.php:1467
 msgid "Downloaded file is too small or empty."
 msgstr "Le fichier téléchargé est trop petit ou vide."
 
-#: includes/admin/class-add-ons.php:1525
+#: includes/admin/class-add-ons.php:1536
 msgid "Plugin installed but folder not found."
 msgstr "Plugin installé mais dossier introuvable."
 
-#: includes/admin/class-add-ons.php:1548
+#: includes/admin/class-add-ons.php:1559
 msgid "Plugin installed but activation failed."
 msgstr "Plugin installé mais l'activation a échoué."
 
-#: includes/admin/class-add-ons.php:1552
+#: includes/admin/class-add-ons.php:1563
 msgid "Plugin installed and activated successfully!"
 msgstr "Plugin installé et activé avec succès !"
 
-#: includes/admin/class-add-ons.php:1558
+#: includes/admin/class-add-ons.php:1569
 msgid "Plugin installed successfully but could not auto-activate."
 msgstr ""
 "Le plugin a été installé avec succès mais n'a pas pu s'activer "
 "automatiquement."
 
-#: includes/admin/class-add-ons.php:1656
+#: includes/admin/class-add-ons.php:1670
 msgid "Plugin updater is not available."
 msgstr "L'outil de mise à jour des plugins n'est pas disponible."
 
 #. translators: 1 = add-on slug, 2 = error message
-#: includes/admin/class-add-ons.php:1673
+#: includes/admin/class-add-ons.php:1687
 #, php-format
 msgid "Error refreshing %1$s: %2$s"
 msgstr "Erreur d'actualisation %1$s : %2$s"
 
 #. translators: %d = number of refreshed add-ons
-#: includes/admin/class-add-ons.php:1688
+#: includes/admin/class-add-ons.php:1702
 #, php-format
 msgid "Successfully refreshed cache for %d add-on."
 msgid_plural "Successfully refreshed cache for %d add-ons."
@@ -1159,22 +1163,22 @@ msgstr[0] ""
 msgstr[1] ""
 "Le cache a été rafraîchi avec succès pour les module complémentaires %d."
 
-#: includes/admin/class-add-ons.php:1766
+#: includes/admin/class-add-ons.php:1780
 msgid "Updates Available"
 msgstr "Mises à jour disponibles"
 
-#: includes/admin/class-add-ons.php:1767
+#: includes/admin/class-add-ons.php:1781
 msgid "The following add-ons have updates available:"
 msgstr ""
 "Les modules complémentaires suivants ont des mises à jour disponibles :"
 
 #. translators: 1 = current version, 2 = latest version
-#: includes/admin/class-add-ons.php:1774
+#: includes/admin/class-add-ons.php:1788
 #, php-format
 msgid "Version %1$s → %2$s"
 msgstr "Version %1$s → %2$s"
 
-#: includes/admin/class-add-ons.php:1779
+#: includes/admin/class-add-ons.php:1793
 msgid "Update Now"
 msgstr "Mettre à jour maintenant"
 
@@ -1845,7 +1849,6 @@ msgid "Register Date"
 msgstr "Date d’inscription"
 
 #: includes/admin/class-developper.php:42 includes/admin/class-infos.php:86
-#: templates/form-manually-save-stats.php:8
 msgid "New"
 msgstr "Nouveau"
 
@@ -3273,8 +3276,13 @@ msgstr "Démarrez la visite guidée"
 msgid "Save settings"
 msgstr "Enregistrer les paramètres"
 
+#: includes/admin/class-plugin-updater.php:150
+#: includes/admin/class-plugin-updater.php:282
+msgid "No changelog available."
+msgstr "Journal des modifications non disponible."
+
 #. translators: 1 = plugin name, 2 = details URL, 3 = new version, 4 = update URL
-#: includes/admin/class-plugin-updater.php:154
+#: includes/admin/class-plugin-updater.php:171
 #, php-format
 msgid ""
 "There is a new version of %1$s available. <a href=\"%2$s\" class=\"thickbox "
@@ -3284,10 +3292,6 @@ msgstr ""
 "Une nouvelle version de %1$s est disponible. <a href=\"%2$s\" "
 "class=\"thickbox open-plugin-details-modal\">Consultez les détails de la "
 "version %3$s </a> ou <a href=\"%4$s\">mettez-la à jour maintenant.</a>."
-
-#: includes/admin/class-plugin-updater.php:251
-msgid "No changelog available."
-msgstr "Journal des modifications non disponible."
 
 #: includes/admin/class-statistics.php:52
 msgid "Very Good"
