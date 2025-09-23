@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 3.2.1
+ * Version: 3.3.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Update URI: https://github.com/Webpixelia/form-quizz-fqi3
@@ -69,7 +69,7 @@ final class FormQuizzFQI3 {
      *
      * @var string
      */
-    private const FQI3_VERSION = '3.2.1';
+    private const FQI3_VERSION = '3.3.0';
 
     /**
      * Required PHP version
@@ -106,44 +106,6 @@ final class FormQuizzFQI3 {
         }
         return self::$instance;
     }
-
-    /**
-     * Register Gutenberg blocks for core plugin shortcodes (SSR)
-     */
-    public function registerBlocks(): void {
-        if (!function_exists('register_block_type')) {
-            return;
-        }
-
-        // Editor script registering SSR blocks
-        wp_register_script(
-            'fqi3-blocks-editor',
-            plugins_url('assets/js/fqi3-blocks-editor.js', __FILE__),
-            ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-editor', 'wp-server-side-render'],
-            self::FQI3_VERSION,
-            true
-        );
-
-        // Helper to register a shortcode-backed SSR block
-        $register = function(string $name, string $shortcode) {
-            register_block_type($name, [
-                'editor_script'   => 'fqi3-blocks-editor',
-                'render_callback' => function($attributes = [], $content = '') use ($shortcode) {
-                    return do_shortcode('[' . $shortcode . ']');
-                },
-                'attributes' => [],
-                'supports'  => [ 'html' => false ],
-            ]);
-        };
-
-        // Primary public shortcodes
-        $register('fqi3/quiz-form', 'fqi3_quizz_form');
-        $register('fqi3/remaining-attempts', 'fqi3_remaining_attempts');
-        $register('fqi3/user-statistics', 'fqi3_user_statistics');
-        $register('fqi3/comparative-statistics', 'fqi3_comparative_statistics');
-        $register('fqi3/current-user-badges', 'fqi3_current_user_badges');
-        $register('fqi3/periodic-stats', 'fqi3_periodic_stats');
-    }
     
     /**
      * Private constructor to prevent direct instantiation
@@ -153,23 +115,6 @@ final class FormQuizzFQI3 {
         $this->checkRequirements();
         $this->loadDependencies();
         $this->initHooks();
-
-        // Blocks and category
-        add_action('init', [$this, 'registerBlocks']);
-        add_filter('block_categories_all', function(array $categories) {
-            $slug = 'form-quizz-fqi3';
-            foreach ($categories as $cat) {
-                if (!empty($cat['slug']) && $cat['slug'] === $slug) {
-                    return $categories;
-                }
-            }
-            $categories[] = [
-                'slug'  => $slug,
-                'title' => __('Form Quizz FQI3', 'form-quizz-fqi3'),
-                'icon'  => null,
-            ];
-            return $categories;
-        }, 10, 1);
     }
 
     /**
@@ -235,7 +180,7 @@ final class FormQuizzFQI3 {
         register_deactivation_hook(FQI3_FILE, [$this, 'deactivate']);
 
         // Init hook for loading translations and API
-        add_action('init', [$this, 'init']);
+        add_action('init', [$this, 'init'], 20);
 
         // Admin hooks
         if (is_admin()) {
@@ -329,13 +274,14 @@ final class FormQuizzFQI3 {
         $files = [
             'fqi3-config-functions.php',
             'admin/class-abstract-settings.php',
-            'db/PerformanceTableManager.php',         
+            'Utils/BlocksUtils.php',       
             'FQI3_Template_Manager.php',
             'FQI3_Awards.php',
             'FQI3_Frontend.php',
             'FQI3_Backend.php',
             'FQI3_Statistics.php',
             'FQI3_PeriodicStatistics.php',
+            'FQI3_Blocks.php',
             'FQI3_Emails.php',
             'FQI3_Api.php',
             'admin/class-api-logger.php',
@@ -357,6 +303,15 @@ final class FormQuizzFQI3 {
     */
     public function init(): void {
         $this->loadTextdomain();
+
+        // Instance Gutenberg blocks
+        $frontend = FQI3_Frontend::getInstance();
+        $statistics = FQI3_Statistics::getInstance();
+        $periodicStatistics = FQI3_PeriodicStatistics::getInstance();
+        if (class_exists('Form_Quizz_FQI3\FQI3_Blocks')) {
+            new \Form_Quizz_FQI3\FQI3_Blocks($frontend, $statistics, $periodicStatistics);
+        }
+
         $options = get_option('fqi3_options', []);
         // Ensure default API settings whitelists are registered
         $this->registerApiSettingsWhitelists();

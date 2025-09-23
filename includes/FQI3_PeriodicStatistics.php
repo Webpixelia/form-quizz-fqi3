@@ -19,10 +19,19 @@ if (!defined('ABSPATH')) {
 
 if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
     class FQI3_PeriodicStatistics extends FQI3_Statistics {
+        private static $instance = null;
+
         /** @var FQI3_Template_Manager */
         private FQI3_Template_Manager $template_manager;
     
         private $tableName;
+
+        public static function getInstance() {
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            return self::$instance;
+        }
     
         public function __construct() {
             global $wpdb;
@@ -164,9 +173,15 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
          * Display periodic statistics shortcode
          * 
          * @param array $atts Shortcode attributes
+         * @param string $custom_box_classes Custom box classes
+         * @param string $custom_box_styles Custom box styles
          * @return string HTML output
          */
-        public function displayPeriodicStatisticsShortcode($atts): string {
+        public function displayPeriodicStatisticsShortcode(
+            array $atts,
+            string $custom_box_classes = '',
+            string $custom_box_styles = ''
+        ): string {
             $userId = get_current_user_id();
             $atts = shortcode_atts([
                 'user_id' => $userId
@@ -175,14 +190,18 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             $levels = fqi3_get_free_quiz_levels();
             $options = fqi3_get_options();
             $subject = __('your advanced statistics', 'form-quizz-fqi3');
-            $errorMessage = parent::validate_user_permissions($userId, $options, $subject);
+            $errorMessage = parent::validate_user_permissions($subject);
 
             if ($errorMessage) {
                 $output = '<p>' . esc_html($errorMessage) . '</p>';
                 return $output; 
             }
 
-            $output = '<div class="fqi3-periodic-stats fqi3-shortcode">';
+            $output = sprintf(
+                '<div class="fqi3-periodic-stats fqi3-shortcode %1$s" style="%2$s">',
+                esc_attr($custom_box_classes),
+                esc_attr($custom_box_styles)
+            );
             $output .= '<h2>' . __('Your advanced statistics', 'form-quizz-fqi3') . '</h2>';
         
             $hasStats = false;
@@ -398,4 +417,4 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
     }
 endif;
 
-new FQI3_PeriodicStatistics();
+FQI3_PeriodicStatistics::getInstance();

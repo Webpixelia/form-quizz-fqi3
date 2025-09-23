@@ -407,6 +407,10 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                         <small><code>apply_filters('fqi3_quiz_questions_draw', ['question_ids'=>[],'meta'=>[]], $level, $user_id, $context)</code></small>
                     </li>
                     <li>
+                        <code>fqi3_shortcode_blocks</code> — <?php _e('(filter) Allow addons to register their own shortcode-based Gutenberg blocks.', 'form-quizz-fqi3'); ?><br>
+                        <small><code>apply_filters('fqi3_shortcode_blocks', $blocks_array)</code></small>
+                    </li>
+                    <li>
                         <code>fqi3_quiz_questions_drawn</code> — <?php _e('(action) Fired when the final set is fixed; consume context for logging.', 'form-quizz-fqi3'); ?><br>
                         <small><code>do_action('fqi3_quiz_questions_drawn', $user_id, $level, $question_ids, ['source'=>'core','attempt_id'=>N])</code></small>
                     </li>
@@ -534,6 +538,25 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
                             <strong><?php _e('Signature', 'form-quizz-fqi3'); ?>:</strong>
                             <pre class="bg-light p-2 overflow-auto"><code>apply_filters('fqi3_api_settings_whitelist_badges', array $keys)</code></pre>
                         </div>
+                    </li>
+                </ul>
+                <h4 class="mt-4"><?php _e('JavaScript API', 'form-quizz-fqi3'); ?></h4>
+                <p class="description"><?php _e('The plugin exposes a JavaScript API for addons to extend Gutenberg blocks functionality:', 'form-quizz-fqi3'); ?></p>
+                <ul>
+                    <li>
+                        <code>window.fqi3Blocks.utils</code> — <?php _e('Provides utilities for block registration and common configurations:', 'form-quizz-fqi3'); ?>
+                        <ul>
+                            <li><code>registerBlockType</code>: <?php _e('Wrapper around wp.blocks.registerBlockType', 'form-quizz-fqi3'); ?></li>
+                            <li><code>commonSupports</code>: <?php _e('Common block support options (colors, typography, spacing, etc.)', 'form-quizz-fqi3'); ?></li>
+                            <li><code>createSimpleBlockEdit</code>: <?php _e('Helper function to create simple block previews', 'form-quizz-fqi3'); ?></li>
+                        </ul>
+                        <small><?php _e('Usage example:', 'form-quizz-fqi3'); ?><br>
+                        <code>const { registerBlockType, commonSupports, createSimpleBlockEdit } = window.fqi3Blocks.utils;</code>
+                        </small>
+                    </li>
+                    <li>
+                        <code>fqi3Blocks:utilsReady</code> — <?php _e('Event dispatched when the utils are ready to be used by addons.', 'form-quizz-fqi3'); ?>
+                        <small><code>document.addEventListener("fqi3Blocks:utilsReady", function() { /* your code */ });</code></small>
                     </li>
                 </ul>
             </div>

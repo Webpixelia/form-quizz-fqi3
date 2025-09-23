@@ -1,7 +1,7 @@
 <?php
 // templates/partials/quiz-results.php
 $user_id = get_current_user_id() ?: '';
-$quiz_level = 'Niveau non défini';
+$quiz_level = __('Level not defined','form-quizz-fqi3');
 $quiz_score = 0;
 
 $settings_ubscription = get_option('fqi3_subscription_addon_settings', []);
@@ -10,7 +10,7 @@ $login_url = isset($settings_ubscription['login_register'])
     : wp_login_url();
 
 ?>
-<div id="result-container" class="result-box custom-box" style="display:none;">
+<div id="result-container" class="result-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none; <?php echo esc_attr($custom_box_styles ?? ''); ?>">
 <?php do_action('fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score); ?>
     <h1><?php echo esc_html($translations['results']); ?></h1>
     <p id="result-text"></p>

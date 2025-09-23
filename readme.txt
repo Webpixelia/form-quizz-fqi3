@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.8.2
-Stable tag: 3.2.1
+Stable tag: 3.3.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -113,10 +113,19 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 4. Statistics page View
 5. Settings page View
 6. Import/Export page View
-7. Guide and Changelog page View
-8. Developer page View
+7. Attempts page View
+8. Addons page View
+9. Guide and Changelog page View
+10. Developer page View
 
 == Changelog ==
+= 3.3.0 =
+* Refactor: Gutenberg blocks refactored with native options, custom attributes, and introduction of the new FQI3_Blocks class.
+* Added: Core plugin hooks (PHP) and shared JavaScript utils (`window.fqi3Blocks.utils`) for easier extension by add-ons.
+* Refactor: Adjusted FQI3_Frontend, FQI3_Statistics, and FQI3_PeriodicStatistics to pass additional arguments in methods and added instance initialization in the root file.
+* Fix: Too many arguments passed to validate_user_permissions method in FQI3_PeriodicStatistics class.
+* Fix: Removed reference to non-existent PerformanceTableManager.php
+
 = 3.2.1 =
 * Fix: Corrected undefined array key warnings in the plugin updater (GitHub API integration).
 * Fix: Replaced invalid cache key "participation" with "correct_answers" in badge settings to prevent API endpoint 500 error.

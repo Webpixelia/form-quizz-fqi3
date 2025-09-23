@@ -21,6 +21,8 @@ if (!defined('ABSPATH')) {
 
  if (!class_exists('FQI3_Statistics')):
     class FQI3_Statistics {
+        private static $instance = null;
+
         /**
          * Maximum possible score for any quiz
          * @var int
@@ -50,6 +52,13 @@ if (!defined('ABSPATH')) {
          * @var array
          */
         private array $levels;
+
+        public static function getInstance() {
+            if (self::$instance === null) {
+                self::$instance = new self();
+            }
+            return self::$instance;
+        }
 
         /**
          * Initialize the statistics manager
@@ -504,12 +513,18 @@ if (!defined('ABSPATH')) {
         * and if the statistics feature is enabled. If everything is valid, it retrieves the 
         * user's statistics and generates an HTML table for display.
         * 
+        * @param string $custom_box_classes The custom classes for the statistics container.
+        * @param string $custom_box_styles The custom styles for the statistics container.
+        * 
         * @since 1.3.0
         * 
         * @return string The HTML table or an error message if the user is not authorized or no statistics are found.
         */
-        public function render_statistics_table(): string {
-            $validation_result = $this->validate_user_permissions('your statistics');
+        public function render_statistics_table(
+            string $custom_box_classes = '',
+            string $custom_box_styles = ''
+        ): string {
+            $validation_result = $this->validate_user_permissions(__('your statistics','form-quizz-fqi3'));
             if ($validation_result !== null) {
                 return $this->render_error_message($validation_result);
             }
@@ -521,7 +536,8 @@ if (!defined('ABSPATH')) {
                 );
             }
     
-            return $this->generate_statistics_html($stats);
+            //return $this->generate_statistics_html($stats);
+            return $this->generate_statistics_html($stats, $custom_box_classes, $custom_box_styles);
         }
     
         /**
@@ -570,28 +586,40 @@ if (!defined('ABSPATH')) {
          * @since 2.0.0 Refactored
          * 
          * @param array $stats The statistics data for the user.
+         * @param string $custom_box_classes The custom classes for the statistics container.
+         * @param string $custom_box_styles The custom styles for the statistics container.
+         * 
          * @return string The generated HTML table.
          */
-        private function generate_statistics_html(array $stats): string {
-            $output = $this->initialize_stats_container();
+        private function generate_statistics_html(array $stats, string $custom_box_classes = '', string $custom_box_styles = ''): string {
+            $output = $this->initialize_stats_container($custom_box_classes, $custom_box_styles);
             $output .= $this->generate_stats_table($stats);
             $output .= $this->generate_pie_charts($stats);
-            $output .= '</div>';
+            $output .= '</div></div>';
             
             return $output;
         }
     
         /**
          * Initializes the HTML container for displaying user statistics.
-         *
+         * 
+         * This method constructs the opening HTML structure for the user statistics container,
+         * including custom classes and styles if provided.
+         * 
+         * @param string $custom_box_classes The custom classes for the statistics container.
+         * @param string $custom_box_styles The custom styles for the statistics container.
+         * 
          * @return string The opening HTML structure for the user statistics container.
          *
          * @since 2.0.0
          */
-        private function initialize_stats_container(): string {
-            return '<div class="fqi3-user-stats"><h2>' . 
-                   __('Your statistics', 'form-quizz-fqi3') . '</h2>' .
-                   '<div class="x-scroll">';
+        private function initialize_stats_container(string $custom_box_classes = '', string $custom_box_styles = ''): string {
+            return sprintf(
+                '<div class="fqi3-user-stats %1$s" style="%2$s"><h2>%3$s</h2><div class="x-scroll">',
+                esc_attr($custom_box_classes),
+                esc_attr($custom_box_styles),
+                __('Your statistics', 'form-quizz-fqi3')
+            );
         }
     
         /**
@@ -847,8 +875,11 @@ if (!defined('ABSPATH')) {
          * @since 1.3.0 Initial realease
          * @since 2.0.0 Refactored version
          */
-        public function display_comparative_stats(): string {
-            $validation_result = $this->validate_user_permissions('your comparative statistics');
+        public function display_comparative_stats(
+            string $custom_box_classes = '',
+            string $custom_box_styles = ''
+        ): string {
+            $validation_result = $this->validate_user_permissions(__('your comparative statistics', 'form-quizz-fqi3'));
             if ($validation_result !== null) {
                 return $this->render_error_message($validation_result);
             }
@@ -860,7 +891,7 @@ if (!defined('ABSPATH')) {
                 );
             }
     
-            return $this->generate_comparative_stats_html($comparative_data);
+            return $this->generate_comparative_stats_html($comparative_data, $custom_box_classes, $custom_box_styles);
         }
     
         /**
@@ -936,12 +967,16 @@ if (!defined('ABSPATH')) {
          * @since 1.3.0 Initial release
          * @since 2.0.0 Refactored version
          */
-        private function generate_comparative_stats_html(array $comparative_data): string {
+        private function generate_comparative_stats_html(array $comparative_data, string $custom_box_classes = '', string $custom_box_styles = ''): string {
             $levels = $this->levels;
             $user_scores = $comparative_data['user_scores'];
             $global_scores = $comparative_data['global_scores'];
             
-            $output = '<div class="fqi3-comparative-stats">';
+            $output = sprintf(
+                '<div class="fqi3-comparative-stats %1$s" style="%2$s">',
+                esc_attr($custom_box_classes),
+                esc_attr($custom_box_styles)
+            );
             $output .= '<h2>' . __('Comparative Statistics', 'form-quizz-fqi3') . '</h2>';
             $output .= '<div class="x-scroll">';
             $output .= '<table class="fqi3-table">';
@@ -1074,11 +1109,20 @@ if (!defined('ABSPATH')) {
          * Renders the containing element for all badge-related content.
          *
          * @param array $sections Array of HTML sections to include
+         * @param string $custom_box_classes The custom classes for the awards container.
+         * @param string $custom_box_styles The custom styles for the awards container.
+         * 
          * @return string Complete HTML container
         */
-        private function render_awards_container(array $sections): string {
+        public function render_awards_container(
+            array $sections,
+            string $custom_box_classes = '',
+            string $custom_box_styles = ''
+        ): string {
             return sprintf(
-                '<div class="fqi3-awards-container">%s</div>',
+                '<div class="fqi3-awards-container %1$s" style="%2$s">%3$s</div>',
+                esc_attr($custom_box_classes),
+                esc_attr($custom_box_styles),
                 implode('', array_filter($sections))
             );
         }
@@ -1089,7 +1133,7 @@ if (!defined('ABSPATH')) {
          * @param array $badges Array of user badges
          * @return string HTML title section
         */
-        private function render_badge_section_title(array $badges): string {
+        public function render_badge_section_title(array $badges): string {
             $badge_count = count($badges);
             return sprintf(
                 '<h2>%s</h2>',
@@ -1106,7 +1150,7 @@ if (!defined('ABSPATH')) {
          * @param array $badges Array of user badges
          * @return string HTML of badge cards
         */
-        private function render_badge_cards(array $badges): string {
+        public function render_badge_cards(array $badges): string {
             if (empty($badges)) {
                 return sprintf(
                     '<p>%s</p>',
@@ -1156,7 +1200,7 @@ if (!defined('ABSPATH')) {
          *
          * @return string|null HTML of badges legend or null if disabled
          */
-        private function render_badges_legend(): ?string {
+        public function render_badges_legend(): ?string {
             $badges_options = get_option('fqi3_badges', []);
             
             if (isset($badges_options['fqi3_disable_badges_legend']) 
@@ -1239,4 +1283,4 @@ if (!defined('ABSPATH')) {
     
 endif;
 
-new FQI3_Statistics();
+FQI3_Statistics::getInstance();

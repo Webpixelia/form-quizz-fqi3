@@ -19,6 +19,8 @@ namespace Form_Quizz_FQI3;
 if (!class_exists('FQI3_Frontend')) :
 
 class FQI3_Frontend {
+    private static $instance = null;
+
     /** @var FQI3_Template_Manager */
     private FQI3_Template_Manager $template_manager;
 
@@ -35,6 +37,13 @@ class FQI3_Frontend {
     private const CACHE_GROUP = 'free_quiz';
     /** @var string */
     private const ATTEMPT_SESSION_KEY = 'fqi3_attempt_id';
+
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     /**
      * Initialize the frontend functionality
@@ -138,6 +147,8 @@ class FQI3_Frontend {
 
     /**
      * Render remaining attempts
+     * 
+     * @return string The rendered HTML of the remaining attempts template.
     */
     public function renderRemainingAttempts(): string {
         $data = $this->prepareAttemptsData();
@@ -147,6 +158,8 @@ class FQI3_Frontend {
 
     /**
      * Prepare data for attempts template
+     * 
+     * @return array The data for the attempts template.
     */
     private function prepareAttemptsData(): array {
         $user_id = get_current_user_id();
@@ -157,6 +170,13 @@ class FQI3_Frontend {
             'is_premium_user' => $is_premium_user,
             'sales_page_url' => $this->getSalesPageUrl(),
         ];
+    }
+
+    /**
+     * Get attempts data
+    */
+    public function getAttemptsData(): array {
+        return $this->prepareAttemptsData();
     }
 
     /**
@@ -183,7 +203,8 @@ class FQI3_Frontend {
     /**
      * Get translations for templates
     */
-    private function getTranslations(): array {
+    public function getTranslations(): array {
+        $num_questions = $this->options['fqi3_number_questions_per_quiz'] ?? 10;
         return [
             'start' => __('Start', 'form-quizz-fqi3'),
             // translators: %s is the name or username of the user.
@@ -200,7 +221,11 @@ class FQI3_Frontend {
             'share_linkedin' => __('Share on LinkedIn', 'form-quizz-fqi3'),
             'upgrade_message' => __('Upgrade to our premium version to get unlimited access!', 'form-quizz-fqi3'),
             'view_details' => __('View Details and register', 'form-quizz-fqi3'),
-            'timer_label' => __('Do you want to activate a timer to complete the 10 questions?', 'form-quizz-fqi3'),
+            'timer_label' => sprintf(
+                /* translators: %d is the number of questions in the quiz. */
+                __('Do you want to activate a timer to complete the %d questions?', 'form-quizz-fqi3'),
+                intval($num_questions)
+            ),
             'timer_duration' => __('How many minutes?', 'form-quizz-fqi3')
         ];
     }
@@ -256,6 +281,9 @@ class FQI3_Frontend {
 
     /**
      * Get questions for a specific level
+     * 
+     * @param string $level The level for which to retrieve questions
+     * @return array The questions for the specified level
     */
     private function getQuestions(string $level): array {
         $cacheKey = "questions_{$level}";
@@ -321,6 +349,10 @@ class FQI3_Frontend {
 
     /**
      * Handle cookie operations
+     * 
+     * @param string $action The action to perform ('get' or 'set')
+     * @param string|null $value The value to set (for 'set' action)
+     * @return int|null The value of the cookie (for 'get' action)
     */
     private function handleCookie(string $action, ?string $value = null): ?int {
         switch ($action) {
@@ -683,8 +715,17 @@ class FQI3_Frontend {
         $this->incrementQuizCount();
         wp_send_json_success();
     }
+
+    /**
+     * Get quiz levels
+     * 
+     * @return array
+     */
+    public function getLevelsQuiz(): array {
+        return $this->levelsQuiz;
+    }
 }
 
-new FQI3_Frontend();
+FQI3_Frontend::getInstance();
 
 endif;

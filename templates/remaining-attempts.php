@@ -1,9 +1,12 @@
 <?php
 // templates/remaining-attempts.php
+$is_premium_user = $is_premium_user ?? false;
+$infos_attempts = $infos_attempts ?? ['attempts_made' => 0, 'total_attempts' => 3];
+$sales_page_url = $sales_page_url ?? '#';
 ?>
-<div class="attempts-container">
+<div class="attempts-container <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="<?php echo esc_attr($custom_box_styles ?? ''); ?>">
     <div class="attempts-col1">
-        <p class="infos-attempts">
+        <p class="infos-attempts" style="color: <?php echo esc_attr($color ?? '#fff'); ?>;">
             <?php if (!$is_premium_user) : ?>
                 <span id="attempts-made"><?php echo esc_html($infos_attempts['attempts_made']); ?></span>
                 /

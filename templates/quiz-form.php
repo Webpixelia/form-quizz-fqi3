@@ -1,9 +1,7 @@
-<?php
-// templates/quiz-form.php
-?>
-<div id="quiz-container" class="content-quiz">
+<?php // templates/quiz-form.php ?>
+<div id="quiz-container" class="content-quiz" <?php echo $data_attrs ?? ''; ?>>
     <!-- Start Container -->
-    <div id="start-container" class="home-box custom-box"> 
+    <div id="start-container" class="home-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="<?php echo esc_attr($custom_box_styles ?? ''); ?>">
         <div class="content-pre-form"><?php echo $text_pre_form; ?></div>
         <button type="button" class="btn" onclick="showLevelSelection()">
             <?php echo esc_html($translations['start']); ?>
@@ -11,10 +9,10 @@
     </div>
 
     <!-- Level Selection Container -->
-    <div id="level-container" class="level-box custom-box" style="display:none;">
+    <div id="level-container" class="level-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none;<?php echo esc_attr($custom_box_styles ?? ''); ?>">
         <?php if ($is_user_logged_in && $current_user) : ?>
             <p class="large-p">
-                <?php 
+                <?php
                 /* translators: %s represents the username of the current user */
                 printf(
                     esc_html($translations['welcome']),
@@ -28,8 +26,8 @@
         
         <div class="level-options">
             <?php foreach ($levels as $valueLevel => $levelData) : ?>
-                <?php if ((!$is_user_logged_in && $levelData['free']) || 
-                         ($is_user_logged_in && !$levelData['free'])) : ?>
+                <?php if ((!$is_user_logged_in && $levelData['free']) ||
+                          ($is_user_logged_in && !$levelData['free'])) : ?>
                     <label class="btn" onclick="startQuizWithLevel('<?php echo esc_attr($valueLevel); ?>')">
                         <input type="radio" name="niveau" value="<?php echo esc_attr($valueLevel); ?>" required>
                         <?php echo esc_html($levelData['label']); ?>
@@ -39,15 +37,20 @@
             <?php endforeach; ?>
         </div>
 
-        <?php if ($is_user_logged_in) : ?>
-            <?php include 'partials/timer-settings.php'; ?>
-        <?php endif; ?>
+        <?php 
+        if (!isset($showTimer)) {
+            $showTimer = true;
+        }
+        if ($is_user_logged_in && $showTimer) :
+            include 'partials/timer-settings.php';
+        endif; 
+        ?>
 
         <input type="hidden" id="user-level" name="user_level" value="">
     </div>
 
     <!-- Loading Indicator -->
-    <div id="loading-indicator" style="display:none;">
+    <div id="loading-indicator" class="custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none;<?php echo esc_attr($custom_box_styles ?? ''); ?>">
         <p><?php echo esc_html($translations['loading']); ?></p>
     </div>
 

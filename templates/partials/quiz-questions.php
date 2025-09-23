@@ -1,7 +1,7 @@
 <?php
 // templates/partials/quiz-questions.php
 ?>
-<div id="quiz-questions-container" class="quiz-box custom-box" style="display:none;">
+<div id="quiz-questions-container" class="quiz-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none; <?php echo esc_attr($custom_box_styles ?? ''); ?>">
     <div id="timer-display"></div>
     <div id="question-title" class="question-number"></div>
     <div id="reappuyer"></div>

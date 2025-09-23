@@ -551,10 +551,6 @@ button {font-family: inherit;}
     background-color: #f1f1f1;
 }
 
-.fqi3-table td, .fqi3-table td {
-    color: #555;
-}
-
 .fqi3-table .success-rate, .fqi3-table .best-score {
     font-weight: bold;
     color: var(--green);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Template for rendering badges
+ * Template for rendering badges legend
  *
  * @var array $badges_data Array of badge data
  * @var array $data Array of pre-escaped static strings
