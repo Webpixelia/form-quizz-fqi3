@@ -255,6 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         },
                         body: new URLSearchParams({
                             action: 'delete_question',
+                            nonce: (window.fqi3QuestionsAjax && fqi3QuestionsAjax.nonce_delete) || '',
                             id: questionId
                         })
                     });
@@ -1153,128 +1154,6 @@ jQuery(document).ready(function($) {
         });
     }
 
-    // ========== GESTION GITHUB TOKEN ==========
-    function handleGithubToken() {
-        // Vérifier si les variables AJAX sont disponibles
-        if (typeof fqi3GitHubAjax === 'undefined') {
-            return;
-        }
-    
-        // Gestionnaire du bouton Save Token
-        $('#fqi3-save-github-token').on('click', function(e) {
-            e.preventDefault();
-            
-            const $button = $(this);
-            const $input = $('#fqi3_github_token');
-            const $spinner = $('.spinner');
-            const $message = $('#fqi3-github-token-message');
-            const token = $input.val().trim();
-            
-            // Validation côté client
-            if (!token) {
-                showGithubMessage('error', fqi3GitHubAjax.strings.empty_token || 'Veuillez entrer un token GitHub.');
-                return;
-            }
-            
-            if (token.length < 20) {
-                showGithubMessage('error', fqi3GitHubAjax.strings.invalid_length || 'Le token GitHub doit contenir au moins 20 caractères.');
-                return;
-            }
-            
-            // Démarrer le processus de sauvegarde
-            $button.prop('disabled', true);
-            $spinner.addClass('is-active');
-            $message.hide();
-            
-            // Requête AJAX
-            $.ajax({
-                url: fqi3GitHubAjax.ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'fqi3_save_github_token',
-                    token: token,
-                    nonce: fqi3GitHubAjax.nonce
-                },
-                success: function(response) {
-                    if (response.success) {
-                        showGithubMessage('success', response.data.message);
-                        $input.val(''); // Vider le champ après succès
-                        
-                        // Mettre à jour l'affichage du token
-                        updateTokenDisplay(response.data.masked_token);
-                        
-                    } else {
-                        showGithubMessage('error', response.data.message || fqi3GitHubAjax.strings.error);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    showGithubMessage('error', fqi3GitHubAjax.strings.ajax_error || 'Erreur de communication avec le serveur.');
-                },
-                complete: function() {
-                    $button.prop('disabled', false);
-                    $spinner.removeClass('is-active');
-                }
-            });
-        });
-        
-        // Function to display messages
-        function showGithubMessage(type, message) {
-            const $message = $('#fqi3-github-token-message');
-            
-            $message
-                .removeClass('notice-success notice-error')
-                .addClass('notice-' + type)
-                .html('<p>' + message + '</p>')
-                .fadeIn();
-            
-            // Masquer automatiquement après 5 secondes pour les messages de succès
-            if (type === 'success') {
-                setTimeout(() => {
-                    $message.fadeOut();
-                }, 5000);
-            }
-        }
-        
-        // Fonction pour mettre à jour l'affichage du token
-        function updateTokenDisplay(maskedToken) {
-            const $displayContainer = $('#current-token-display');
-            
-            // Supprimer l'ancien affichage
-            $displayContainer.find('.current-token-info').remove();
-            
-            // Ajouter le nouveau
-            if (maskedToken) {
-                const tokenDisplay = '<p class="description current-token-info">' +
-                    '<strong>' + (fqi3GitHubAjax.strings.current_token || 'Token actuel') + ' :</strong> ' +
-                    '<code>' + maskedToken + '</code>' +
-                    '</p>';
-                $displayContainer.html(tokenDisplay);
-            } else {
-                $displayContainer.empty();
-            }
-            
-            // Mettre à jour le placeholder
-            $('#fqi3_github_token').attr('placeholder', fqi3GitHubAjax.strings.update_placeholder || 'Entrer un nouveau token pour le mettre à jour');
-        }
-        
-        // Permettre d'appuyer sur Entrée pour sauvegarder
-        $('#fqi3_github_token').on('keypress', function(e) {
-            if (e.which === 13) { // Touche Entrée
-                e.preventDefault();
-                $('#fqi3-save-github-token').click();
-            }
-        });
-        
-        // Effacer les messages d'erreur quand l'utilisateur tape
-        $('#fqi3_github_token').on('input', function() {
-            const $message = $('#fqi3-github-token-message');
-            if ($message.hasClass('notice-error')) {
-                $message.fadeOut();
-            }
-        });
-    }
-
     // ========== GESTION REFRESH CACHE ==========
     function handleRefreshCache() {
         // Gestionnaire du bouton Refresh Cache
@@ -1328,7 +1207,6 @@ jQuery(document).ready(function($) {
         handleApiTest();
         handleAddonsSearch();
         handleAddonActions(); 
-        handleGithubToken();
         handleRefreshCache();
     }
 

@@ -92,6 +92,14 @@ class FQI3_Edit_Questions_Page {
      * Redirects to the question view page with a success or failure message.
      */
     public function handle_update_question(): void {
+        if (!$this->backend->user_can_manage_questions()) {
+            wp_die(
+                esc_html__('You are not allowed to perform this action.', 'form-quizz-fqi3'),
+                '',
+                ['response' => 403]
+            );
+        }
+
         if (!$this->verify_update_nonce()) {
             wp_die(__('Security check failed.', 'form-quizz-fqi3'), '', ['response' => 403]);
         }

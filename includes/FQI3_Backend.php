@@ -551,6 +551,22 @@ class FQI3_Backend {
         return false;
     }
 
+    /**
+     * Whether the current user may manage quiz questions (add, edit, export).
+     *
+     * Mirrors the access rules applied to the restricted admin menu pages:
+     * the 'edit_posts' capability AND a role allowed in the access-control settings
+     * (administrators are always allowed). Must be used by every request handler
+     * (admin-post / AJAX) that exposes or alters questions: hiding a menu entry
+     * is not a permission check.
+     *
+     * @return bool
+     * @since 3.3.1
+     */
+    public function user_can_manage_questions(): bool {
+        return current_user_can('edit_posts') && $this->user_has_any_role($this->get_allowed_roles());
+    }
+
      /**
      * Retrieve levels for quizzes.
      *

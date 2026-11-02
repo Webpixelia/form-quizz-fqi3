@@ -513,22 +513,13 @@ final class FormQuizzFQI3 {
         wp_localize_script('fqi3-admin-script', 'fqi3QuestionsAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce_validate_add' => wp_create_nonce('fqi3_validate_add_question'),
+            'nonce_delete' => wp_create_nonce('fqi3_delete_question'),
         ]);
 
-        // GitHub Token AJAX
+        // Add-ons cache refresh (shares the `fqi3GitHubAjax` object name used by admin-script.js)
         wp_localize_script('fqi3-admin-script', 'fqi3GitHubAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('fqi3_save_github_token_nonce'),
             'nonce_refresh_cache' => wp_create_nonce('fqi3_refresh_cache'),
-            'strings' => [
-                'empty_token' => __('Please enter a GitHub token.', 'form-quizz-fqi3'),
-                'invalid_length' => __('GitHub token must contain at least 20 characters.', 'form-quizz-fqi3'),
-                'error' => __('An unexpected error occurred.', 'form-quizz-fqi3'),
-                'ajax_error' => __('Server communication error.', 'form-quizz-fqi3'),
-                'current_token' => __('Current token', 'form-quizz-fqi3'),
-                'update_placeholder' => __('Enter new token to update', 'form-quizz-fqi3'),
-                'success' => __('GitHub token saved successfully!', 'form-quizz-fqi3'),
-            ]
         ]);
     }
 
@@ -544,7 +535,8 @@ final class FormQuizzFQI3 {
      * @since 1.3.2
      */
     public function restrictAdminAccess() {
-        if (current_user_can(ROLE_PREMIUM) && !defined('DOING_AJAX')) {
+        // Never lock out someone who can manage the site (e.g. an administrator who also has the premium role)
+        if (current_user_can(ROLE_PREMIUM) && !current_user_can('manage_options') && !wp_doing_ajax()) {
             wp_redirect(home_url());
             exit;
         }
@@ -679,7 +671,12 @@ final class FormQuizzFQI3 {
      * Handle plugin deactivation
      */
     public function deactivate(): void {
-        remove_role(ROLE_PREMIUM);
+        // The premium role is intentionally kept: removing it would strip it from every
+        // premium member. It is only removed on uninstall (see uninstall.php), if the
+        // "delete data" option is enabled.
+        foreach (['fqi3_weekly_statistics_event', 'fqi3_monthly_statistics_event', 'fqi3_purge_attempts_event', 'fqi3_send_daily_email'] as $hook) {
+            wp_clear_scheduled_hook($hook);
+        }
         flush_rewrite_rules();
     }
 

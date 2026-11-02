@@ -40,6 +40,7 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             $this->createPeriodicStatsTable();
             
             // Schedule weekly and monthly cron tasks
+            add_filter('cron_schedules', [$this, 'ensureWeeklySchedule']);
             add_action('init', [$this, 'schedulePeriodicStatisticsCronJobs']);
             add_action('fqi3_weekly_statistics_event', [$this, 'recordWeeklyStatistics']);
             add_action('fqi3_monthly_statistics_event', [$this, 'recordMonthlyStatistics']);
@@ -99,9 +100,28 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             if (!wp_next_scheduled('fqi3_weekly_statistics_event')) {
                 wp_schedule_event(strtotime('next Sunday 23:59'), 'weekly', 'fqi3_weekly_statistics_event');
             }
+            // WordPress has no 'monthly' recurrence (wp_schedule_event() silently failed with it, so the
+            // monthly statistics never ran). Months have variable lengths: use single events instead,
+            // each run schedules the next one (see recordMonthlyStatistics()).
             if (!wp_next_scheduled('fqi3_monthly_statistics_event')) {
-                wp_schedule_event(strtotime('first day of next month midnight'), 'monthly', 'fqi3_monthly_statistics_event');
+                wp_schedule_single_event(strtotime('first day of next month midnight'), 'fqi3_monthly_statistics_event');
             }
+        }
+
+        /**
+         * 'weekly' is only built into WordPress since 5.4; declare it for older versions.
+         *
+         * @param array $schedules Registered cron schedules.
+         * @return array
+         */
+        public function ensureWeeklySchedule(array $schedules): array {
+            if (!isset($schedules['weekly'])) {
+                $schedules['weekly'] = [
+                    'interval' => WEEK_IN_SECONDS,
+                    'display'  => __('Once Weekly', 'form-quizz-fqi3'),
+                ];
+            }
+            return $schedules;
         }
     
         /**
@@ -120,6 +140,11 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             $startDate = date('Y-m-01', strtotime('first day of last month'));
             $endDate = date('Y-m-t', strtotime('last day of last month'));
             $this->recordPeriodicStatistics('monthly', $startDate, $endDate);
+
+            // Chain the next run (single events, see schedulePeriodicStatisticsCronJobs()).
+            if (!wp_next_scheduled('fqi3_monthly_statistics_event')) {
+                wp_schedule_single_event(strtotime('first day of next month midnight'), 'fqi3_monthly_statistics_event');
+            }
         }
     
         /**

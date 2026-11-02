@@ -7,7 +7,8 @@ if (!defined('ABSPATH')) {
 
 class FQI3_License_Settings {
     public function __construct() {
-        add_action('wp_ajax_fqi3_save_github_token', [ $this, 'ajax_save_github_token' ]);
+        // The token is read from the GITHUB_PERSONAL_TOKEN constant defined by the site owner in wp-config.php.
+        // The plugin no longer edits wp-config.php itself.
     }
     
     /**
@@ -61,230 +62,46 @@ class FQI3_License_Settings {
 
     /**
      * GitHub token field callback function.
+     *
+     * Read-only: the token is defined as a constant in wp-config.php by the site owner.
      */
     public function github_token_callback() {
         $token = self::get_current_github_token();
         $is_defined = self::has_github_token();
         ?>
         <div class="github-token-wrapper">
-            <div class="d-flex align-items-center gap-2 mb-3">
-                <div class="form-group flex-grow-1">
-                    <input type="password" 
-                        id="fqi3_github_token" 
-                        name="fqi3_github_token" 
-                        value="" 
-                        class="form-control"
-                        placeholder="<?php echo $is_defined ? 
-                            esc_attr__('Enter new token to update', 'form-quizz-fqi3') : 
-                            esc_attr__('Enter your GitHub personal token', 'form-quizz-fqi3'); ?>"
-                        autocomplete="off" />
-                </div>
-                <button type="button" id="fqi3-save-github-token" class="btn btn-success btn-sm me-2">
-                    <i class="bi bi-key"></i>
-                    <?php esc_html_e('Save Token', 'form-quizz-fqi3'); ?>
-                </button>
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-            </div>
-            
-            <div id="fqi3-github-token-message" class="alert alert-dismissible fade show" role="alert" style="display: none;">
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                <div class="message-content"></div>
-            </div>
-            
+            <?php if ($is_defined) : ?>
+                <p class="mb-2">
+                    <strong><?php esc_html_e('Current token:', 'form-quizz-fqi3'); ?></strong>
+                    <code class="bg-light p-1 rounded"><?php echo esc_html('••••••••••' . substr($token, -4)); ?></code>
+                </p>
+            <?php else : ?>
+                <p class="text-danger mb-2">
+                    <?php esc_html_e('No GitHub token is defined.', 'form-quizz-fqi3'); ?>
+                </p>
+            <?php endif; ?>
+
             <p class="text-muted mb-2">
-                <?php esc_html_e('Enter your GitHub personal token for API access.', 'form-quizz-fqi3'); ?>
+                <?php esc_html_e('To set or change the token, add this line to your wp-config.php file (above the line "That\'s all, stop editing!"), then reload this page:', 'form-quizz-fqi3'); ?>
             </p>
-            
-            <p class="text-muted mb-2">
-                <a href="https://github.com/settings/tokens" target="_blank" class="text-decoration-none">
+            <pre class="bg-light p-2 rounded"><code>define( 'GITHUB_PERSONAL_TOKEN', 'your_token_here' );</code></pre>
+
+            <p class="text-muted mb-0">
+                <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
                     <?php esc_html_e('Create a new token on GitHub', 'form-quizz-fqi3'); ?>
                 </a>
             </p>
-            
-            <?php if ($is_defined) : ?>
-                <p class="text-muted mb-0">
-                    <strong><?php esc_html_e('Current token:', 'form-quizz-fqi3'); ?></strong> 
-                    <code class="bg-light p-1 rounded"><?php echo '••••••••••' . substr($token, -4); ?></code>
-                </p>
-            <?php endif; ?>
         </div>
         <?php
     }
 
     /**
-     * Get the current GitHub token from wp-config.php
-     * 
-     * @return string
-    */
+     * Get the GitHub token defined by the GITHUB_PERSONAL_TOKEN constant.
+     *
+     * @return string Empty string when the constant is not defined.
+     */
     private static function get_current_github_token() {
-        // First, try the constant if it is defined
-        if (defined('GITHUB_PERSONAL_TOKEN')) {
-            return GITHUB_PERSONAL_TOKEN;
-        }
-        
-        // Otherwise, read directly from wp-config.php
-        $config_file = ABSPATH . 'wp-config.php';
-        
-        if (!file_exists($config_file)) {
-            return '';
-        }
-        
-        $config_content = file_get_contents($config_file);
-        
-        if ($config_content === false) {
-            return '';
-        }
-        
-        // Search for the token definition
-        $pattern = "/define\s*\(\s*['\"]GITHUB_PERSONAL_TOKEN['\"]\s*,\s*['\"]([^'\"]*?)['\"]\s*\)\s*;/s";
-        
-        if (preg_match($pattern, $config_content, $matches)) {
-            return $matches[1];
-        }
-        
-        return '';
-    }
-
-    /**
-     * AJAX handler to save the GitHub token
-     */
-    public function ajax_save_github_token() {
-        // Verify the nonce
-        if (!wp_verify_nonce($_POST['nonce'], 'fqi3_save_github_token_nonce')) {
-            wp_send_json_error([
-                'message' => __('Security check failed.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        // Check permissions
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error([
-                'message' => __('You do not have permission to perform this action.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        $token = sanitize_text_field($_POST['token']);
-        
-        if (empty($token)) {
-            wp_send_json_error([
-                'message' => __('Token cannot be empty.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        // Validate the GitHub token format (generally 40 characters alphanumeric)
-        if (!preg_match('/^[a-zA-Z0-9_]{20,}$/', $token)) {
-            wp_send_json_error([
-                'message' => __('Invalid token format. GitHub tokens should contain only letters, numbers, and underscores.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        $result = self::save_github_token($token);
-        
-        if (is_wp_error($result)) {
-            wp_send_json_error([
-                'message' => $result->get_error_message()
-            ]);
-        }
-
-        wp_send_json_success([
-            'message' => __('GitHub token saved successfully!', 'form-quizz-fqi3'),
-            'masked_token' => '••••••••••' . substr($token, -4)
-        ]);
-    }
-
-    /**
-     * Save the GitHub token to wp-config.php
-     * 
-     * @param string $token The GitHub personal token to save
-     * @return bool|WP_Error True on success, WP_Error on failure
-     */
-    public static function save_github_token($token) {
-        if (empty($token)) {
-            return new \WP_Error('empty_token', __('Token cannot be empty', 'form-quizz-fqi3'));
-        }
-
-        $config_file = ABSPATH . 'wp-config.php';
-        
-        if (!file_exists($config_file)) {
-            return new \WP_Error('config_not_found', __('wp-config.php not found.', 'form-quizz-fqi3'));
-        }
-        
-        if (!is_writable($config_file)) {
-            return new \WP_Error('not_writable', __('wp-config.php is not writable. Please check file permissions.', 'form-quizz-fqi3'));
-        }
-
-        // Créer une sauvegarde
-        $backup_file = $config_file . '.backup.' . time();
-        if (!copy($config_file, $backup_file)) {
-            return new \WP_Error('backup_failed', __('Failed to create backup of wp-config.php', 'form-quizz-fqi3'));
-        }
-
-        $config_content = file_get_contents($config_file);
-        
-        if ($config_content === false) {
-            return new \WP_Error('read_failed', __('Failed to read wp-config.php', 'form-quizz-fqi3'));
-        }
-
-        // Pattern pour trouver la définition existante
-        $pattern = "/define\s*\(\s*['\"]GITHUB_PERSONAL_TOKEN['\"]\s*,\s*['\"].*?['\"]\s*\)\s*;/s";
-        
-        $new_definition = "define('GITHUB_PERSONAL_TOKEN', '" . addcslashes($token, "'\"\\") . "');";
-        
-        if (preg_match($pattern, $config_content)) {
-            // Remplacer la définition existante
-            $new_config_content = preg_replace($pattern, $new_definition, $config_content, 1);
-        } else {
-            // Ajouter avant le commentaire de fin
-            $end_markers = [
-                '/* That\'s all, stop editing! Happy publishing. */',
-                '/* C\'est tout, ne modifiez plus rien ! Bonne publication. */',
-                '/* That\'s all, stop editing! Happy blogging. */'
-            ];
-            
-            $found = false;
-            foreach ($end_markers as $marker) {
-                if (strpos($config_content, $marker) !== false) {
-                    $new_config_content = str_replace(
-                        $marker,
-                        "\n" . $new_definition . "\n\n" . $marker,
-                        $config_content
-                    );
-                    $found = true;
-                    break;
-                }
-            }
-            
-            // Si aucun marqueur trouvé, chercher avant la fermeture PHP
-            if (!$found) {
-                if (strrpos($config_content, '?>') !== false) {
-                    $pos = strrpos($config_content, '?>');
-                    $new_config_content = substr($config_content, 0, $pos) . 
-                                        "\n" . $new_definition . "\n" . 
-                                        substr($config_content, $pos);
-                } else {
-                    // Ajouter à la fin du fichier
-                    $new_config_content = rtrim($config_content) . "\n\n" . $new_definition . "\n";
-                }
-            }
-        }
-
-        // Écrire le nouveau contenu
-        if (file_put_contents($config_file, $new_config_content, LOCK_EX) === false) {
-            // Restaurer la sauvegarde en cas d'échec
-            copy($backup_file, $config_file);
-            unlink($backup_file);
-            return new \WP_Error('write_failed', __('Failed to write to wp-config.php', 'form-quizz-fqi3'));
-        }
-
-        // Supprimer la sauvegarde si tout s'est bien passé
-        unlink($backup_file);
-
-        // Invalider le cache opcache si disponible
-        if (function_exists('opcache_invalidate')) {
-            opcache_invalidate($config_file);
-        }
-
-        return true;
+        return defined('GITHUB_PERSONAL_TOKEN') ? (string) GITHUB_PERSONAL_TOKEN : '';
     }
 
     /**

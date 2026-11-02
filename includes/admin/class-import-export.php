@@ -465,8 +465,10 @@ class FQI3_Import_Export_Page {
             // Sanitize import data
             $sanitized_data = $this->sanitize_import_data($import_data);
 
-            // Create backup before import
-            $backup_path = $this->create_import_backup($sanitized_data);
+            // Back up the data that is about to be replaced (not the incoming file),
+            // before touching anything. Aborts the import if the backup cannot be written.
+            $sections_to_replace = array_keys(array_intersect_key($sanitized_data, self::get_allowed_export_types()));
+            $backup_path = $this->create_import_backup($this->collect_export_data($sections_to_replace));
 
             // Import only the sections that are present
             if (isset($sanitized_data['questions'])) {
@@ -485,7 +487,18 @@ class FQI3_Import_Export_Page {
             }
 
             if (isset($sanitized_data['options'])) {
-                update_option('fqi3_options', $sanitized_data['options']);
+                $imported_options = $sanitized_data['options'];
+                // The API token is encrypted with a per-site key: an imported value would be
+                // undecryptable here and would wipe the working token. Keep the current one.
+                $secret_keys = ['fqi3_quiz_api_token', 'fqi3_quiz_api_token_created_at'];
+                $current_options = get_option('fqi3_options', []);
+                foreach ($secret_keys as $secret_key) {
+                    unset($imported_options[$secret_key]);
+                    if (is_array($current_options) && isset($current_options[$secret_key])) {
+                        $imported_options[$secret_key] = $current_options[$secret_key];
+                    }
+                }
+                update_option('fqi3_options', $imported_options);
             }
 
             // Import performance data
@@ -517,7 +530,7 @@ class FQI3_Import_Export_Page {
             wp_redirect(admin_url('admin.php?page=' . $admin_pages['import_export']['slug'] . '&imported=success'));
             exit;
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $wpdb->query('ROLLBACK');
 
             // Log failed operation
@@ -525,7 +538,7 @@ class FQI3_Import_Export_Page {
                 'error_message' => $e->getMessage()
             ], false);
             // Translators: %s is the error message.
-            wp_die(sprintf(__('Import failed: %s', 'form-quizz-fqi3'), $e->getMessage()));
+            wp_die(esc_html(sprintf(__('Import failed: %s', 'form-quizz-fqi3'), $e->getMessage())));
         }
     }
 
@@ -535,7 +548,7 @@ class FQI3_Import_Export_Page {
     private function truncate_existing_data(): void {
         global $wpdb;
         $table_name = $this->backend->get_quiz_table_name();
-        $wpdb->query("TRUNCATE TABLE $table_name");
+        $wpdb->query("DELETE FROM $table_name");
     }
 
     /**
@@ -578,7 +591,7 @@ class FQI3_Import_Export_Page {
         $batch_size = 100;
 
         // Truncate existing performance data
-        $wpdb->query("TRUNCATE TABLE $table_name");
+        $wpdb->query("DELETE FROM $table_name");
 
         foreach (array_chunk($performance_data, $batch_size) as $batch) {
             foreach ($batch as $performance_entry) {
@@ -613,7 +626,7 @@ class FQI3_Import_Export_Page {
         $batch_size = 100;
 
         // Truncate existing advanced stats data
-        $wpdb->query("TRUNCATE TABLE $table_name");
+        $wpdb->query("DELETE FROM $table_name");
 
         foreach (array_chunk($advanced_stats_data, $batch_size) as $batch) {
             foreach ($batch as $stats_entry) {
@@ -700,17 +713,21 @@ class FQI3_Import_Export_Page {
      * @param array $import_data
      * @return string Backup file path
      */
-    private function create_import_backup(array $import_data): string {
+    private function create_import_backup(array $existing_data): string {
         $backup_dir = wp_upload_dir()['basedir'] . '/fqi3_backups/';
         
-        // Ensure backup directory exists
+        // Ensure backup directory exists and is not web-accessible
         wp_mkdir_p($backup_dir);
+        $this->protect_directory($backup_dir);
 
-        $backup_filename = 'backup_' . date('Y-m-d_H-i-s') . '.json';
+        $backup_filename = 'backup_' . gmdate('Y-m-d_H-i-s') . '_' . wp_generate_password(16, false) . '.json';
         $backup_path = $backup_dir . $backup_filename;
 
         // Write backup file
-        file_put_contents($backup_path, wp_json_encode($import_data, JSON_PRETTY_PRINT));
+        $written = file_put_contents($backup_path, wp_json_encode($existing_data, JSON_PRETTY_PRINT));
+        if ($written === false) {
+            throw new \RuntimeException(__('Unable to write the pre-import backup. Import aborted, no data was changed.', 'form-quizz-fqi3'));
+        }
 
         // Set file permissions
         chmod($backup_path, 0600);
@@ -718,165 +735,80 @@ class FQI3_Import_Export_Page {
         return $backup_path;
     }
 
-    private function sanitize_levels($data): array {
-        return [
-            'fqi3_quiz_levels_name' => array_map(function ($name) {
-                return sanitize_text_field($name); // Sanitize text fields
-            }, $data['levels']['fqi3_quiz_levels_name'] ?? []),
-    
-            'fqi3_quiz_levels_label' => array_map(function ($label) {
-                return sanitize_text_field($label); // Sanitize text fields
-            }, $data['levels']['fqi3_quiz_levels_label'] ?? []),
-    
-            'fqi3_quiz_levels_is_free' => array_map(function ($is_free) {
-                return intval($is_free); // Sanitize checkboxes (ensure they are integers)
-            }, $data['levels']['fqi3_quiz_levels_is_free'] ?? []),
-        ];
+    /**
+     * Make a directory of the uploads folder non-browsable and non-readable from the web.
+     *
+     * Adds an index.php and an Apache .htaccess deny rule. On nginx, .htaccess is ignored:
+     * the unguessable file names remain the protection, and a `location` deny rule is advised.
+     *
+     * @param string $dir Absolute directory path.
+     * @since 3.3.1
+     */
+    private function protect_directory(string $dir): void {
+        $dir = trailingslashit($dir);
+
+        if (!file_exists($dir . 'index.php')) {
+            file_put_contents($dir . 'index.php', "<?php\n// Silence is golden.\n");
+        }
+        if (!file_exists($dir . '.htaccess')) {
+            file_put_contents(
+                $dir . '.htaccess',
+                "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nOrder allow,deny\nDeny from all\n</IfModule>\n"
+            );
+        }
     }
 
     /**
-     * Validate and sanitize import data
+     * Normalize the "options" field of an imported question to a JSON array string.
      *
-     * @param array $data Raw import data
-     * @return array Sanitized import data
+     * Accepts the JSON string produced by this plugin's export, or a plain array.
+     *
+     * @param mixed $raw Raw value from the import file.
+     * @return string JSON-encoded list of 2+ sanitized answers.
+     * @throws \InvalidArgumentException When the value is not a usable list of answers.
+     * @since 3.3.1
      */
-    private function or_sanitize_import_data(array $data): array {
-        $sanitized_data = [];
+    private function normalize_question_options($raw): string {
+        $options = is_string($raw) ? json_decode($raw, true) : $raw;
 
-        // Sanitize questions
-        if (isset($data['questions'])) {
-            $sanitized_data['questions'] = array_map(function($question) {
-                return [
-                    'niveau' => sanitize_text_field($question['niveau'] ?? ''),
-                    'q' => sanitize_textarea_field($question['q'] ?? ''),
-                    'q2' => sanitize_textarea_field($question['q2'] ?? ''),
-                    'options' => maybe_serialize($question['options']),
-                    'answer' => sanitize_text_field($question['answer'] ?? '')
-                ];
-            }, $data['questions']);
+        if (!is_array($options) || count($options) < 2) {
+            throw new \InvalidArgumentException(__('Invalid import data: a question has missing or invalid answer options.', 'form-quizz-fqi3'));
         }
 
-        // Sanitize levels
-        if (isset($data['levels'])) {
-            $sanitized_data['levels'] = [
-                'fqi3_quiz_levels_name' => array_map(function ($name) {
-                    return sanitize_text_field($name);
-                }, $data['levels']['fqi3_quiz_levels_name'] ?? []),
-        
-                'fqi3_quiz_levels_label' => array_map(function ($label) {
-                    return sanitize_text_field($label);
-                }, $data['levels']['fqi3_quiz_levels_label'] ?? []),
-        
-                'fqi3_quiz_levels_is_free' => array_map(function ($is_free) {
-                    return intval($is_free);
-                }, $data['levels']['fqi3_quiz_levels_is_free'] ?? []),
-            ];
-        }
+        $options = array_values(array_map(static function ($option) {
+            return sanitize_text_field(is_scalar($option) ? (string) $option : '');
+        }, $options));
 
-        // Sanitize badges
-        if (isset($data['badges'])) {
-            $sanitized_data['badges'] = [
-                'fqi3_disable_badges' => intval($data['badges']['fqi3_disable_badges'] ?? 0),
-                'fqi3_disable_badges_legend' => intval($data['badges']['fqi3_disable_badges_legend'] ?? 0),
-        
-                'fqi3_quizzes_completed_thresholds' => array_map(function ($threshold) {
-                    return intval($threshold);
-                }, $data['badges']['fqi3_quizzes_completed_thresholds'] ?? []),
-        
-                'fqi3_quizzes_completed_badge_names' => array_map(function ($name) {
-                    return sanitize_text_field($name);
-                }, $data['badges']['fqi3_quizzes_completed_badge_names'] ?? []),
-        
-                'fqi3_quizzes_completed_badge_images' => array_map(function ($image) {
-                    return intval($image); // Les IDs des images sont des entiers
-                }, $data['badges']['fqi3_quizzes_completed_badge_images'] ?? []),
-        
-                'fqi3_success_rate_thresholds' => array_map(function ($threshold) {
-                    return intval($threshold);
-                }, $data['badges']['fqi3_success_rate_thresholds'] ?? []),
-        
-                'fqi3_success_rate_badge_names' => array_map(function ($name) {
-                    return sanitize_text_field($name);
-                }, $data['badges']['fqi3_success_rate_badge_names'] ?? []),
-        
-                'fqi3_success_rate_badge_images' => array_map(function ($image) {
-                    return intval($image); // Les IDs des images sont des entiers
-                }, $data['badges']['fqi3_success_rate_badge_images'] ?? []),
-        
-                'fqi3_min_quizzes_for_success_rate' => intval($data['badges']['fqi3_min_quizzes_for_success_rate'] ?? 0),
-            ];
-        }
-
-        // Sanitize stats
-        if (isset($data['performance'])) {
-            $sanitized_data['performance'] = array_map(function($performance_entry) {
-                return [
-                    'user_id'                  => intval($performance_entry['user_id']),
-                    'level'                    => sanitize_text_field($performance_entry['level']),
-                    'total_quizzes'            => intval($performance_entry['total_quizzes']),
-                    'total_questions_answered' => intval($performance_entry['total_questions_answered']),
-                    'total_good_answers'       => intval($performance_entry['total_good_answers']),
-                    'success_rate'             => floatval($performance_entry['success_rate']),
-                    'best_score'               => floatval($performance_entry['best_score']),
-                    'last_updated'             => sanitize_text_field($performance_entry['last_updated'])
-                ];
-            }, $data['performance']);
-        }
-
-        // Sanitize advanced stats
-        if (isset($data['advanced_stats'])) {
-            $sanitized_data['advanced_stats'] = array_map(function($stats_entry) {
-                return [
-                    'user_id'                   => intval($stats_entry['user_id']),
-                    'period_type'               => in_array($stats_entry['period_type'], ['weekly', 'monthly']) ? $stats_entry['period_type'] : 'weekly',
-                    'period_start'              => sanitize_text_field($stats_entry['period_start']),
-                    'period_end'                => sanitize_text_field($stats_entry['period_end']),
-                    'total_quizzes'             => intval($stats_entry['total_quizzes'] ?? 0),
-                    'total_questions_answered'  => intval($stats_entry['total_questions_answered'] ?? 0),
-                    'total_good_answers'        => intval($stats_entry['total_good_answers'] ?? 0),
-                    'success_rate'              => floatval($stats_entry['success_rate'] ?? 0.0),
-                    'best_score'                => isset($stats_entry['best_score']) ? floatval($stats_entry['best_score']) : null,
-                    'created_at'                => !empty($stats_entry['created_at']) ? sanitize_text_field($stats_entry['created_at']) : current_time('mysql')
-                ];
-            }, $data['advanced_stats']);
-        }
-
-        // Sanitize options
-        if (isset($data['options'])) {
-            $sanitized_data['options'] = [];
-    
-            foreach ($data['options'] as $key => $value) {
-                switch (true) {
-                    case is_string($value): // Pour les champs texte
-                        $sanitized_data['options'][$key] = sanitize_text_field($value);
-                        break;
-                    
-                    case is_int($value): // Pour les champs nombre
-                        $sanitized_data['options'][$key] = intval($value);
-                        break;
-                    
-                    case is_bool($value): // Pour les cases à cocher
-                        $sanitized_data['options'][$key] = $value ? 1 : 0;
-                        break;
-                    
-                    case preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value): // Pour les couleurs hexadécimales
-                        $sanitized_data['options'][$key] = sanitize_hex_color($value);
-                        break;
-                    
-                    case preg_match('/^\d{2}:\d{2}$/', $value): // Pour les heures
-                        $sanitized_data['options'][$key] = sanitize_text_field($value);
-                        break;
-                    
-                    default:
-                        // Pour les cas par défaut (par exemple, pour les arrays ou objets)
-                        $sanitized_data['options'][$key] = sanitize_text_field($value);
-                        break;
-                }
-            }
-        }
-
-        return $sanitized_data;
+        return wp_json_encode($options, JSON_UNESCAPED_UNICODE);
     }
+
+    /**
+     * Recursively sanitize an imported settings value without assuming its type.
+     *
+     * @param mixed $value Raw value.
+     * @return mixed Sanitized value (arrays keep their keys).
+     * @since 3.3.1
+     */
+    private function sanitize_import_option_value($value) {
+        if (is_array($value)) {
+            $clean = [];
+            foreach ($value as $key => $item) {
+                $clean[is_string($key) ? sanitize_key($key) : $key] = $this->sanitize_import_option_value($item);
+            }
+            return $clean;
+        }
+        if (is_bool($value)) {
+            return $value ? 1 : 0;
+        }
+        if (is_int($value) || is_float($value)) {
+            return $value;
+        }
+        if (is_string($value)) {
+            return sanitize_text_field($value);
+        }
+        return '';
+    }
+
     private function sanitize_import_data(array $data): array {
         $sanitized_data = [];
     
@@ -884,13 +816,24 @@ class FQI3_Import_Export_Page {
         foreach ($data as $key => $value) {
             switch ($key) {
                 case 'questions':
+                    if (!is_array($value)) {
+                        throw new \InvalidArgumentException(__('Invalid import data: "questions" must be a list.', 'form-quizz-fqi3'));
+                    }
                     $sanitized_data['questions'] = array_map(function($question) {
+                        if (!is_array($question)) {
+                            throw new \InvalidArgumentException(__('Invalid import data: malformed question entry.', 'form-quizz-fqi3'));
+                        }
+                        $options = $this->normalize_question_options($question['options'] ?? null);
+                        $answer  = absint($question['answer'] ?? 0);
+                        if ($answer >= count(json_decode($options, true))) {
+                            throw new \InvalidArgumentException(__('Invalid import data: a question has an answer index outside its options.', 'form-quizz-fqi3'));
+                        }
                         return [
                             'niveau' => sanitize_text_field($question['niveau'] ?? ''),
                             'q' => sanitize_textarea_field($question['q'] ?? ''),
                             'q2' => sanitize_textarea_field($question['q2'] ?? ''),
-                            'options' => maybe_serialize($question['options']),
-                            'answer' => sanitize_text_field($question['answer'] ?? '')
+                            'options' => $options,
+                            'answer' => $answer
                         ];
                     }, $value);
                     break;
@@ -976,34 +919,10 @@ class FQI3_Import_Export_Page {
                     break;
     
                 case 'options':
-                    $sanitized_data['options'] = [];
-                    foreach ($value as $key => $option_value) {
-                        switch (true) {
-                            case is_string($option_value): // Pour les champs texte
-                                $sanitized_data['options'][$key] = sanitize_text_field($option_value);
-                                break;
-    
-                            case is_int($option_value): // Pour les champs nombre
-                                $sanitized_data['options'][$key] = intval($option_value);
-                                break;
-    
-                            case is_bool($option_value): // Pour les cases à cocher
-                                $sanitized_data['options'][$key] = $option_value ? 1 : 0;
-                                break;
-    
-                            case preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $option_value): // Pour les couleurs hexadécimales
-                                $sanitized_data['options'][$key] = sanitize_hex_color($option_value);
-                                break;
-    
-                            case preg_match('/^\d{2}:\d{2}$/', $option_value): // Pour les heures
-                                $sanitized_data['options'][$key] = sanitize_text_field($option_value);
-                                break;
-    
-                            default:
-                                $sanitized_data['options'][$key] = sanitize_text_field($option_value); // Par défaut
-                                break;
-                        }
+                    if (!is_array($value)) {
+                        throw new \InvalidArgumentException(__('Invalid import data: "options" must be an object.', 'form-quizz-fqi3'));
                     }
+                    $sanitized_data['options'] = $this->sanitize_import_option_value($value);
                     break;
     
                 // Ajoutez d'autres cas si nécessaire pour d'autres sections
@@ -1038,8 +957,9 @@ class FQI3_Import_Export_Page {
 
         $reports_dir = wp_upload_dir()['basedir'] . '/fqi3_reports/';
         wp_mkdir_p($reports_dir);
+        $this->protect_directory($reports_dir);
 
-        $filename = $type . '_report_' . date('Y-m-d_H-i-s') . '.json';
+        $filename = $type . '_report_' . gmdate('Y-m-d_H-i-s') . '_' . wp_generate_password(16, false) . '.json';
         $filepath = $reports_dir . $filename;
 
         file_put_contents($filepath, wp_json_encode($report, JSON_PRETTY_PRINT));

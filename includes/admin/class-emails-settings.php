@@ -245,7 +245,11 @@ class FQI3_Emails_Settings {
      * @since 1.6.0 Added nonce to secure AJAX request and protect against CSRF attacks.
      */
     public function handle_test_email_submission() {
-        if (isset($_POST['security']) && wp_verify_nonce($_POST['security'], 'fqi3_test_email_nonce')) {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('You do not have permission to perform this action.', 'form-quizz-fqi3')], 403);
+        }
+
+        if (isset($_POST['security']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['security'])), 'fqi3_test_email_nonce')) {
             $options = fqi3_get_options();
 
             if ($options['fqi3_disable_emails'] == '1') {

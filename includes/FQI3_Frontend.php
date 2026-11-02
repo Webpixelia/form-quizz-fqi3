@@ -32,6 +32,7 @@ class FQI3_Frontend {
     
     /** @var string */
     private const COOKIE_QUIZ_COUNT = 'fqi3_quiz_count';
+    private const META_DAILY_COUNT = 'fqi3_daily_quiz_count';
     
     /** @var string */
     private const CACHE_GROUP = 'free_quiz';
@@ -247,6 +248,15 @@ class FQI3_Frontend {
         }
 
         $level = $this->sanitizeLevel($_GET['niveau'] ?? 'free');
+
+        // The level picker only offers visitors the levels flagged "free": enforce it here too,
+        // otherwise changing the `niveau` parameter exposes the levels reserved to members.
+        if (!$this->canAccessLevel($level)) {
+            wp_send_json_error([
+                'message' => __('Please log in to access this level.', 'form-quizz-fqi3')
+            ]);
+        }
+
         $this->start_session_if_needed();
         // Ensure we have a current attempt id in session (best-effort)
         $attempt_id = $this->getCurrentAttemptId();
@@ -280,13 +290,42 @@ class FQI3_Frontend {
     }
 
     /**
+     * Whether the current visitor may request the questions of a level.
+     *
+     * Visitors who are not logged in can only access levels flagged as free. Logged-in users
+     * are not restricted here (the daily limit is enforced separately). A level that does not
+     * exist is let through so that the regular "no questions found" response is returned.
+     *
+     * @param string $level Level slug.
+     * @return bool
+     * @since 3.3.1
+     */
+    private function canAccessLevel(string $level): bool {
+        if (is_user_logged_in()) {
+            return true;
+        }
+
+        $levels = fqi3_get_free_quiz_levels();
+        if (!isset($levels[$level])) {
+            return true;
+        }
+
+        return !empty($levels[$level]['free']);
+    }
+
+    /**
      * Get questions for a specific level
      * 
      * @param string $level The level for which to retrieve questions
      * @return array The questions for the specified level
     */
     private function getQuestions(string $level): array {
-        $cacheKey = "questions_{$level}";
+        // Number of questions comes from the settings (it was hard-coded to 10 before).
+        $limit = max(1, min(100, (int) ($this->options['fqi3_number_questions_per_quiz'] ?? 10)));
+
+        // The draw can be user-specific (see the `fqi3_quiz_questions_draw` filter), so the cache
+        // key includes the user: otherwise a persistent object cache would hand one user's set to another.
+        $cacheKey = sprintf('questions_%s_u%d_n%d', $level, get_current_user_id(), $limit);
         $questions = wp_cache_get($cacheKey, self::CACHE_GROUP);
 
         if (false === $questions) {
@@ -328,8 +367,9 @@ class FQI3_Frontend {
                 // Fallback to core random selection by level
                 $questions = $wpdb->get_results(
                     $wpdb->prepare(
-                        "SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE niveau = %s ORDER BY RAND() LIMIT 10",
-                        $level
+                        "SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE niveau = %s ORDER BY RAND() LIMIT %d",
+                        $level,
+                        $limit
                     ),
                     ARRAY_A
                 );
@@ -369,7 +409,7 @@ class FQI3_Frontend {
                     $expire,
                     COOKIEPATH,
                     COOKIE_DOMAIN,
-                    true,
+                    is_ssl(),
                     true
                 );
                 $_COOKIE[self::COOKIE_QUIZ_COUNT] = $value;
@@ -411,10 +451,9 @@ class FQI3_Frontend {
      * @since 1.1.0 Initial release.
     */
     public function canTakeQuiz(): bool {
-        $quizCount = $this->handleCookie('get');
         $dailyLimit = (int)($this->options['fqi3_free_trials_per_day'] ?? 3);
         
-        return $quizCount <= $dailyLimit;
+        return $this->getDailyQuizCount() < $dailyLimit;
     }
 
     /**
@@ -430,7 +469,7 @@ class FQI3_Frontend {
     */
     public function getAttemptsInfo(): array {
         $totalAttempts = (int)($this->options['fqi3_free_trials_per_day'] ?? 0);
-        $attemptsMade = $this->handleCookie('get');
+        $attemptsMade = $this->getDailyQuizCount();
         $remainingAttempts = max(0, $totalAttempts - $attemptsMade);
 
         return [
@@ -628,8 +667,39 @@ class FQI3_Frontend {
      * Increment quiz count stored in the cookie.
     */
     private function incrementQuizCount(): void {
+        if (is_user_logged_in()) {
+            // Logged-in users: counted server-side, a cookie can be deleted or forged.
+            update_user_meta(get_current_user_id(), self::META_DAILY_COUNT, [
+                'date'  => current_time('Y-m-d'),
+                'count' => $this->getDailyQuizCount() + 1,
+            ]);
+            return;
+        }
+
         $count = $this->handleCookie('get');
         $this->handleCookie('set', (string)($count + 1));
+    }
+
+    /**
+     * Number of quizzes started today (site timezone).
+     *
+     * Logged-in users: stored in user meta, reset when the date changes.
+     * Visitors: cookie (informational only, the daily limit applies to logged-in subscribers).
+     *
+     * @return int
+     * @since 3.3.1
+     */
+    private function getDailyQuizCount(): int {
+        if (!is_user_logged_in()) {
+            return (int) $this->handleCookie('get');
+        }
+
+        $data = get_user_meta(get_current_user_id(), self::META_DAILY_COUNT, true);
+        if (is_array($data) && ($data['date'] ?? '') === current_time('Y-m-d')) {
+            return max(0, (int) ($data['count'] ?? 0));
+        }
+
+        return 0;
     }
 
     /**
@@ -712,7 +782,12 @@ class FQI3_Frontend {
      */
     public function handleIncrementQuizCount(): void {
         check_ajax_referer('fqi3_cookies_nonce', 'nonce');
-        $this->incrementQuizCount();
+
+        // Logged-in users are already counted server-side when the questions are served
+        // (handleGetQuestions). Counting again here would consume two trials per quiz.
+        if (!is_user_logged_in()) {
+            $this->incrementQuizCount();
+        }
         wp_send_json_success();
     }
 

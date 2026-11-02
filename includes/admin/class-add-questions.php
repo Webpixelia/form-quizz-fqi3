@@ -71,7 +71,7 @@ class FQI3_Add_Questions_Page {
      * Action: wp_ajax_fqi3_validate_add_question
      */
     public function ajax_validate_add_question(): void {
-        if ( ! current_user_can('edit_posts') ) {
+        if ( ! $this->backend->user_can_manage_questions() ) {
             wp_send_json_error([
                 'message' => __('You are not allowed to perform this action.', 'form-quizz-fqi3')
             ], 403);
@@ -102,6 +102,14 @@ class FQI3_Add_Questions_Page {
      * Redirects to the page displaying all questions upon successful insertion.
      */
     public function handle_add_question(): void {
+        if (!$this->backend->user_can_manage_questions()) {
+            wp_die(
+                esc_html__('You are not allowed to perform this action.', 'form-quizz-fqi3'),
+                '',
+                ['response' => 403]
+            );
+        }
+
         try {
             if (!isset($_POST[self::NONCE_FIELD]) || 
                 !wp_verify_nonce($_POST[self::NONCE_FIELD], self::NONCE_ACTION)) {

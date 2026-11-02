@@ -172,8 +172,10 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
                     throw new \Exception('Invalid security token.');
                 }
     
-                $user_id = filter_input(INPUT_POST, 'user_id', FILTER_VALIDATE_INT);
-                $level = isset($_POST['level']) ? sanitize_text_field($_POST['level']) : '';
+                // Badges can only be awarded to the authenticated user making the request:
+                // a client-supplied user_id must never decide who receives them.
+                $user_id = get_current_user_id();
+                $level = isset($_POST['level']) ? sanitize_text_field(wp_unslash($_POST['level'])) : '';
     
                 if (!$user_id || !$level) {
                     throw new \Exception('Invalid user ID or level.');

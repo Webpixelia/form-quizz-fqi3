@@ -389,6 +389,10 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
             // Vérifiez le nonce pour la sécurité
             check_ajax_referer('fqi3_admin_cookies_nonce', 'nonce');
 
+            if (!current_user_can('manage_options')) {
+                wp_send_json_error(__('You do not have permission to perform this action.', 'form-quizz-fqi3'), 403);
+            }
+
             // Logique pour révoquer le jeton
             $options = fqi3_get_options();
             if (isset($options['fqi3_quiz_api_token'])) {

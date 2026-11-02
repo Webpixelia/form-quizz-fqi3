@@ -419,6 +419,7 @@ class FQI3_View_Questions_Page {
         <div class="col-md-3">
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="d-inline">
                 <input type="hidden" name="action" value="export_questions">
+                <?php wp_nonce_field('fqi3_export_questions'); ?>
                 <button type="submit" class="btn btn-success btn-sm">
                     <i class="bi bi-download"></i> <?php _e('Export CSV', 'form-quizz-fqi3'); ?>
                 </button>
@@ -628,6 +629,8 @@ class FQI3_View_Questions_Page {
      * @return void
      */
     public function handle_delete_question(): void {
+        check_ajax_referer('fqi3_delete_question', 'nonce');
+
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error(__('You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3'), 403 );
             wp_die();
@@ -666,6 +669,15 @@ class FQI3_View_Questions_Page {
      * @since 2.0.0 Optimized performance and error handling
      */
     public function export_questions(): void {
+        if (!$this->backend->user_can_manage_questions()) {
+            wp_die(
+                esc_html__('You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3'),
+                '',
+                ['response' => 403]
+            );
+        }
+        check_admin_referer('fqi3_export_questions');
+
         global $wpdb;
         $table_name = $this->backend->get_quiz_table_name();
         
