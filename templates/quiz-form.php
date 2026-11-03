@@ -1,65 +1,68 @@
 <?php // templates/quiz-form.php ?>
 <div id="quiz-container" class="content-quiz" <?php echo $data_attrs ?? ''; ?>>
-    <!-- Start Container -->
-    <div id="start-container" class="home-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="<?php echo esc_attr($custom_box_styles ?? ''); ?>">
-        <div class="content-pre-form"><?php echo $text_pre_form; ?></div>
-        <button type="button" class="btn" onclick="showLevelSelection()">
-            <?php echo esc_html($translations['start']); ?>
-        </button>
-    </div>
+	<!-- Start Container -->
+	<div id="start-container" class="home-box custom-box <?php echo esc_attr( $custom_box_classes ?? '' ); ?>" style="<?php echo esc_attr( $custom_box_styles ?? '' ); ?>">
+		<div class="content-pre-form"><?php echo $text_pre_form; ?></div>
+		<button type="button" class="btn" onclick="showLevelSelection()">
+			<?php echo esc_html( $translations['start'] ); ?>
+		</button>
+	</div>
 
-    <!-- Level Selection Container -->
-    <div id="level-container" class="level-box custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none;<?php echo esc_attr($custom_box_styles ?? ''); ?>">
-        <?php if ($is_user_logged_in && $current_user) : ?>
-            <p class="large-p">
-                <?php
-                /* translators: %s represents the username of the current user */
-                printf(
-                    esc_html($translations['welcome']),
-                    esc_html($current_user->user_login)
-                ); ?>
-            </p>
-        <?php endif; ?>
+	<!-- Level Selection Container -->
+	<div id="level-container" class="level-box custom-box <?php echo esc_attr( $custom_box_classes ?? '' ); ?>" style="display:none;<?php echo esc_attr( $custom_box_styles ?? '' ); ?>">
+		<?php if ( $is_user_logged_in && $current_user ) : ?>
+			<p class="large-p">
+				<?php
+				/* translators: %s represents the username of the current user */
+				printf(
+					esc_html( $translations['welcome'] ),
+					esc_html( $current_user->user_login )
+				);
+				?>
+			</p>
+		<?php endif; ?>
 
-        <h2><?php echo esc_html($title_form); ?></h2>
-        <div id="level-choice-message"></div>
-        
-        <div class="level-options">
-            <?php foreach ($levels as $valueLevel => $levelData) : ?>
-                <?php if ((!$is_user_logged_in && $levelData['free']) ||
-                          ($is_user_logged_in && !$levelData['free'])) : ?>
-                    <label class="btn" onclick="startQuizWithLevel('<?php echo esc_attr($valueLevel); ?>')">
-                        <input type="radio" name="niveau" value="<?php echo esc_attr($valueLevel); ?>" required>
-                        <?php echo esc_html($levelData['label']); ?>
-                        <span class="question-count" id="question-count-<?php echo esc_attr($valueLevel); ?>"></span>
-                    </label>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </div>
+		<h2><?php echo esc_html( $title_form ); ?></h2>
+		<div id="level-choice-message"></div>
+		
+		<div class="level-options">
+			<?php foreach ( $levels as $valueLevel => $levelData ) : ?>
+				<?php
+				if ( ( ! $is_user_logged_in && $levelData['free'] ) ||
+							( $is_user_logged_in && ! $levelData['free'] ) ) :
+					?>
+					<label class="btn" onclick="startQuizWithLevel('<?php echo esc_attr( $valueLevel ); ?>')">
+						<input type="radio" name="niveau" value="<?php echo esc_attr( $valueLevel ); ?>" required>
+						<?php echo esc_html( $levelData['label'] ); ?>
+						<span class="question-count" id="question-count-<?php echo esc_attr( $valueLevel ); ?>"></span>
+					</label>
+				<?php endif; ?>
+			<?php endforeach; ?>
+		</div>
 
-        <?php 
-        if (!isset($showTimer)) {
-            $showTimer = true;
-        }
-        if ($is_user_logged_in && $showTimer) :
-            include 'partials/timer-settings.php';
-        endif; 
-        ?>
+		<?php
+		if ( ! isset( $showTimer ) ) {
+			$showTimer = true;
+		}
+		if ( $is_user_logged_in && $showTimer ) :
+			include 'partials/timer-settings.php';
+		endif;
+		?>
 
-        <input type="hidden" id="user-level" name="user_level" value="">
-    </div>
+		<input type="hidden" id="user-level" name="user_level" value="">
+	</div>
 
-    <!-- Loading Indicator -->
-    <div id="loading-indicator" class="custom-box <?php echo esc_attr($custom_box_classes ?? ''); ?>" style="display:none;<?php echo esc_attr($custom_box_styles ?? ''); ?>">
-        <p><?php echo esc_html($translations['loading']); ?></p>
-    </div>
+	<!-- Loading Indicator -->
+	<div id="loading-indicator" class="custom-box <?php echo esc_attr( $custom_box_classes ?? '' ); ?>" style="display:none;<?php echo esc_attr( $custom_box_styles ?? '' ); ?>">
+		<p><?php echo esc_html( $translations['loading'] ); ?></p>
+	</div>
 
-    <!-- Quiz Questions Container -->
-    <?php include 'partials/quiz-questions.php'; ?>
+	<!-- Quiz Questions Container -->
+	<?php require 'partials/quiz-questions.php'; ?>
 
-    <!-- Results Container -->
-    <?php include 'partials/quiz-results.php'; ?>
+	<!-- Results Container -->
+	<?php require 'partials/quiz-results.php'; ?>
 
-    <!-- Error Message -->
-    <?php include 'partials/error-message.php'; ?>
+	<!-- Error Message -->
+	<?php require 'partials/error-message.php'; ?>
 </div>

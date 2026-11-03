@@ -1,321 +1,321 @@
 <?php
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 if ( ! function_exists( 'fqi3_has_github_token' ) ) {
-    /**
-     * Check if a GitHub token is defined
-     *
-     * @return bool
-     */
-    function fqi3_has_github_token() {
-        return \Form_Quizz_FQI3\FQI3_License_Settings::has_github_token();
-    }
+	/**
+	 * Check if a GitHub token is defined
+	 *
+	 * @return bool
+	 */
+	function fqi3_has_github_token() {
+		return \Form_Quizz_FQI3\FQI3_License_Settings::has_github_token();
+	}
 }
 
 /**
  * Returns the array of quiz levels with translated labels and free status.
- * 
+ *
  * @return array
- * 
+ *
  * @since 1.2.2
  * @since 1.3.1 Modified to include 'free' status for each level
  * @since 1.5.0 Updated to retrieve levels from the database
 */
 function fqi3_get_free_quiz_levels() {
-    $stored_levels = get_option('fqi3_quiz_levels', false);
+	$stored_levels = get_option( 'fqi3_quiz_levels', false );
 
-    if ($stored_levels) {
-        $levels = [];
-        foreach ($stored_levels['fqi3_quiz_levels_name'] as $index => $name) {
-            $levels[$name] = [
-                'label' => $stored_levels['fqi3_quiz_levels_label'][$index] ?? $name,
-                'free'  => !empty($stored_levels['fqi3_quiz_levels_is_free'][$index]),
-            ];
-        }
-        return $levels;
-    }
-    
-    return [];
+	if ( $stored_levels ) {
+		$levels = array();
+		foreach ( $stored_levels['fqi3_quiz_levels_name'] as $index => $name ) {
+			$levels[ $name ] = array(
+				'label' => $stored_levels['fqi3_quiz_levels_label'][ $index ] ?? $name,
+				'free'  => ! empty( $stored_levels['fqi3_quiz_levels_is_free'][ $index ] ),
+			);
+		}
+		return $levels;
+	}
+
+	return array();
 }
 
 /**
  * Get admin pages configuration without translations (for addons).
  *
  * @return array Admin pages configuration.
- * 
+ *
  * @since 3.0.0
  */
 function fqi3_get_admin_pages_raw() {
-    return [
-        'main' => [
-            'slug' => 'fqi3-main',
-            'title' => 'Form Quizz FQI3',
-            'capability' => 'edit_posts',
-            'callback' => 'fqi3_render_main_page',
-            'icon' => 'dashicons-welcome-learn-more',
-            'position' => 6,
-            'restricted' => true
-        ],
-        'dashboard' => [
-            'slug' => 'fqi3-dashboard',
-            'title' => 'Dashboard',
-            'capability' => 'edit_posts',
-            'property' => 'dashboard_page',
-            'callback' => 'render_dashboard_page',
-            'restricted' => true
-        ],
-        'view_questions' => [
-            'slug' => 'fqi3-view-quiz-questions',
-            'title' => 'View Questions',
-            'capability' => 'edit_posts',
-            'property' => 'view_questions_page',
-            'callback' => 'render_consultation_page',
-            'restricted' => true
-        ],
-        'add_questions' => [
-            'slug' => 'fqi3-add-quiz-questions',
-            'title' => 'Add Question',
-            'capability' => 'edit_posts',
-            'property' => 'add_questions_page',
-            'callback' => 'render_add_question_page',
-            'restricted' => true
-        ],
-        'edit_questions' => [
-            'slug' => 'fqi3-update-quiz-questions',
-            'title' => 'Edit Question',
-            'capability' => 'edit_posts',
-            'property' => 'edit_questions_page',
-            'callback' => 'render_edit_question_page',
-            'restricted' => true
-        ],
-        'statistics' => [
-            'slug' => 'fqi3-statistics-quiz-questions',
-            'title' => 'Statistics',
-            'capability' => 'edit_posts',
-            'property' => 'statistics_page',
-            'callback' => 'render_statistics_page',
-            'restricted' => true
-        ],
-        'options' => [
-            'slug' => 'fqi3-options-quiz-questions',
-            'title' => 'Settings',
-            'capability' => 'manage_options',
-            'property' => 'options_page',
-            'callback' => 'render_options_page',
-            'restricted' => false
-        ],
-        'import_export' => [
-            'slug' => 'fqi3-import-export',
-            'title' => 'Import/Export',
-            'capability' => 'manage_options',
-            'property' => 'import_export_page',
-            'callback' => 'render_import_export_page',
-            'restricted' => false
-        ],
-        'attempts' => [
-            'slug' => 'fqi3-attempts',
-            'title' => 'Attempts (Audit)',
-            'capability' => 'edit_posts',
-            'property' => 'attempts_page',
-            'callback' => 'render_attempts_page',
-            'restricted' => true
-        ],
-        'add_ons' => [
-            'slug' => 'fqi3-add-ons',
-            'title' => '<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>',
-            'capability' => 'edit_posts',
-            'property' => 'add_ons_page',
-            'callback' => 'render_add_ons_page',
-            'restricted' => false
-        ],
-        'infos' => [
-            'slug' => 'fqi3-changelog-user-guide',
-            'title' => 'Changelog and User Guide',
-            'capability' => 'manage_options',
-            'property' => 'infos_page',
-            'callback' => 'render_infos_page',
-            'restricted' => false
-        ],
-        'developper' => [
-            'slug' => 'fqi3-developper',
-            'title' => 'Developper',
-            'capability' => 'manage_options',
-            'property' => 'developper_page',
-            'callback' => 'render_developper_page',
-            'restricted' => false
-        ],
-    ];
+	return array(
+		'main'           => array(
+			'slug'       => 'fqi3-main',
+			'title'      => 'Form Quizz FQI3',
+			'capability' => 'edit_posts',
+			'callback'   => 'fqi3_render_main_page',
+			'icon'       => 'dashicons-welcome-learn-more',
+			'position'   => 6,
+			'restricted' => true,
+		),
+		'dashboard'      => array(
+			'slug'       => 'fqi3-dashboard',
+			'title'      => 'Dashboard',
+			'capability' => 'edit_posts',
+			'property'   => 'dashboard_page',
+			'callback'   => 'render_dashboard_page',
+			'restricted' => true,
+		),
+		'view_questions' => array(
+			'slug'       => 'fqi3-view-quiz-questions',
+			'title'      => 'View Questions',
+			'capability' => 'edit_posts',
+			'property'   => 'view_questions_page',
+			'callback'   => 'render_consultation_page',
+			'restricted' => true,
+		),
+		'add_questions'  => array(
+			'slug'       => 'fqi3-add-quiz-questions',
+			'title'      => 'Add Question',
+			'capability' => 'edit_posts',
+			'property'   => 'add_questions_page',
+			'callback'   => 'render_add_question_page',
+			'restricted' => true,
+		),
+		'edit_questions' => array(
+			'slug'       => 'fqi3-update-quiz-questions',
+			'title'      => 'Edit Question',
+			'capability' => 'edit_posts',
+			'property'   => 'edit_questions_page',
+			'callback'   => 'render_edit_question_page',
+			'restricted' => true,
+		),
+		'statistics'     => array(
+			'slug'       => 'fqi3-statistics-quiz-questions',
+			'title'      => 'Statistics',
+			'capability' => 'edit_posts',
+			'property'   => 'statistics_page',
+			'callback'   => 'render_statistics_page',
+			'restricted' => true,
+		),
+		'options'        => array(
+			'slug'       => 'fqi3-options-quiz-questions',
+			'title'      => 'Settings',
+			'capability' => 'manage_options',
+			'property'   => 'options_page',
+			'callback'   => 'render_options_page',
+			'restricted' => false,
+		),
+		'import_export'  => array(
+			'slug'       => 'fqi3-import-export',
+			'title'      => 'Import/Export',
+			'capability' => 'manage_options',
+			'property'   => 'import_export_page',
+			'callback'   => 'render_import_export_page',
+			'restricted' => false,
+		),
+		'attempts'       => array(
+			'slug'       => 'fqi3-attempts',
+			'title'      => 'Attempts (Audit)',
+			'capability' => 'edit_posts',
+			'property'   => 'attempts_page',
+			'callback'   => 'render_attempts_page',
+			'restricted' => true,
+		),
+		'add_ons'        => array(
+			'slug'       => 'fqi3-add-ons',
+			'title'      => '<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>',
+			'capability' => 'edit_posts',
+			'property'   => 'add_ons_page',
+			'callback'   => 'render_add_ons_page',
+			'restricted' => false,
+		),
+		'infos'          => array(
+			'slug'       => 'fqi3-changelog-user-guide',
+			'title'      => 'Changelog and User Guide',
+			'capability' => 'manage_options',
+			'property'   => 'infos_page',
+			'callback'   => 'render_infos_page',
+			'restricted' => false,
+		),
+		'developper'     => array(
+			'slug'       => 'fqi3-developper',
+			'title'      => 'Developper',
+			'capability' => 'manage_options',
+			'property'   => 'developper_page',
+			'callback'   => 'render_developper_page',
+			'restricted' => false,
+		),
+	);
 }
 
 /**
  * Get the plugin page slugs.
- * 
+ *
  * @return array
- * 
+ *
  * @since 1.3.1
  */
 function fqi3_get_admin_pages() {
-    $pages = fqi3_get_admin_pages_raw();
+	$pages = fqi3_get_admin_pages_raw();
 
-    // Remove Add-ons if GitHub token does not exist
-    if (!function_exists('fqi3_has_github_token') || !fqi3_has_github_token()) {
-        unset($pages['add_ons']);
-    }
+	// Remove Add-ons if GitHub token does not exist
+	if ( ! function_exists( 'fqi3_has_github_token' ) || ! fqi3_has_github_token() ) {
+		unset( $pages['add_ons'] );
+	}
 
-    // Apply translations if available and textdomain is loaded
-    if (function_exists('__') && did_action('init')) {
-        // <-- ici on appelle __() avec des littéraux pour que les outils d'extraction les trouvent
-        $translate_map = [
-            'main'        => __('Form Quizz FQI3', 'form-quizz-fqi3'),
-            'dashboard'   => __('Dashboard', 'form-quizz-fqi3'),
-            'view_questions'  => __('View Questions', 'form-quizz-fqi3'),
-            'add_questions'   => __('Add Question', 'form-quizz-fqi3'),
-            'edit_questions'  => __('Edit Question', 'form-quizz-fqi3'),
-            'statistics'      => __('Statistics', 'form-quizz-fqi3'),
-            'options'         => __('Settings', 'form-quizz-fqi3'),
-            'import_export'   => __('Import/Export', 'form-quizz-fqi3'),
-            'attempts'        => __('Attempts (Audit)', 'form-quizz-fqi3'),
-            'infos'           => __('Changelog and User Guide', 'form-quizz-fqi3'),
-            'developper'      => __('Developper', 'form-quizz-fqi3'),
-        ];
+	// Apply translations if available and textdomain is loaded
+	if ( function_exists( '__' ) && did_action( 'init' ) ) {
+		// <-- ici on appelle __() avec des littéraux pour que les outils d'extraction les trouvent
+		$translate_map = array(
+			'main'           => __( 'Form Quizz FQI3', 'form-quizz-fqi3' ),
+			'dashboard'      => __( 'Dashboard', 'form-quizz-fqi3' ),
+			'view_questions' => __( 'View Questions', 'form-quizz-fqi3' ),
+			'add_questions'  => __( 'Add Question', 'form-quizz-fqi3' ),
+			'edit_questions' => __( 'Edit Question', 'form-quizz-fqi3' ),
+			'statistics'     => __( 'Statistics', 'form-quizz-fqi3' ),
+			'options'        => __( 'Settings', 'form-quizz-fqi3' ),
+			'import_export'  => __( 'Import/Export', 'form-quizz-fqi3' ),
+			'attempts'       => __( 'Attempts (Audit)', 'form-quizz-fqi3' ),
+			'infos'          => __( 'Changelog and User Guide', 'form-quizz-fqi3' ),
+			'developper'     => __( 'Developper', 'form-quizz-fqi3' ),
+		);
 
-        foreach ($translate_map as $key => $translated_title) {
-            if (isset($pages[$key])) {
-                $pages[$key]['title'] = $translated_title;
-            }
-        }
+		foreach ( $translate_map as $key => $translated_title ) {
+			if ( isset( $pages[ $key ] ) ) {
+				$pages[ $key ]['title'] = $translated_title;
+			}
+		}
 
-        // Traduire Add-ons seulement si elle existe (avec HTML)
-        if (isset($pages['add_ons'])) {
-            $pages['add_ons']['title'] = __('<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>', 'form-quizz-fqi3');
-        }
-    }
+		// Traduire Add-ons seulement si elle existe (avec HTML)
+		if ( isset( $pages['add_ons'] ) ) {
+			$pages['add_ons']['title'] = __( '<span style="color:yellow;"><i class="bi bi-star-fill"></i> Add-ons</span>', 'form-quizz-fqi3' );
+		}
+	}
 
-    return $pages;
+	return $pages;
 }
 
 /**
  * Get the slug for the options page.
  *
  * @return string The slug of the options page.
- * 
+ *
  * @since 1.4.0
  */
 function fqi3_get_options_page_slug() {
-    $plugin_page_slugs = fqi3_get_admin_pages_raw();
-    return isset($plugin_page_slugs['options']['slug']) ? $plugin_page_slugs['options']['slug'] : '';
+	$plugin_page_slugs = fqi3_get_admin_pages_raw();
+	return isset( $plugin_page_slugs['options']['slug'] ) ? $plugin_page_slugs['options']['slug'] : '';
 }
 
 /**
  * Retrieves the settings sections configuration for the plugin.
  *
  * @since 1.4.0
- * 
- * @return array An array of settings classes and their associated sections, 
+ *
+ * @return array An array of settings classes and their associated sections,
  *               including IDs, titles, and options details.
  */
 function fqi3_options_settings_sections() {
-    $config = [
-        'settings_classes' => [
-            'FQI3_General_Settings',
-            'FQI3_Access_Control_Settings',
-            'FQI3_Emails_Settings',
-            'FQI3_Content_Settings',
-            'FQI3_Badges_Settings',
-            'FQI3_Levels_Settings',
-            'FQI3_Api_Settings',
-            'FQI3_Tools_Settings',
-            'FQI3_License_Settings'
-        ],
-        'sections' => [
-            'license_settings' => [
-                'id' => 'fqi3_license_section',
-                'title' => __('License', 'form-quizz-fqi3'),
-                'icon' => 'bi-key',
-            ],
-            'general_settings' => [
-                'id' => 'fqi3_general_section',
-                'title' => __('General Settings', 'form-quizz-fqi3'),
-                'icon' => 'bi-gear'
-            ],
-            'levels_settings' => [
-                'id' => 'fqi3_levels_section',
-                'title' => __('Levels Settings', 'form-quizz-fqi3'),
-                'icon' => 'bi-bar-chart-steps'
-            ],
-            'access_control' => [
-                'id' => 'fqi3_access_section',
-                'title' => __('Access Control', 'form-quizz-fqi3'),
-                'icon' => 'bi-universal-access-circle'
-            ],
-            'emails' => [
-                'id' => 'fqi3_emails_section',
-                'title' => __('Emails Options', 'form-quizz-fqi3'),
-                'icon' => 'bi-envelope-at'
-            ],
-            'content' => [
-                'id' => 'fqi3_content_section',
-                'title' => __('Content Options', 'form-quizz-fqi3'),
-                'icon' => 'bi-body-text'
-            ],
-            'badges' => [
-                'id' => 'fqi3_badges_section',
-                'title' => __('Badges Options', 'form-quizz-fqi3'),
-                'icon' => 'bi-patch-check'
-            ],
-            'api' => [
-                'id' => 'fqi3_api_section',
-                'title' => __('API Options', 'form-quizz-fqi3'),
-                'icon' => 'bi-braces'
-            ],
-            'tools' => [
-                'id' => 'fqi3_tools_section',
-                'title' => __('Tools', 'form-quizz-fqi3'),
-                'icon' => 'bi-tools'
-            ]
-        ]
-    ];
+	$config = array(
+		'settings_classes' => array(
+			'FQI3_General_Settings',
+			'FQI3_Access_Control_Settings',
+			'FQI3_Emails_Settings',
+			'FQI3_Content_Settings',
+			'FQI3_Badges_Settings',
+			'FQI3_Levels_Settings',
+			'FQI3_Api_Settings',
+			'FQI3_Tools_Settings',
+			'FQI3_License_Settings',
+		),
+		'sections'         => array(
+			'license_settings' => array(
+				'id'    => 'fqi3_license_section',
+				'title' => __( 'License', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-key',
+			),
+			'general_settings' => array(
+				'id'    => 'fqi3_general_section',
+				'title' => __( 'General Settings', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-gear',
+			),
+			'levels_settings'  => array(
+				'id'    => 'fqi3_levels_section',
+				'title' => __( 'Levels Settings', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-bar-chart-steps',
+			),
+			'access_control'   => array(
+				'id'    => 'fqi3_access_section',
+				'title' => __( 'Access Control', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-universal-access-circle',
+			),
+			'emails'           => array(
+				'id'    => 'fqi3_emails_section',
+				'title' => __( 'Emails Options', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-envelope-at',
+			),
+			'content'          => array(
+				'id'    => 'fqi3_content_section',
+				'title' => __( 'Content Options', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-body-text',
+			),
+			'badges'           => array(
+				'id'    => 'fqi3_badges_section',
+				'title' => __( 'Badges Options', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-patch-check',
+			),
+			'api'              => array(
+				'id'    => 'fqi3_api_section',
+				'title' => __( 'API Options', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-braces',
+			),
+			'tools'            => array(
+				'id'    => 'fqi3_tools_section',
+				'title' => __( 'Tools', 'form-quizz-fqi3' ),
+				'icon'  => 'bi-tools',
+			),
+		),
+	);
 
-    // Allow addons to inject additional settings sections/tabs into the core options UI
-    // Example usage (in an addon):
-    // add_filter('fqi3_options_settings_sections', function($config){
-    //     $config['sections']['my_addon'] = [ 'id' => 'fqi3_my_addon', 'title' => __('My Addon','textdomain'), 'icon' => 'bi-puzzle' ];
-    //     return $config;
-    // });
-    return apply_filters('fqi3_options_settings_sections', $config);
+	// Allow addons to inject additional settings sections/tabs into the core options UI
+	// Example usage (in an addon):
+	// add_filter('fqi3_options_settings_sections', function($config){
+	//     $config['sections']['my_addon'] = [ 'id' => 'fqi3_my_addon', 'title' => __('My Addon','textdomain'), 'icon' => 'bi-puzzle' ];
+	//     return $config;
+	// });
+	return apply_filters( 'fqi3_options_settings_sections', $config );
 }
 
 /**
  * Returns the default options for the plugin.
- * 
+ *
  * This function defines and returns an array of default options for the plugin, including
- * various settings such as the number of trials per day, the color scheme for buttons and text, 
- * the email settings, and more. These default options are used when initializing or updating 
+ * various settings such as the number of trials per day, the color scheme for buttons and text,
+ * the email settings, and more. These default options are used when initializing or updating
  * the plugin's options in the database.
- * 
+ *
  * @return array An associative array containing the default options for the plugin.
- * 
+ *
  * @since 2.1.0 Introduced default options for the plugin setup.
 */
 function fqi3_default_options() {
-    return [
-        'fqi3_render_link_sales_page_field' => absint(get_option('page_on_front')),
-        'fqi3_free_trials_per_day' => '3',
-        'fqi3_number_questions_per_quiz' => '10',
-        'fqi3_text_pre_form' => '<h1>Bienvenue au quiz de <span style="color:#D9D0C6; font-weight: bold;">' . get_bloginfo('name') . '</span></h1><p>QCMs aléatoires pour t’entrainer gratuitement !</p>',
-        'fqi3_color_text_pre_form' => '#393A3A',
-        'fqi3_color_text_top_question' => '#ffffff',
-        'fqi3_color_bg_top_question' => '#393A3A',
-        'fqi3_color_text_btn' => '#ffffff',
-        'fqi3_color_bg_btn' => '#0D0D0D',
-        'fqi3_email_hour' => '08:00',
-        'fqi3_email_link_cta' => absint(get_option('page_on_front')),
-        'fqi3_email_cta_label' => __('Go to the site', 'form-quizz-fqi3'),
-        'fqi3_email_cta_color_text' => '#ffffff',
-        'fqi3_email_cta_color_bg' => '#0D0D0D',
-    ];
+	return array(
+		'fqi3_render_link_sales_page_field' => absint( get_option( 'page_on_front' ) ),
+		'fqi3_free_trials_per_day'          => '3',
+		'fqi3_number_questions_per_quiz'    => '10',
+		'fqi3_text_pre_form'                => '<h1>Bienvenue au quiz de <span style="color:#D9D0C6; font-weight: bold;">' . get_bloginfo( 'name' ) . '</span></h1><p>QCMs aléatoires pour t’entrainer gratuitement !</p>',
+		'fqi3_color_text_pre_form'          => '#393A3A',
+		'fqi3_color_text_top_question'      => '#ffffff',
+		'fqi3_color_bg_top_question'        => '#393A3A',
+		'fqi3_color_text_btn'               => '#ffffff',
+		'fqi3_color_bg_btn'                 => '#0D0D0D',
+		'fqi3_email_hour'                   => '08:00',
+		'fqi3_email_link_cta'               => absint( get_option( 'page_on_front' ) ),
+		'fqi3_email_cta_label'              => __( 'Go to the site', 'form-quizz-fqi3' ),
+		'fqi3_email_cta_color_text'         => '#ffffff',
+		'fqi3_email_cta_color_bg'           => '#0D0D0D',
+	);
 }
 
 /**
@@ -326,18 +326,18 @@ function fqi3_default_options() {
  * It includes the 'administrator' role if the 'fqi3_admin_premium_features' option is enabled.
  *
  * @return array List of premium user roles.
- * 
+ *
  * @since 1.3.0 Initial release
  * @since 2.2.0 Added a new option to include 'administrator' in premium roles
  */
 function fqi3_getUserPremiumRoles(): array {
-    $options = get_option('fqi3_access_roles', []);
-    $premium_roles = [ROLE_PREMIUM];
-    if (isset($options['fqi3_admin_premium_features']) && $options['fqi3_admin_premium_features'] === '1') {
-        $premium_roles[] = 'administrator';
-    }
+	$options       = get_option( 'fqi3_access_roles', array() );
+	$premium_roles = array( ROLE_PREMIUM );
+	if ( isset( $options['fqi3_admin_premium_features'] ) && $options['fqi3_admin_premium_features'] === '1' ) {
+		$premium_roles[] = 'administrator';
+	}
 
-    return $premium_roles;
+	return $premium_roles;
 }
 
 /**
@@ -345,23 +345,23 @@ function fqi3_getUserPremiumRoles(): array {
  *
  * @param int $user_id The user ID to check.
  * @param array $roles An array of roles to check against.
- * 
+ *
  * @return bool True if the user has at least one of the specified roles, false otherwise.
- * 
+ *
  * @since 1.3.0
  */
-function fqi3_userHasAnyRole(int $user_id, array $roles): bool {
-    $user = get_user_by('id', $user_id);
-    if (!$user) {
-        return false;
-    }
+function fqi3_userHasAnyRole( int $user_id, array $roles ): bool {
+	$user = get_user_by( 'id', $user_id );
+	if ( ! $user ) {
+		return false;
+	}
 
-    foreach ($roles as $role) {
-        if (user_can($user, $role)) {
-            return true;
-        }
-    }
-    return false;
+	foreach ( $roles as $role ) {
+		if ( user_can( $user, $role ) ) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -369,89 +369,98 @@ function fqi3_userHasAnyRole(int $user_id, array $roles): bool {
  *
  * @param string $screen_id The current admin page hook.
  * @return bool True if the current page is a plugin page, false otherwise.
- * 
+ *
  * @since 1.3.2
  */
-function is_plugin_admin_page($screen_id) {
-    // Get the slugs from the backend class
-    $plugin_page_slugs = fqi3_get_admin_pages_raw();
-    $plugin_pages = array_map(function($page) {
-        return 'form-quizz-fqi3_page_' . $page['slug'];
-    }, $plugin_page_slugs);
+function is_plugin_admin_page( $screen_id ) {
+	// Get the slugs from the backend class
+	$plugin_page_slugs = fqi3_get_admin_pages_raw();
+	$plugin_pages      = array_map(
+		function ( $page ) {
+			return 'form-quizz-fqi3_page_' . $page['slug'];
+		},
+		$plugin_page_slugs
+	);
 
-    return in_array($screen_id, $plugin_pages, true);
+	return in_array( $screen_id, $plugin_pages, true );
 }
 
 /**
  * Get FQI3 plugin options.
  *
- * This function retrieves the FQI3 plugin options from the database for the specified option name. 
+ * This function retrieves the FQI3 plugin options from the database for the specified option name.
  * If no option name is provided, it defaults to retrieving 'fqi3_options'.
  *
  * @param string $option_name The name of the option to retrieve. Default is 'fqi3_options'.
  * @return array The array of plugin options, or an empty array if the option does not exist.
- * 
+ *
  * @since 1.4.0 .
  * @since 1.5.0 Added the ability to specify an option name, defaulting to 'fqi3_options'.
  */
-function fqi3_get_options($option_name = 'fqi3_options') {
-    return get_option($option_name, []);
+function fqi3_get_options( $option_name = 'fqi3_options' ) {
+	return get_option( $option_name, array() );
 }
 
 /**
  * Set default options for the FQI3 plugin.
  *
- * This function sets default options for the specified option name in the database. 
- * It merges the provided default options with the current options and updates the database 
+ * This function sets default options for the specified option name in the database.
+ * It merges the provided default options with the current options and updates the database
  * only if there are differences.
  *
  * @param array $default_options The default options to set.
  * @param string $option_name The name of the option to update in the database.
- * 
+ *
  * @since 1.4.0 .
  * @since 1.5.0 Added the ability to specify an option name for updating.
  * @since 2.1.0 Optimized options sanitization and merged default options with current options.
  */
-function fqi3_set_default_options($default_options, $option_name) {
-    // Retrieve the current options or initialize an empty array if none exist
-    $current_options = fqi3_get_options($option_name);
+function fqi3_set_default_options( $default_options, $option_name ) {
+	// Retrieve the current options or initialize an empty array if none exist
+	$current_options = fqi3_get_options( $option_name );
 
-    // If the current options are not an array, initialize them as an empty array
-    if (!is_array($current_options)) {
-        $current_options = [];
-    }
-    $default_options = array_map(function($value) {
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return esc_url_raw($value);
-        }
-        if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            return sanitize_email($value);
-        }
-        return sanitize_text_field($value);
-    }, $default_options);
-    $current_options = array_map(function($value) {
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return esc_url_raw($value);  // Pour les URL
-        }
-        if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            return sanitize_email($value);  // Pour les emails
-        }
-        return sanitize_text_field($value);  // Pour les autres types (texte)
-    }, $current_options);
-    // Merge the default options with the current options
-    $new_options = array_merge($default_options, $current_options);
+	// If the current options are not an array, initialize them as an empty array
+	if ( ! is_array( $current_options ) ) {
+		$current_options = array();
+	}
+	$default_options = array_map(
+		function ( $value ) {
+			if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+				return esc_url_raw( $value );
+			}
+			if ( filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
+				return sanitize_email( $value );
+			}
+			return sanitize_text_field( $value );
+		},
+		$default_options
+	);
+	$current_options = array_map(
+		function ( $value ) {
+			if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+				return esc_url_raw( $value );  // Pour les URL
+			}
+			if ( filter_var( $value, FILTER_VALIDATE_EMAIL ) ) {
+				return sanitize_email( $value );  // Pour les emails
+			}
+			return sanitize_text_field( $value );  // Pour les autres types (texte)
+		},
+		$current_options
+	);
+	// Merge the default options with the current options
+	$new_options = array_merge( $default_options, $current_options );
 
-    // If the new options differ from the current options, update the database
-    if ($new_options !== $current_options) {
-        update_option($option_name, $new_options, false);
-    }
+	// If the new options differ from the current options, update the database
+	if ( $new_options !== $current_options ) {
+		update_option( $option_name, $new_options, false );
+	}
 }
 
 /**
  * Masks the license key except for the specified visible start and end portions.
  *
- * This function takes a license key and masks the middle part, leaving only a 
- * certain number of characters visible at the start and end of the key. 
+ * This function takes a license key and masks the middle part, leaving only a
+ * certain number of characters visible at the start and end of the key.
  * If the license key is too short to mask, the function returns the key as is.
  *
  * @param string $license_key The license key to be masked.
@@ -459,19 +468,19 @@ function fqi3_set_default_options($default_options, $option_name) {
  * @param int    $visible_end The number of characters to leave visible at the end of the license key. Default is 4.
  *
  * @return string The masked license key, with visible portions at the start and end, and '*' in the middle.
- * 
+ *
  * @since 3.0.0
  */
-function fqi3_mask_license_key($license_key, $visible_start = 4, $visible_end = 4) {
-    $length = strlen($license_key);
+function fqi3_mask_license_key( $license_key, $visible_start = 4, $visible_end = 4 ) {
+	$length = strlen( $license_key );
 
-    if ($length <= ($visible_start + $visible_end)) {
-        return $license_key;
-    }
+	if ( $length <= ( $visible_start + $visible_end ) ) {
+		return $license_key;
+	}
 
-    return substr($license_key, 0, $visible_start)
-         . str_repeat('*', $length - ($visible_start + $visible_end))
-         . substr($license_key, -$visible_end);
+	return substr( $license_key, 0, $visible_start )
+		. str_repeat( '*', $length - ( $visible_start + $visible_end ) )
+		. substr( $license_key, -$visible_end );
 }
 
 /**
@@ -485,32 +494,32 @@ function fqi3_mask_license_key($license_key, $visible_start = 4, $visible_end = 
  * @since 3.4.0
  */
 function fqi3_get_client_ip(): string {
-    $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string) $_SERVER['REMOTE_ADDR']) : '';
-    $ip = filter_var($remote, FILTER_VALIDATE_IP) ? $remote : '0.0.0.0';
+	$remote = isset( $_SERVER['REMOTE_ADDR'] ) ? trim( (string) $_SERVER['REMOTE_ADDR'] ) : '';
+	$ip     = filter_var( $remote, FILTER_VALIDATE_IP ) ? $remote : '0.0.0.0';
 
-    /**
-     * IP addresses of the reverse proxies / load balancers placed in front of WordPress.
-     *
-     * Example: add_filter( 'fqi3_trusted_proxies', fn() => [ '203.0.113.10' ] );
-     *
-     * @since 3.4.0
-     * @param string[] $proxies Exact IP addresses (no CIDR ranges).
-     */
-    $trusted = (array) apply_filters('fqi3_trusted_proxies', []);
+	/**
+	 * IP addresses of the reverse proxies / load balancers placed in front of WordPress.
+	 *
+	 * Example: add_filter( 'fqi3_trusted_proxies', fn() => [ '203.0.113.10' ] );
+	 *
+	 * @since 3.4.0
+	 * @param string[] $proxies Exact IP addresses (no CIDR ranges).
+	 */
+	$trusted = (array) apply_filters( 'fqi3_trusted_proxies', array() );
 
-    if ($trusted && in_array($ip, $trusted, true) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $chain = array_map('trim', explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']));
-        foreach (array_reverse($chain) as $candidate) {
-            if (!filter_var($candidate, FILTER_VALIDATE_IP)) {
-                continue;
-            }
-            if (!in_array($candidate, $trusted, true)) {
-                return $candidate;
-            }
-        }
-    }
+	if ( $trusted && in_array( $ip, $trusted, true ) && ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+		$chain = array_map( 'trim', explode( ',', (string) $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+		foreach ( array_reverse( $chain ) as $candidate ) {
+			if ( ! filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
+				continue;
+			}
+			if ( ! in_array( $candidate, $trusted, true ) ) {
+				return $candidate;
+			}
+		}
+	}
 
-    return $ip;
+	return $ip;
 }
 
 /**
@@ -520,10 +529,10 @@ function fqi3_get_client_ip(): string {
  * @return mixed Same value, prefixed with an apostrophe when it starts with =, +, -, @, tab or carriage return.
  * @since 3.4.0
  */
-function fqi3_csv_safe($value) {
-    if (is_string($value) && $value !== '' && strpbrk($value[0], "=+-@\t\r") !== false) {
-        return "'" . $value;
-    }
+function fqi3_csv_safe( $value ) {
+	if ( is_string( $value ) && $value !== '' && strpbrk( $value[0], "=+-@\t\r" ) !== false ) {
+		return "'" . $value;
+	}
 
-    return $value;
+	return $value;
 }

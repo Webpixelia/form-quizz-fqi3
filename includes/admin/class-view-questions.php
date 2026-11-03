@@ -1,10 +1,11 @@
 <?php
 namespace Form_Quizz_FQI3;
+
 /**
  * FQI3_View_Questions_Page Class
  *
  * This class handles the display and management of quiz questions for the FQI3 plugin.
- * It allows administrators to view, filter, edit, and delete questions. 
+ * It allows administrators to view, filter, edit, and delete questions.
  * Additionally, it provides features for exporting questions and paginating through large sets of questions.
  *
  * @package    Form Quizz FQI3
@@ -13,766 +14,782 @@ namespace Form_Quizz_FQI3;
  * @version    2.0.0
 */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
 if ( ! class_exists( 'FQI3_View_Questions_Page' ) ) :
 
-class FQI3_View_Questions_Page {
+	class FQI3_View_Questions_Page {
 
-    public function __construct(
-        private FQI3_Backend $backend,  
-        private array $levelsQuiz
-    ) {
-        $this->levelsQuiz = $backend->get_levels_quiz();
-        add_action('wp_ajax_delete_question', [ $this, 'handle_delete_question' ]);
-        add_action('admin_post_export_questions', [$this, 'export_questions']);
-    }
+		public function __construct(
+			private FQI3_Backend $backend,
+			private array $levelsQuiz
+		) {
+			$this->levelsQuiz = $backend->get_levels_quiz();
+			add_action( 'wp_ajax_delete_question', array( $this, 'handle_delete_question' ) );
+			add_action( 'admin_post_export_questions', array( $this, 'export_questions' ) );
+		}
 
-    /**
-     * Render the page for viewing questions.
-     *
-     * Generates the HTML for the page where admin users can view, filter, and manage quiz questions.
-     * Displays pagination, filtering options by level, and a table of questions with edit/delete actions.
-     * 
-     * @global wpdb $wpdb The WordPress database abstraction object.
-     * 
-     * @since 1.6.0
-     */
-    public function render_consultation_page(): void {
-        global $wpdb;
+		/**
+		 * Render the page for viewing questions.
+		 *
+		 * Generates the HTML for the page where admin users can view, filter, and manage quiz questions.
+		 * Displays pagination, filtering options by level, and a table of questions with edit/delete actions.
+		 *
+		 * @global wpdb $wpdb The WordPress database abstraction object.
+		 *
+		 * @since 1.6.0
+		 */
+		public function render_consultation_page(): void {
+			global $wpdb;
 
-        // Get the table name and filter values
-        $table_name = $this->backend->get_quiz_table_name();
-        $filter_level = $this->get_filter_level();
-        $search_term = $this->get_search_term();
-        $rtlClass = $this->get_rtl_class();
-        
-        // Pagination setup
-        list($items_per_page, $current_page, $offset) = $this->get_pagination();
+			// Get the table name and filter values
+			$table_name   = $this->backend->get_quiz_table_name();
+			$filter_level = $this->get_filter_level();
+			$search_term  = $this->get_search_term();
+			$rtlClass     = $this->get_rtl_class();
 
-        // Build query to retrieve questions with filters
-        $questions = $this->get_questions($table_name, $filter_level, $search_term, $items_per_page, $offset);
-        $total_items = $this->get_total_items($table_name, $filter_level, $search_term);
-        $total_pages = ceil($total_items / $items_per_page);
-        $total_pages = ceil($total_items / $items_per_page);
+			// Pagination setup
+			list($items_per_page, $current_page, $offset) = $this->get_pagination();
 
-        // Fetching levels and questions count
-        $levels = array_keys($this->levelsQuiz);
-        $questions_count = $this->backend->get_questions_count_by_level($table_name, $levels);
-        $total_questions = array_sum($questions_count);
+			// Build query to retrieve questions with filters
+			$questions   = $this->get_questions( $table_name, $filter_level, $search_term, $items_per_page, $offset );
+			$total_items = $this->get_total_items( $table_name, $filter_level, $search_term );
+			$total_pages = ceil( $total_items / $items_per_page );
+			$total_pages = ceil( $total_items / $items_per_page );
 
-        // Prepare page URL for filter links
-        $base_url = esc_url(remove_query_arg('filter_level'));
-        $plugin_pages = fqi3_get_admin_pages();
-        $add_page = $plugin_pages['add_questions']['slug'];
-        $edit_page = $plugin_pages['edit_questions']['slug'];
-        ?>
-        <div class="wrap container-fluid">
-            <!-- Header Section -->
-            <div class="d-flex align-items-center justify-content-between">
-                <h2 class="wp-heading-inline page-title"><?php _e('Viewing questions', 'form-quizz-fqi3'); ?></h2>
-                <div class="btn-group gap-2">
-                    <a href="<?php echo esc_url(admin_url("admin.php?page=$add_page")); ?>" 
-                       class="btn btn-primary btn-sm ms-2">
-                        <i class="bi bi-plus-circle"></i> <?php _e('Add a question', 'form-quizz-fqi3'); ?>
-                    </a>
-                </div>
-            </div>
-            <hr>
-            <?php $this->render_modal_deletion(); ?>
-            <div class="container-fluid mt-4">
-                <div class="bg-light p-4 rounded shadow-sm">
-                    <!-- Filters Section -->
-                    <?php $this->render_filter_links($levels, $questions_count, $filter_level, $base_url, $total_questions); ?>
-                    
-                    <!-- Pagination Form -->
-                    <div class="row g-3 align-items-center">
-                        <div class="col-12 col-md-10 d-flex gap-2">
-                            <?php $this->render_filter_form($levels, $filter_level, $search_term); ?>
-                            <?php $this->render_export_form(); ?>
-                        </div>
+			// Fetching levels and questions count
+			$levels          = array_keys( $this->levelsQuiz );
+			$questions_count = $this->backend->get_questions_count_by_level( $table_name, $levels );
+			$total_questions = array_sum( $questions_count );
 
-                        <div class="col-12 col-md-2 d-flex justify-content-end">
-                            <?php $this->render_pagination($current_page, $total_pages); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
+			// Prepare page URL for filter links
+			$base_url     = esc_url( remove_query_arg( 'filter_level' ) );
+			$plugin_pages = fqi3_get_admin_pages();
+			$add_page     = $plugin_pages['add_questions']['slug'];
+			$edit_page    = $plugin_pages['edit_questions']['slug'];
+			?>
+		<div class="wrap container-fluid">
+			<!-- Header Section -->
+			<div class="d-flex align-items-center justify-content-between">
+				<h2 class="wp-heading-inline page-title"><?php esc_html_e( 'Viewing questions', 'form-quizz-fqi3' ); ?></h2>
+				<div class="btn-group gap-2">
+					<a href="<?php echo esc_url( admin_url( "admin.php?page=$add_page" ) ); ?>" 
+						class="btn btn-primary btn-sm ms-2">
+						<i class="bi bi-plus-circle"></i> <?php esc_html_e( 'Add a question', 'form-quizz-fqi3' ); ?>
+					</a>
+				</div>
+			</div>
+			<hr>
+			<?php $this->render_modal_deletion(); ?>
+			<div class="container-fluid mt-4">
+				<div class="bg-light p-4 rounded shadow-sm">
+					<!-- Filters Section -->
+					<?php $this->render_filter_links( $levels, $questions_count, $filter_level, $base_url, $total_questions ); ?>
+					
+					<!-- Pagination Form -->
+					<div class="row g-3 align-items-center">
+						<div class="col-12 col-md-10 d-flex gap-2">
+							<?php $this->render_filter_form( $levels, $filter_level, $search_term ); ?>
+							<?php $this->render_export_form(); ?>
+						</div>
 
-            <div class="d-flex flex-wrap gap-3">
-                <?php
-                // Allow addons to inject a top panel (e.g., QB Assignment & Status) before the questions table
-                do_action('fqi3_admin_quiz_questions_top_panel');
-                ?>
-            </div>
+						<div class="col-12 col-md-2 d-flex justify-content-end">
+							<?php $this->render_pagination( $current_page, $total_pages ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <!-- Questions Table -->
-            <div class="table-responsive">
-                <table class="table table-bordered table-striped table-sm <?php echo esc_attr($rtlClass); ?>">
-                    <thead>
-                        <tr>
-                            <th><?php _e('ID', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Access', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Level', 'form-quizz-fqi3'); ?></th>
-                            <?php
-                            // Allow addons (e.g., multilingual) to inject extra columns after Level
-                            do_action('fqi3_admin_quiz_questions_header_after_level');
-                            ?>
-                            <th><?php _e('Question', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Instructions for the question', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Options', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Answer', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Action', 'form-quizz-fqi3'); ?></th>
-                            <th><?php _e('Edit', 'form-quizz-fqi3'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php if(!$questions) : ?><th><?php _e('ID', 'form-quizz-fqi3'); ?></th><?php endif; ?>
-                        <?php $this->render_question_rows($questions, $edit_page); ?>
-                    </tbody>
-                </table>
-            </div>
+			<div class="d-flex flex-wrap gap-3">
+				<?php
+				// Allow addons to inject a top panel (e.g., QB Assignment & Status) before the questions table
+				do_action( 'fqi3_admin_quiz_questions_top_panel' );
+				?>
+			</div>
 
-            <!-- Add pagination links -->
-            <div class="tablenav bottom">
-                <div class="tablenav-pages">
-                    <?php $this->render_pagination_links($total_pages, $current_page); ?>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
+			<!-- Questions Table -->
+			<div class="table-responsive">
+				<table class="table table-bordered table-striped table-sm <?php echo esc_attr( $rtlClass ); ?>">
+					<thead>
+						<tr>
+							<th><?php esc_html_e( 'ID', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Access', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Level', 'form-quizz-fqi3' ); ?></th>
+							<?php
+							// Allow addons (e.g., multilingual) to inject extra columns after Level
+							do_action( 'fqi3_admin_quiz_questions_header_after_level' );
+							?>
+							<th><?php esc_html_e( 'Question', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Instructions for the question', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Options', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Answer', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Action', 'form-quizz-fqi3' ); ?></th>
+							<th><?php esc_html_e( 'Edit', 'form-quizz-fqi3' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+						if ( ! $questions ) :
+							?>
+							<th><?php esc_html_e( 'ID', 'form-quizz-fqi3' ); ?></th><?php endif; ?>
+							<?php $this->render_question_rows( $questions, $edit_page ); ?>
+					</tbody>
+				</table>
+			</div>
 
-    private function render_modal_deletion() { 
-        ?>
-        <!-- Modale de confirmation de suppression -->
-        <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmationModalLabel">
-                    <?php _e('Delete Confirmation', 'form-quizz-fqi3'); ?>
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <?php _e('Are you sure you want to delete this question?', 'form-quizz-fqi3'); ?>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php _e('Cancel', 'form-quizz-fqi3'); ?></button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteBtn"><?php _e('Delete question', 'form-quizz-fqi3'); ?></button>
-            </div>
-            </div>
-        </div>
-        </div>
-        <?php
-    }
+			<!-- Add pagination links -->
+			<div class="tablenav bottom">
+				<div class="tablenav-pages">
+						<?php $this->render_pagination_links( $total_pages, $current_page ); ?>
+				</div>
+			</div>
+		</div>
+			<?php
+		}
 
-    /**
-     * Get the level filter from the URL.
-     * 
-     * @since 1.6.0
-     * @return string
-     */
-    private function get_filter_level(): string {
-        return isset($_GET['filter_level']) ? sanitize_text_field($_GET['filter_level']) : '';
-    }
+		private function render_modal_deletion() {
+			?>
+		<!-- Modale de confirmation de suppression -->
+		<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="deleteConfirmationModalLabel">
+					<?php esc_html_e( 'Delete Confirmation', 'form-quizz-fqi3' ); ?>
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<?php esc_html_e( 'Are you sure you want to delete this question?', 'form-quizz-fqi3' ); ?>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php esc_html_e( 'Cancel', 'form-quizz-fqi3' ); ?></button>
+				<button type="button" class="btn btn-danger" id="confirmDeleteBtn"><?php esc_html_e( 'Delete question', 'form-quizz-fqi3' ); ?></button>
+			</div>
+			</div>
+		</div>
+		</div>
+			<?php
+		}
 
-    /**
-     * Get the search term from the URL.
-     * 
-     * @since 1.6.0
-     * @return string
-     */
-    private function get_search_term(): string {
-        return isset($_GET['search_term']) ? sanitize_text_field($_GET['search_term']) : '';
-    }
+		/**
+		 * Get the level filter from the URL.
+		 *
+		 * @since 1.6.0
+		 * @return string
+		 */
+		private function get_filter_level(): string {
+			return isset( $_GET['filter_level'] ) ? sanitize_text_field( $_GET['filter_level'] ) : '';
+		}
 
-    /**
-     * Get the RTL class for the page.
-     * 
-     * @since 1.6.0
-     * @return string
-     */
-    private function get_rtl_class(): string {
-        $options = fqi3_get_options();
-        return isset($options['fqi3_rtl_mode']) && $options['fqi3_rtl_mode'] == 1 ? "rtl-mode" : '';
-    }
+		/**
+		 * Get the search term from the URL.
+		 *
+		 * @since 1.6.0
+		 * @return string
+		 */
+		private function get_search_term(): string {
+			return isset( $_GET['search_term'] ) ? sanitize_text_field( $_GET['search_term'] ) : '';
+		}
 
-    /**
-     * Get pagination details.
-     * 
-     * @since 1.6.0
-     * @return array{int, int, int}
-     */
-    private function get_pagination(): array {
-        $items_per_page = get_option('fqi3_items_per_page', 10);
-        $current_page = isset($_GET['paged']) ? intval($_GET['paged']) : 1;
-        $offset = ($current_page - 1) * $items_per_page;
-        return [$items_per_page, $current_page, $offset];
-    }
+		/**
+		 * Get the RTL class for the page.
+		 *
+		 * @since 1.6.0
+		 * @return string
+		 */
+		private function get_rtl_class(): string {
+			$options = fqi3_get_options();
+			return isset( $options['fqi3_rtl_mode'] ) && $options['fqi3_rtl_mode'] == 1 ? 'rtl-mode' : '';
+		}
 
-    /**
-     * Get questions from the database with filters applied.
-     * 
-     * @since 1.6.0
-     * @param string $table_name
-     * @param string $filter_level
-     * @param string $search_term
-     * @param int $items_per_page
-     * @param int $offset
-     * @return array
-     */
-    private function get_questions(string $table_name, string $filter_level, string $search_term, int $items_per_page, int $offset): array {
-        global $wpdb;
-        $where_clause = [];
-        if (!empty($filter_level)) {
-            $where_clause[] = $wpdb->prepare('niveau = %s', $filter_level);
-        }
-        if (!empty($search_term)) {
-            $where_clause[] = $wpdb->prepare('q LIKE %s', '%' . $wpdb->esc_like($search_term) . '%');
-        }
-        // Allow addons (e.g., multilingual) to inject extra WHERE parts
-        $where_clause = apply_filters(
-            'fqi3_admin_quiz_questions_where_parts',
-            $where_clause,
-            [
-                'table'        => $table_name,
-                'filter_level' => $filter_level,
-                'search_term'  => $search_term,
-            ]
-        );
+		/**
+		 * Get pagination details.
+		 *
+		 * @since 1.6.0
+		 * @return array{int, int, int}
+		 */
+		private function get_pagination(): array {
+			$items_per_page = get_option( 'fqi3_items_per_page', 10 );
+			$current_page   = isset( $_GET['paged'] ) ? intval( $_GET['paged'] ) : 1;
+			$offset         = ( $current_page - 1 ) * $items_per_page;
+			return array( $items_per_page, $current_page, $offset );
+		}
 
-        $where_clause_str = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
-        // Allow addons to adjust the final WHERE SQL string
-        $where_clause_str = apply_filters(
-            'fqi3_admin_quiz_questions_where_sql',
-            $where_clause_str,
-            [
-                'table'        => $table_name,
-                'filter_level' => $filter_level,
-                'search_term'  => $search_term,
-            ]
-        );
+		/**
+		 * Get questions from the database with filters applied.
+		 *
+		 * @since 1.6.0
+		 * @param string $table_name
+		 * @param string $filter_level
+		 * @param string $search_term
+		 * @param int $items_per_page
+		 * @param int $offset
+		 * @return array
+		 */
+		private function get_questions( string $table_name, string $filter_level, string $search_term, int $items_per_page, int $offset ): array {
+			global $wpdb;
+			$where_clause = array();
+			if ( ! empty( $filter_level ) ) {
+				$where_clause[] = $wpdb->prepare( 'niveau = %s', $filter_level );
+			}
+			if ( ! empty( $search_term ) ) {
+				$where_clause[] = $wpdb->prepare( 'q LIKE %s', '%' . $wpdb->esc_like( $search_term ) . '%' );
+			}
+			// Allow addons (e.g., multilingual) to inject extra WHERE parts
+			$where_clause = apply_filters(
+				'fqi3_admin_quiz_questions_where_parts',
+				$where_clause,
+				array(
+					'table'        => $table_name,
+					'filter_level' => $filter_level,
+					'search_term'  => $search_term,
+				)
+			);
 
-        $sql = $wpdb->prepare(
-            "SELECT SQL_CALC_FOUND_ROWS * FROM $table_name $where_clause_str LIMIT %d OFFSET %d",
-            $items_per_page,
-            $offset
-        );
-        // Allow addons to override/adjust the final SQL before execution
-        $sql = apply_filters(
-            'fqi3_admin_quiz_questions_sql',
-            $sql,
-            [
-                'table'          => $table_name,
-                'filter_level'   => $filter_level,
-                'search_term'    => $search_term,
-                'items_per_page' => $items_per_page,
-                'offset'         => $offset,
-                'where_sql'      => $where_clause_str,
-            ]
-        );
+			$where_clause_str = ! empty( $where_clause ) ? 'WHERE ' . implode( ' AND ', $where_clause ) : '';
+			// Allow addons to adjust the final WHERE SQL string
+			$where_clause_str = apply_filters(
+				'fqi3_admin_quiz_questions_where_sql',
+				$where_clause_str,
+				array(
+					'table'        => $table_name,
+					'filter_level' => $filter_level,
+					'search_term'  => $search_term,
+				)
+			);
 
-        return $wpdb->get_results($sql);
-    }
+			$sql = $wpdb->prepare(
+				"SELECT SQL_CALC_FOUND_ROWS * FROM $table_name $where_clause_str LIMIT %d OFFSET %d",
+				$items_per_page,
+				$offset
+			);
+			// Allow addons to override/adjust the final SQL before execution
+			$sql = apply_filters(
+				'fqi3_admin_quiz_questions_sql',
+				$sql,
+				array(
+					'table'          => $table_name,
+					'filter_level'   => $filter_level,
+					'search_term'    => $search_term,
+					'items_per_page' => $items_per_page,
+					'offset'         => $offset,
+					'where_sql'      => $where_clause_str,
+				)
+			);
 
-    /**
-     * Get the total number of items with filters.
-     * 
-     * @since 1.6.0
-     * @param string $table_name
-     * @param string $filter_level
-     * @param string $search_term
-     * @return int
-     */
-    private function get_total_items(string $table_name, string $filter_level, string $search_term): int {
-        global $wpdb;
-        $where_clause = [];
-        if (!empty($filter_level)) {
-            $where_clause[] = $wpdb->prepare('niveau = %s', $filter_level);
-        }
-        if (!empty($search_term)) {
-            $where_clause[] = $wpdb->prepare('q LIKE %s', '%' . $wpdb->esc_like($search_term) . '%');
-        }
-        // Allow addons to inject extra WHERE parts for count query as well
-        $where_clause = apply_filters(
-            'fqi3_admin_quiz_questions_where_parts',
-            $where_clause,
-            [
-                'table'        => $table_name,
-                'filter_level' => $filter_level,
-                'search_term'  => $search_term,
-                'count'        => true,
-            ]
-        );
+			return $wpdb->get_results( $sql );
+		}
 
-        $where_clause_str = !empty($where_clause) ? 'WHERE ' . implode(' AND ', $where_clause) : '';
-        $where_clause_str = apply_filters(
-            'fqi3_admin_quiz_questions_where_sql',
-            $where_clause_str,
-            [
-                'table'        => $table_name,
-                'filter_level' => $filter_level,
-                'search_term'  => $search_term,
-                'count'        => true,
-            ]
-        );
-        
-        $count_sql = "SELECT COUNT(*) FROM $table_name $where_clause_str";
-        $count_sql = apply_filters(
-            'fqi3_admin_quiz_questions_count_sql',
-            $count_sql,
-            [
-                'table'        => $table_name,
-                'filter_level' => $filter_level,
-                'search_term'  => $search_term,
-                'where_sql'    => $where_clause_str,
-            ]
-        );
+		/**
+		 * Get the total number of items with filters.
+		 *
+		 * @since 1.6.0
+		 * @param string $table_name
+		 * @param string $filter_level
+		 * @param string $search_term
+		 * @return int
+		 */
+		private function get_total_items( string $table_name, string $filter_level, string $search_term ): int {
+			global $wpdb;
+			$where_clause = array();
+			if ( ! empty( $filter_level ) ) {
+				$where_clause[] = $wpdb->prepare( 'niveau = %s', $filter_level );
+			}
+			if ( ! empty( $search_term ) ) {
+				$where_clause[] = $wpdb->prepare( 'q LIKE %s', '%' . $wpdb->esc_like( $search_term ) . '%' );
+			}
+			// Allow addons to inject extra WHERE parts for count query as well
+			$where_clause = apply_filters(
+				'fqi3_admin_quiz_questions_where_parts',
+				$where_clause,
+				array(
+					'table'        => $table_name,
+					'filter_level' => $filter_level,
+					'search_term'  => $search_term,
+					'count'        => true,
+				)
+			);
 
-        return $wpdb->get_var($count_sql);
-    }
+			$where_clause_str = ! empty( $where_clause ) ? 'WHERE ' . implode( ' AND ', $where_clause ) : '';
+			$where_clause_str = apply_filters(
+				'fqi3_admin_quiz_questions_where_sql',
+				$where_clause_str,
+				array(
+					'table'        => $table_name,
+					'filter_level' => $filter_level,
+					'search_term'  => $search_term,
+					'count'        => true,
+				)
+			);
 
-    /**
-     * Render the filter links at the top of the page.
-     * 
-     * @since 1.6.0
-     * @param array $levels
-     * @param array $questions_count
-     * @param string $filter_level
-     * @param string $base_url
-     * @param int $total_items
-     */
-    private function render_filter_links(array $levels, array $questions_count, string $filter_level, string $base_url, int $total_items): void {
-        ?>
-        <nav class="nav nav-pills mb-3 small">
-            <a class="nav-link <?php echo empty($filter_level) ? 'active' : ''; ?>" 
-                href="<?php echo $base_url; ?>">
-                <?php _e('All', 'form-quizz-fqi3'); ?>
-                <span class="badge bg-dark ms-1">
-                    <?php echo esc_html($total_items); ?>
-                </span>
-            </a>
-            <?php foreach ($levels as $level): ?>
-                <a class="nav-link <?php echo $filter_level === $level ? 'active' : ''; ?>"
-                    href="<?php echo esc_url(add_query_arg('filter_level', $level, $base_url)); ?>">
-                    <?php echo esc_html($this->levelsQuiz[$level]["label"]); ?>
-                    <span class="badge bg-dark ms-1">
-                        <?php echo esc_html($questions_count[$level]); ?>
-                    </span>
-                </a>
-            <?php endforeach; ?>
-        </nav>
-        <?php
-    }
+			$count_sql = "SELECT COUNT(*) FROM $table_name $where_clause_str";
+			$count_sql = apply_filters(
+				'fqi3_admin_quiz_questions_count_sql',
+				$count_sql,
+				array(
+					'table'        => $table_name,
+					'filter_level' => $filter_level,
+					'search_term'  => $search_term,
+					'where_sql'    => $where_clause_str,
+				)
+			);
 
-    /**
-     * Render the filter form for selecting level and searching.
-     * 
-     * @since 1.6.0
-     * @param array $levels
-     * @param string $filter_level
-     * @param string $search_term
-     */
-    private function render_filter_form(array $levels, string $filter_level, string $search_term): void {
-        ?>
-        <div class="col-md-9">
-            <form method="get" action="" class="d-flex gap-2">
-                <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page']); ?>">
-                <select name="filter_level" class="form-select-sm">
-                    <option value=""><?php _e('All Levels', 'form-quizz-fqi3'); ?></option>
-                    <?php foreach ($levels as $level): ?>
-                        <option value="<?php echo esc_attr($level); ?>" 
-                                <?php selected($filter_level, $level); ?>>
-                            <?php echo esc_html($this->levelsQuiz[$level]['label'] . 
-                                ($this->levelsQuiz[$level]['free'] ? ' (' . __('Free', 'form-quizz-fqi3') . ')' : '')); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <input type="search" 
-                        name="search_term" 
-                        class="form-control-sm"
-                        value="<?php echo esc_attr($search_term); ?>" 
-                        placeholder="<?php _e('Search questions...', 'form-quizz-fqi3'); ?>">
-                <?php
-                // Allow addons to inject additional filter fields (e.g., language dropdown)
-                do_action('fqi3_admin_quiz_questions_filter_fields');
-                ?>
-                <button type="submit" class="btn btn-dark btn-sm">
-                    <i class="bi bi-filter"></i> <?php _e('Filter', 'form-quizz-fqi3'); ?>
-                </button>
-            </form>
-        </div>
-        <?php
-    }
+			return $wpdb->get_var( $count_sql );
+		}
 
-    /**
-     * Render the export form.
-     * 
-     * @since 1.6.0
-     */
-    private function render_export_form(): void {
-        ?>
-        <div class="col-md-3">
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="d-inline">
-                <input type="hidden" name="action" value="export_questions">
-                <?php wp_nonce_field('fqi3_export_questions'); ?>
-                <button type="submit" class="btn btn-success btn-sm">
-                    <i class="bi bi-download"></i> <?php _e('Export CSV', 'form-quizz-fqi3'); ?>
-                </button>
-            </form>
-        </div>
-        <?php
-    }
+		/**
+		 * Render the filter links at the top of the page.
+		 *
+		 * @since 1.6.0
+		 * @param array $levels
+		 * @param array $questions_count
+		 * @param string $filter_level
+		 * @param string $base_url
+		 * @param int $total_items
+		 */
+		private function render_filter_links( array $levels, array $questions_count, string $filter_level, string $base_url, int $total_items ): void {
+			?>
+		<nav class="nav nav-pills mb-3 small">
+			<a class="nav-link <?php echo empty( $filter_level ) ? 'active' : ''; ?>" 
+				href="<?php echo $base_url; ?>">
+				<?php esc_html_e( 'All', 'form-quizz-fqi3' ); ?>
+				<span class="badge bg-dark ms-1">
+					<?php echo esc_html( $total_items ); ?>
+				</span>
+			</a>
+			<?php foreach ( $levels as $level ) : ?>
+				<a class="nav-link <?php echo $filter_level === $level ? 'active' : ''; ?>"
+					href="<?php echo esc_url( add_query_arg( 'filter_level', $level, $base_url ) ); ?>">
+					<?php echo esc_html( $this->levelsQuiz[ $level ]['label'] ); ?>
+					<span class="badge bg-dark ms-1">
+						<?php echo esc_html( $questions_count[ $level ] ); ?>
+					</span>
+				</a>
+			<?php endforeach; ?>
+		</nav>
+			<?php
+		}
 
-    /**
-     * Render the pagination.
-     * 
-     * @since 1.6.0
-     * @param int $current_page
-     * @param int $total_pages
-     */
-    private function render_pagination(int $current_page, int $total_pages): void {
-        echo sprintf(
-            '%s %d %s %d',
-            esc_html(__('Page', 'form-quizz-fqi3')),
-            intval($current_page),
-            esc_html(__('of', 'form-quizz-fqi3')),
-            intval($total_pages)
-        );
-    }
+		/**
+		 * Render the filter form for selecting level and searching.
+		 *
+		 * @since 1.6.0
+		 * @param array $levels
+		 * @param string $filter_level
+		 * @param string $search_term
+		 */
+		private function render_filter_form( array $levels, string $filter_level, string $search_term ): void {
+			?>
+		<div class="col-md-9">
+			<form method="get" action="" class="d-flex gap-2">
+				<input type="hidden" name="page" value="<?php echo esc_attr( $_GET['page'] ); ?>">
+				<select name="filter_level" class="form-select-sm">
+					<option value=""><?php esc_html_e( 'All Levels', 'form-quizz-fqi3' ); ?></option>
+					<?php foreach ( $levels as $level ) : ?>
+						<option value="<?php echo esc_attr( $level ); ?>" 
+								<?php selected( $filter_level, $level ); ?>>
+							<?php
+							echo esc_html(
+								$this->levelsQuiz[ $level ]['label'] .
+								( $this->levelsQuiz[ $level ]['free'] ? ' (' . __( 'Free', 'form-quizz-fqi3' ) . ')' : '' )
+							);
+							?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<input type="search" 
+						name="search_term" 
+						class="form-control-sm"
+						value="<?php echo esc_attr( $search_term ); ?>" 
+						placeholder="<?php esc_attr_e( 'Search questions...', 'form-quizz-fqi3' ); ?>">
+					<?php
+					// Allow addons to inject additional filter fields (e.g., language dropdown)
+					do_action( 'fqi3_admin_quiz_questions_filter_fields' );
+					?>
+				<button type="submit" class="btn btn-dark btn-sm">
+					<i class="bi bi-filter"></i> <?php esc_html_e( 'Filter', 'form-quizz-fqi3' ); ?>
+				</button>
+			</form>
+		</div>
+			<?php
+		}
 
-    /**
-     * Render the pagination links.
-     * 
-     * @since 1.6.0
-     * @param int $total_pages
-     * @param int $current_page
-     */
-    private function render_pagination_links(int $total_pages, int $current_page): void {
-        $pagination = paginate_links(array(
-            'base'    => add_query_arg('paged', '%#%'),
-            'format'  => '',
-            'prev_text' => __('Previous', 'form-quizz-fqi3'),
-            'next_text' => __('Next', 'form-quizz-fqi3'),
-            'total'   => $total_pages,
-            'current' => $current_page,
-            'type'    => 'array',
-        ));
-    
-        if ($pagination) {
-            echo '<ul class="pagination justify-content-center">';
-    
-            foreach ($pagination as $page) {
-                if (strpos($page, 'current') !== false) {
-                    echo '<li class="page-item active">';
-                    echo str_replace('<span', '<span class="page-link"', $page);
-                    echo '</li>';
-                } elseif (strpos($page, 'prev') !== false) {
-                    echo '<li class="page-item ' . (strpos($page, 'disabled') !== false ? 'disabled' : '') . '">';
-                    echo str_replace('<a', '<a class="page-link"', $page);
-                    echo '</li>';
-                } elseif (strpos($page, 'next') !== false) {
-                    echo '<li class="page-item ' . (strpos($page, 'disabled') !== false ? 'disabled' : '') . '">';
-                    echo str_replace('<a', '<a class="page-link"', $page);
-                    echo '</li>';
-                } else {
-                    echo '<li class="page-item ' . (strpos($page, 'current') !== false ? 'active' : '') . '">';
-                    echo str_replace('<a', '<a class="page-link"', $page);
-                    echo '</li>';
-                }
-            }
-    
-            echo '</ul>';
-        }
-    }
+		/**
+		 * Render the export form.
+		 *
+		 * @since 1.6.0
+		 */
+		private function render_export_form(): void {
+			?>
+		<div class="col-md-3">
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="d-inline">
+				<input type="hidden" name="action" value="export_questions">
+				<?php wp_nonce_field( 'fqi3_export_questions' ); ?>
+				<button type="submit" class="btn btn-success btn-sm">
+					<i class="bi bi-download"></i> <?php esc_html_e( 'Export CSV', 'form-quizz-fqi3' ); ?>
+				</button>
+			</form>
+		</div>
+			<?php
+		}
 
-    /**
-     * Render the question rows.
-     * 
-     * @since 1.6.0 Initial release
-     * @param array $questions
-     * @param string $edit_page
-     */
-    private function render_question_rows(array $questions, string $edit_page): void {
-        foreach ($questions as $question):
-            $labelLevel = $this->levelsQuiz[$question->niveau]['label'] ?? $question->niveau;
-            $freeLevel = $this->levelsQuiz[$question->niveau]['free'] ?? $question->niveau;
-        ?>
-            <tr>
-                <td class="id_column"><?php echo esc_html($question->id); ?></td>
-                <td class="access_column"><?php echo esc_html($freeLevel === true ? __('Free', 'form-quizz-fqi3') : __('Premium', 'form-quizz-fqi3')); ?></td>
-                <td class="level_column"><?php echo esc_html($labelLevel); ?></td>
-                <?php
-                // Allow addons to inject extra cells after Level
-                do_action('fqi3_admin_quiz_questions_row_after_level', $question);
-                ?>
-                <td class="question_column"><?php echo esc_html($question->q); ?></td>
-                <td class="question_2_column"><?php echo esc_html($question->q2); ?></td>
-                <td class="options_column">
-                    <?php $this->render_options($question->options, $question->id); ?>
-                </td>
-                <td class="answer_column"><?php echo esc_html($this->get_correct_answer($question)); ?></td>
-                <td class="action_column">
-                    <a href="#" class="btn btn-sm btn-danger delete-question" data-id="<?php echo esc_attr($question->id); ?>">
-                        <?php _e('Delete', 'form-quizz-fqi3'); ?>
-                    </a>
-                    <?php
-                    // Allow addons to append actions HTML (e.g., Translate dropdown)
-                    echo apply_filters('fqi3_admin_quiz_question_actions', '', $question);
-                    ?>
-                </td>
-                <td class="edit_column">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=' . $edit_page . '&id=' . $question->id)); ?>" class="btn btn-sm btn-warning">
-                        <?php _e('Edit', 'form-quizz-fqi3'); ?>
-                    </a>
-                </td>
-            </tr>
-        <?php endforeach;
-    }
-    
+		/**
+		 * Render the pagination.
+		 *
+		 * @since 1.6.0
+		 * @param int $current_page
+		 * @param int $total_pages
+		 */
+		private function render_pagination( int $current_page, int $total_pages ): void {
+			printf(
+				'%s %d %s %d',
+				esc_html( __( 'Page', 'form-quizz-fqi3' ) ),
+				intval( $current_page ),
+				esc_html( __( 'of', 'form-quizz-fqi3' ) ),
+				intval( $total_pages )
+			);
+		}
 
-    /**
-     * Renders question options in an accordion format
-     * 
-     * @param string $options
-     * @param int $question_id
-     * 
-     * @since 1.6.0 Initial release
-     */
-    private function render_options(string $options_json, int $question_id): void {
-        $options = json_decode($options_json, true);
-        if (empty($options)) {
-            return;
-        }
-    
-        $question_id = esc_attr($question_id);
-        $this->render_accordion_wrapper($question_id, function() use ($options) {
-            $this->render_options_list($options);
-        });
-    }
+		/**
+		 * Render the pagination links.
+		 *
+		 * @since 1.6.0
+		 * @param int $total_pages
+		 * @param int $current_page
+		 */
+		private function render_pagination_links( int $total_pages, int $current_page ): void {
+			$pagination = paginate_links(
+				array(
+					'base'      => add_query_arg( 'paged', '%#%' ),
+					'format'    => '',
+					'prev_text' => __( 'Previous', 'form-quizz-fqi3' ),
+					'next_text' => __( 'Next', 'form-quizz-fqi3' ),
+					'total'     => $total_pages,
+					'current'   => $current_page,
+					'type'      => 'array',
+				)
+			);
 
-    /**
-     * Renders the accordion wrapper structure
-     * 
-     * @param string $question_id Escaped question ID
-     * @param callable $content_callback Callback to render accordion content
-     * @return void
-    */
-    private function render_accordion_wrapper(string $question_id, callable $content_callback): void {
-        $accordion_id = "accordionOptions{$question_id}";
-        $collapse_id = "collapseOptions{$question_id}";
-        $heading_id = "headingOptions{$question_id}";
-        
-        ?>
-        <div class="accordion small" id="<?php echo $accordion_id; ?>">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="<?php echo $heading_id; ?>">
-                    <button class="accordion-button collapsed p-2"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#<?php echo $collapse_id; ?>"
-                            aria-expanded="false"
-                            aria-controls="<?php echo $collapse_id; ?>">
-                        <?php _e('Show Options', 'form-quizz-fqi3'); ?>
-                    </button>
-                </h2>
-                <div id="<?php echo $collapse_id; ?>"
-                    class="accordion-collapse collapse"
-                    aria-labelledby="<?php echo $heading_id; ?>"
-                    data-bs-parent="#<?php echo $accordion_id; ?>">
-                    <div class="accordion-body">
-                        <?php $content_callback(); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-    }
+			if ( $pagination ) {
+				echo '<ul class="pagination justify-content-center">';
 
-    /**
-     * Renders the list of options
-     * 
-     * @param array $options Array of option strings
-     * @return void
-    */
-    private function render_options_list(array $options): void {
-        ?>
-        <ul class="options-list">
-            <?php foreach ($options as $option): ?>
-                <li><?php echo esc_html($option); ?></li>
-            <?php endforeach; ?>
-        </ul>
-        <?php
-    }
-    
-    /**
-     * Get the correct answer.
-     * 
-     * @since 1.6.0 Initial release
-     * @param object $question
-     * @return string
-     */
-    private function get_correct_answer(object $question): string {
-        $options = json_decode($question->options, true);
-        return isset($options[(int)$question->answer]) ? $options[(int)$question->answer] : __('Unknown', 'form-quizz-fqi3');
-    }
+				foreach ( $pagination as $page ) {
+					if ( strpos( $page, 'current' ) !== false ) {
+						echo '<li class="page-item active">';
+						echo str_replace( '<span', '<span class="page-link"', $page );
+						echo '</li>';
+					} elseif ( strpos( $page, 'prev' ) !== false ) {
+						echo '<li class="page-item ' . ( strpos( $page, 'disabled' ) !== false ? 'disabled' : '' ) . '">';
+						echo str_replace( '<a', '<a class="page-link"', $page );
+						echo '</li>';
+					} elseif ( strpos( $page, 'next' ) !== false ) {
+						echo '<li class="page-item ' . ( strpos( $page, 'disabled' ) !== false ? 'disabled' : '' ) . '">';
+						echo str_replace( '<a', '<a class="page-link"', $page );
+						echo '</li>';
+					} else {
+						echo '<li class="page-item ' . ( strpos( $page, 'current' ) !== false ? 'active' : '' ) . '">';
+						echo str_replace( '<a', '<a class="page-link"', $page );
+						echo '</li>';
+					}
+				}
+
+				echo '</ul>';
+			}
+		}
+
+		/**
+		 * Render the question rows.
+		 *
+		 * @since 1.6.0 Initial release
+		 * @param array $questions
+		 * @param string $edit_page
+		 */
+		private function render_question_rows( array $questions, string $edit_page ): void {
+			foreach ( $questions as $question ) :
+				$labelLevel = $this->levelsQuiz[ $question->niveau ]['label'] ?? $question->niveau;
+				$freeLevel  = $this->levelsQuiz[ $question->niveau ]['free'] ?? $question->niveau;
+				?>
+			<tr>
+				<td class="id_column"><?php echo esc_html( $question->id ); ?></td>
+				<td class="access_column"><?php echo esc_html( $freeLevel === true ? __( 'Free', 'form-quizz-fqi3' ) : __( 'Premium', 'form-quizz-fqi3' ) ); ?></td>
+				<td class="level_column"><?php echo esc_html( $labelLevel ); ?></td>
+				<?php
+				// Allow addons to inject extra cells after Level
+				do_action( 'fqi3_admin_quiz_questions_row_after_level', $question );
+				?>
+				<td class="question_column"><?php echo esc_html( $question->q ); ?></td>
+				<td class="question_2_column"><?php echo esc_html( $question->q2 ); ?></td>
+				<td class="options_column">
+					<?php $this->render_options( $question->options, $question->id ); ?>
+				</td>
+				<td class="answer_column"><?php echo esc_html( $this->get_correct_answer( $question ) ); ?></td>
+				<td class="action_column">
+					<a href="#" class="btn btn-sm btn-danger delete-question" data-id="<?php echo esc_attr( $question->id ); ?>">
+						<?php esc_html_e( 'Delete', 'form-quizz-fqi3' ); ?>
+					</a>
+					<?php
+					// Allow addons to append actions HTML (e.g., Translate dropdown)
+					echo apply_filters( 'fqi3_admin_quiz_question_actions', '', $question );
+					?>
+				</td>
+				<td class="edit_column">
+					<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $edit_page . '&id=' . $question->id ) ); ?>" class="btn btn-sm btn-warning">
+						<?php esc_html_e( 'Edit', 'form-quizz-fqi3' ); ?>
+					</a>
+				</td>
+			</tr>
+				<?php
+		endforeach;
+		}
 
 
-    /**
-     * Handle the deletion of a question via AJAX.
-     * 
-     * @since 1.6.0
-     * @return void
-     */
-    public function handle_delete_question(): void {
-        check_ajax_referer('fqi3_delete_question', 'nonce');
+		/**
+		 * Renders question options in an accordion format
+		 *
+		 * @param string $options
+		 * @param int $question_id
+		 *
+		 * @since 1.6.0 Initial release
+		 */
+		private function render_options( string $options_json, int $question_id ): void {
+			$options = json_decode( $options_json, true );
+			if ( empty( $options ) ) {
+				return;
+			}
 
-        if ( ! current_user_can( 'manage_options' ) ) {
-            wp_send_json_error(__('You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3'), 403 );
-            wp_die();
-        }
+			$question_id = esc_attr( $question_id );
+			$this->render_accordion_wrapper(
+				$question_id,
+				function () use ( $options ) {
+					$this->render_options_list( $options );
+				}
+			);
+		}
 
-        $question_id = isset($_POST['id']) ? intval($_POST['id']) : 0;
-        if ($question_id <= 0) {
-            wp_send_json_error(__('Invalid question ID', 'form-quizz-fqi3'), 400);
-            wp_die();
-        }
+		/**
+		 * Renders the accordion wrapper structure
+		 *
+		 * @param string $question_id Escaped question ID
+		 * @param callable $content_callback Callback to render accordion content
+		 * @return void
+		*/
+		private function render_accordion_wrapper( string $question_id, callable $content_callback ): void {
+			$accordion_id = "accordionOptions{$question_id}";
+			$collapse_id  = "collapseOptions{$question_id}";
+			$heading_id   = "headingOptions{$question_id}";
 
-        global $wpdb;
-        $table_name = $this->backend->get_quiz_table_name();
-        $result = $wpdb->delete($table_name, ['id' => $question_id], ['%d']);
+			?>
+		<div class="accordion small" id="<?php echo $accordion_id; ?>">
+			<div class="accordion-item">
+				<h2 class="accordion-header" id="<?php echo $heading_id; ?>">
+					<button class="accordion-button collapsed p-2"
+							type="button"
+							data-bs-toggle="collapse"
+							data-bs-target="#<?php echo $collapse_id; ?>"
+							aria-expanded="false"
+							aria-controls="<?php echo $collapse_id; ?>">
+						<?php esc_html_e( 'Show Options', 'form-quizz-fqi3' ); ?>
+					</button>
+				</h2>
+				<div id="<?php echo $collapse_id; ?>"
+					class="accordion-collapse collapse"
+					aria-labelledby="<?php echo $heading_id; ?>"
+					data-bs-parent="#<?php echo $accordion_id; ?>">
+					<div class="accordion-body">
+						<?php $content_callback(); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+			<?php
+		}
 
-        if ($result !== false) {
-            wp_send_json_success(__('Question deleted successfully', 'form-quizz-fqi3'));
-        } else {
-            wp_send_json_error(__('Failed to delete question', 'form-quizz-fqi3'), 500);
-        }
-       
-        wp_die();
-    }
+		/**
+		 * Renders the list of options
+		 *
+		 * @param array $options Array of option strings
+		 * @return void
+		*/
+		private function render_options_list( array $options ): void {
+			?>
+		<ul class="options-list">
+			<?php foreach ( $options as $option ) : ?>
+				<li><?php echo esc_html( $option ); ?></li>
+			<?php endforeach; ?>
+		</ul>
+			<?php
+		}
 
-    /**
-     * Exports all quiz questions to a CSV file for download.
-     *
-     * This method retrieves all quiz questions from the database and generates a CSV file
-     * containing the question details such as ID, level, question text, options, and the correct answer.
-     * It then streams the CSV file for download by setting the appropriate headers.
-     * 
-     * @return void
-     * @throws WP_Error If database query fails or no questions found
-     *
-     * @since 1.5.0 Initial release
-     * @since 2.0.0 Optimized performance and error handling
-     */
-    public function export_questions(): void {
-        if (!$this->backend->user_can_manage_questions()) {
-            wp_die(
-                esc_html__('You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3'),
-                '',
-                ['response' => 403]
-            );
-        }
-        check_admin_referer('fqi3_export_questions');
+		/**
+		 * Get the correct answer.
+		 *
+		 * @since 1.6.0 Initial release
+		 * @param object $question
+		 * @return string
+		 */
+		private function get_correct_answer( object $question ): string {
+			$options = json_decode( $question->options, true );
+			return isset( $options[ (int) $question->answer ] ) ? $options[ (int) $question->answer ] : __( 'Unknown', 'form-quizz-fqi3' );
+		}
 
-        global $wpdb;
-        $table_name = $this->backend->get_quiz_table_name();
-        
-        // Implement batch processing for large datasets
-        $batch_size = 1000;
-        $offset = 0;
-        
-        try {
-            // Buffer the output to prevent memory issues
-            ob_start();
-            
-            // Set headers with proper encoding and cache control
-            nocache_headers();
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename="quiz_questions_' . date('Y-m-d_H-i-s') . '.csv"');
-            header('Pragma: no-cache');
-            header('Expires: 0');
-            
-            // Create CSV writer with memory efficiency
-            $output = fopen('php://temp', 'r+');
-            
-            // Define CSV headers
-            $headers = [
-                'ID',
-                'Access',
-                'Level',
-                'Question',
-                'Instructions',
-                'Options',
-                'Correct Answer'
-            ];
-            fputcsv($output, $headers);
-            
-            do {
-                // Fetch questions in batches
-                $questions = $wpdb->get_results(
-                    $wpdb->prepare(
-                        "SELECT * FROM `{$table_name}` ORDER BY id ASC LIMIT %d OFFSET %d",
-                        $batch_size,
-                        $offset
-                    )
-                );
-                
-                if ($wpdb->last_error) {
-                    throw new \Exception($wpdb->last_error);
-                }
-                
-                // Process each question in the batch
-                foreach ($questions as $question) {
-                    $options = json_decode($question->options, true) ?: [];
-                    $correct_answer_index = (int) $question->answer;
-                    
-                    // Get level information with null coalescing
-                    $level_info = $this->levelsQuiz[$question->niveau] ?? ['free' => false, 'label' => $question->niveau];
-                    
-                    // Prepare row data with proper escaping
-                    $row = [
-                        $question->id,
-                        $level_info['free'] ? __('Free', 'form-quizz-fqi3') : __('Premium', 'form-quizz-fqi3'),
-                        $level_info['label'],
-                        wp_kses_post($question->q),
-                        wp_kses_post($question->q2),
-                        implode('; ', array_map('strval', $options)),
-                        (string) ($options[$correct_answer_index] ?? __('Unknown', 'form-quizz-fqi3'))
-                    ];
-                    
-                    // A CSV cell is not HTML: no entity escaping, but neutralize spreadsheet formulas.
-                    fputcsv($output, array_map('fqi3_csv_safe', $row));
-                }
-                
-                $offset += $batch_size;
-                
-            } while (!empty($questions));
-            
-            // Check if any questions were processed
-            if ($offset === 0) {
-                throw new \Exception(__('No questions found for export', 'form-quizz-fqi3'));
-            }
-            
-            // Output the CSV content
-            rewind($output);
-            fpassthru($output);
-            fclose($output);
-            ob_end_flush();
-            
-        } catch (\Exception $e) {
-            ob_end_clean();
-            wp_die(
-                esc_html($e->getMessage()),
-                __('Export Error', 'form-quizz-fqi3'),
-                ['response' => 500]
-            );
-        }
-        
-        exit;
-    }
-}
+
+		/**
+		 * Handle the deletion of a question via AJAX.
+		 *
+		 * @since 1.6.0
+		 * @return void
+		 */
+		public function handle_delete_question(): void {
+			check_ajax_referer( 'fqi3_delete_question', 'nonce' );
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_send_json_error( __( 'You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3' ), 403 );
+				wp_die();
+			}
+
+			$question_id = isset( $_POST['id'] ) ? intval( $_POST['id'] ) : 0;
+			if ( $question_id <= 0 ) {
+				wp_send_json_error( __( 'Invalid question ID', 'form-quizz-fqi3' ), 400 );
+				wp_die();
+			}
+
+			global $wpdb;
+			$table_name = $this->backend->get_quiz_table_name();
+			$result     = $wpdb->delete( $table_name, array( 'id' => $question_id ), array( '%d' ) );
+
+			if ( $result !== false ) {
+				wp_send_json_success( __( 'Question deleted successfully', 'form-quizz-fqi3' ) );
+			} else {
+				wp_send_json_error( __( 'Failed to delete question', 'form-quizz-fqi3' ), 500 );
+			}
+
+			wp_die();
+		}
+
+		/**
+		 * Exports all quiz questions to a CSV file for download.
+		 *
+		 * This method retrieves all quiz questions from the database and generates a CSV file
+		 * containing the question details such as ID, level, question text, options, and the correct answer.
+		 * It then streams the CSV file for download by setting the appropriate headers.
+		 *
+		 * @return void
+		 * @throws WP_Error If database query fails or no questions found
+		 *
+		 * @since 1.5.0 Initial release
+		 * @since 2.0.0 Optimized performance and error handling
+		 */
+		public function export_questions(): void {
+			if ( ! $this->backend->user_can_manage_questions() ) {
+				wp_die(
+					esc_html__( 'You do not have the necessary permissions to perform this action.', 'form-quizz-fqi3' ),
+					'',
+					array( 'response' => 403 )
+				);
+			}
+			check_admin_referer( 'fqi3_export_questions' );
+
+			global $wpdb;
+			$table_name = $this->backend->get_quiz_table_name();
+
+			// Implement batch processing for large datasets
+			$batch_size = 1000;
+			$offset     = 0;
+
+			try {
+				// Buffer the output to prevent memory issues
+				ob_start();
+
+				// Set headers with proper encoding and cache control
+				nocache_headers();
+				header( 'Content-Type: text/csv; charset=utf-8' );
+				header( 'Content-Disposition: attachment; filename="quiz_questions_' . date( 'Y-m-d_H-i-s' ) . '.csv"' );
+				header( 'Pragma: no-cache' );
+				header( 'Expires: 0' );
+
+				// Create CSV writer with memory efficiency
+				$output = fopen( 'php://temp', 'r+' );
+
+				// Define CSV headers
+				$headers = array(
+					'ID',
+					'Access',
+					'Level',
+					'Question',
+					'Instructions',
+					'Options',
+					'Correct Answer',
+				);
+				fputcsv( $output, $headers );
+
+				do {
+					// Fetch questions in batches
+					$questions = $wpdb->get_results(
+						$wpdb->prepare(
+							"SELECT * FROM `{$table_name}` ORDER BY id ASC LIMIT %d OFFSET %d",
+							$batch_size,
+							$offset
+						)
+					);
+
+					if ( $wpdb->last_error ) {
+						throw new \Exception( $wpdb->last_error );
+					}
+
+					// Process each question in the batch
+					foreach ( $questions as $question ) {
+						$options              = json_decode( $question->options, true ) ?: array();
+						$correct_answer_index = (int) $question->answer;
+
+						// Get level information with null coalescing
+						$level_info = $this->levelsQuiz[ $question->niveau ] ?? array(
+							'free'  => false,
+							'label' => $question->niveau,
+						);
+
+						// Prepare row data with proper escaping
+						$row = array(
+							$question->id,
+							$level_info['free'] ? __( 'Free', 'form-quizz-fqi3' ) : __( 'Premium', 'form-quizz-fqi3' ),
+							$level_info['label'],
+							wp_kses_post( $question->q ),
+							wp_kses_post( $question->q2 ),
+							implode( '; ', array_map( 'strval', $options ) ),
+							(string) ( $options[ $correct_answer_index ] ?? __( 'Unknown', 'form-quizz-fqi3' ) ),
+						);
+
+						// A CSV cell is not HTML: no entity escaping, but neutralize spreadsheet formulas.
+						fputcsv( $output, array_map( 'fqi3_csv_safe', $row ) );
+					}
+
+					$offset += $batch_size;
+
+				} while ( ! empty( $questions ) );
+
+				// Check if any questions were processed
+				if ( $offset === 0 ) {
+					throw new \Exception( __( 'No questions found for export', 'form-quizz-fqi3' ) );
+				}
+
+				// Output the CSV content
+				rewind( $output );
+				fpassthru( $output );
+				fclose( $output );
+				ob_end_flush();
+
+			} catch ( \Exception $e ) {
+				ob_end_clean();
+				wp_die(
+					esc_html( $e->getMessage() ),
+					__( 'Export Error', 'form-quizz-fqi3' ),
+					array( 'response' => 500 )
+				);
+			}
+
+			exit;
+		}
+	}
 endif;

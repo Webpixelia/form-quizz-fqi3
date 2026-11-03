@@ -1,5 +1,6 @@
 <?php
 namespace Form_Quizz_FQI3;
+
 /**
  * FQI3 Frontend Main Class
  *
@@ -12,747 +13,783 @@ namespace Form_Quizz_FQI3;
  * @version 2.0.0
 */
 
- if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-if (!class_exists('FQI3_Frontend')) :
-
-class FQI3_Frontend {
-    private static $instance = null;
-
-    /** @var FQI3_Template_Manager */
-    private FQI3_Template_Manager $template_manager;
-
-    /** @var array */
-    private array $levelsQuiz = [];
-    
-    /** @var array */
-    private array $options = [];
-    
-    /** @var string */
-    private const COOKIE_QUIZ_COUNT = 'fqi3_quiz_count';
-    private const META_DAILY_COUNT = 'fqi3_daily_quiz_count';
-
-    /** Option remembering that the attempts table exists (avoids a DDL query on every request). */
-    private const ATTEMPTS_TABLE_OPTION  = 'fqi3_attempts_table_version';
-    private const ATTEMPTS_TABLE_VERSION = '1';
-    
-    /** @var string */
-    private const CACHE_GROUP = 'free_quiz';
-    /** @var string */
-    private const ATTEMPT_SESSION_KEY = 'fqi3_attempt_id';
-
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
-
-    /**
-     * Initialize the frontend functionality
-     */
-    public function __construct() {
-        $this->template_manager = new FQI3_Template_Manager();
-        $this->options = fqi3_get_options();
-        
-        // Initialize hooks
-        $this->initHooks();
-    }
-
-    private function start_session_if_needed(): void {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-    }
-   
-    /**
-     * Initialize WordPress hooks
-     */
-    private function initHooks(): void {
-        // Shortcodes @since 1.3.0
-        add_shortcode('free_quiz_form', [$this, 'free_quiz_form_shortcode']);
-        add_shortcode('fqi3_quizz_form', [$this, 'renderForm']);
-        add_shortcode('fqi3_remaining_attempts', [$this, 'renderRemainingAttempts']);
-
-        // AJAX handlers
-        add_action('wp_ajax_get_questions', [$this, 'handleGetQuestions']);
-        add_action('wp_ajax_nopriv_get_questions', [$this, 'handleGetQuestions']);
-        add_action('wp_ajax_increment_quiz_count', [$this, 'handleIncrementQuizCount']);
-        add_action('wp_ajax_nopriv_increment_quiz_count', [$this, 'handleIncrementQuizCount']);
-        add_action('wp_ajax_save_timer_settings', [$this, 'handleSaveTimerSettings']);
-        add_action('wp_ajax_nopriv_save_timer_settings', [$this, 'handleSaveTimerSettings']);
-
-        // Start & Finish quizz
-        add_action('wp_ajax_fqi3_register_quiz_start', [$this,'fqi3_register_quiz_start']);
-        add_action('wp_ajax_nopriv_fqi3_register_quiz_start', [$this,'fqi3_register_quiz_start']);
-        add_action('wp_ajax_fqi3_register_quiz_complete', [$this,'fqi3_register_quiz_complete_handler']);
-        add_action('wp_ajax_nopriv_fqi3_register_quiz_complete', [$this,'fqi3_register_quiz_complete_handler']);
-        add_action('wp_ajax_fqi3_process_quiz_hooks', [$this, 'process_quiz_hooks_handler']);
-        add_action('wp_ajax_nopriv_fqi3_process_quiz_hooks', [$this, 'process_quiz_hooks_handler']);
-
-        // Other hooks
-        add_action('wp_head', [$this, 'outputDynamicCSS']);
-        add_action('wp_loaded', [$this, 'initializeLevels']);
-        // Ensure attempts table exists (lightweight safety)
-        add_action('init', [$this, 'ensure_attempts_table']);
-    }
-
-    /**
-     * Render the quiz form
-     */
-    public function renderForm(): string {
-        \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
-        $this->start_session_if_needed();
-
-        $data = $this->prepareQuizFormData();
-        
-        return $this->template_manager->render('quiz-form', $data);
-    }
-
-    /**
-     * Redirects the old [free_quiz_form] shortcode to the new [fqi3_quizz_form] shortcode.
-     *
-     * This method ensures backward compatibility by processing the old shortcode and rendering
-     * the quiz form using the same logic as the new [fqi3_quizz_form] shortcode. It acts as an alias
-     * for the new shortcode to avoid breaking sites that still use the old one.
-     *
-     * @param array $atts Shortcode attributes passed by the user (optional).
-     * 
-     * @return string The rendered HTML of the quiz form.
-     * @since 3.0.0
-     */
-    public function free_quiz_form_shortcode($atts) {
-        return $this->renderForm($atts);
-    }
-
-    /**
-     * Prepare data for quiz form template
-     */
-    private function prepareQuizFormData(): array {
-        $is_user_logged_in = is_user_logged_in();
-        
-        return [
-            'text_pre_form' => wp_kses_post($this->options['fqi3_text_pre_form'] ?? sprintf(
-                '<h1>%s</h1>',
-                __('Default Title', 'form-quizz-fqi3')
-            )),
-            'selected_page_url' => $this->getSalesPageUrl(),
-            'is_user_logged_in' => $is_user_logged_in,
-            'current_user' => $is_user_logged_in ? wp_get_current_user() : null,
-            'title_form' => $is_user_logged_in 
-                ? __('Choose your level:', 'form-quizz-fqi3')
-                : __('As no logged user, you are only acces to:', 'form-quizz-fqi3'),
-            'levels' => $this->levelsQuiz,
-            'timer_settings' => $this->getTimerSettings(),
-            'sharing_enabled' => empty($this->options['fqi3_disable_sharing']),
-            'translations' => $this->getTranslations()
-        ];
-    }
-
-    /**
-     * Render remaining attempts
-     * 
-     * @return string The rendered HTML of the remaining attempts template.
-    */
-    public function renderRemainingAttempts(): string {
-        \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
-        $data = $this->prepareAttemptsData();
-        
-        return $this->template_manager->render('remaining-attempts', $data);
-    }
-
-    /**
-     * Prepare data for attempts template
-     * 
-     * @return array The data for the attempts template.
-    */
-    private function prepareAttemptsData(): array {
-        $user_id = get_current_user_id();
-        $is_premium_user = fqi3_userHasAnyRole($user_id, fqi3_getUserPremiumRoles());
-        
-        return [
-            'infos_attempts' => $this->getAttemptsInfo(),
-            'is_premium_user' => $is_premium_user,
-            'sales_page_url' => $this->getSalesPageUrl(),
-        ];
-    }
-
-    /**
-     * Get attempts data
-    */
-    public function getAttemptsData(): array {
-        return $this->prepareAttemptsData();
-    }
-
-    /**
-     * Get timer settings
-    */
-    private function getTimerSettings(): array {
-        return [
-            'enabled' => isset($_SESSION['fqi3_enable_timer']) 
-                && $_SESSION['fqi3_enable_timer'] === 'yes',
-            'duration' => isset($_SESSION['fqi3_timer_duration']) 
-                ? intval($_SESSION['fqi3_timer_duration']) 
-                : 5
-        ];
-    }
-
-    /**
-     * Get sales page URL
-    */
-    private function getSalesPageUrl(): string {
-        $page_id = $this->options['fqi3_sales_page'] ?? '';
-        return $page_id ? get_permalink($page_id) : '#';
-    }
-
-    /**
-     * Get translations for templates
-    */
-    public function getTranslations(): array {
-        $num_questions = $this->options['fqi3_number_questions_per_quiz'] ?? 10;
-        return [
-            'start' => __('Start', 'form-quizz-fqi3'),
-            // translators: %s is the name or username of the user.
-            'welcome' => __('Welcome, %s. Happy to see you again for some fun learning!', 'form-quizz-fqi3'),
-            'loading' => __('Loading...', 'form-quizz-fqi3'),
-            'next' => __('Next', 'form-quizz-fqi3'),
-            'results' => __('Results', 'form-quizz-fqi3'),
-            'restart_quiz' => __('Restart the quizz', 'form-quizz-fqi3'),
-            'sign_up' => __('Sign Up to Access More Levels', 'form-quizz-fqi3'),
-            'go_back' => __('Go back to the start', 'form-quizz-fqi3'),
-            'share_results' => __('Share your results:', 'form-quizz-fqi3'),
-            'share_facebook' => __('Share on Facebook', 'form-quizz-fqi3'),
-            'share_x' => __('Share on X', 'form-quizz-fqi3'),
-            'share_linkedin' => __('Share on LinkedIn', 'form-quizz-fqi3'),
-            'upgrade_message' => __('Upgrade to our premium version to get unlimited access!', 'form-quizz-fqi3'),
-            'view_details' => __('View Details and register', 'form-quizz-fqi3'),
-            'timer_label' => sprintf(
-                /* translators: %d is the number of questions in the quiz. */
-                __('Do you want to activate a timer to complete the %d questions?', 'form-quizz-fqi3'),
-                intval($num_questions)
-            ),
-            'timer_duration' => __('How many minutes?', 'form-quizz-fqi3')
-        ];
-    }
-
-    /**
-     * Handle AJAX request for getting questions based on the user's level.
-     * 
-     * This method checks if the user is logged in and if they have reached their daily quiz limit.
-     * If the user is allowed to take a quiz, it retrieves questions from the database,
-     * caches the results, and returns them as JSON. If no questions are found, it returns an error message.
-     * 
-     * @return void
-    */
-    public function handleGetQuestions(): void {
-        if ($this->shouldBlockQuizAccess()) {
-            wp_send_json_error([
-                'message' => __('You have reached your quiz limit for today.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        $level = $this->sanitizeLevel($_GET['niveau'] ?? 'free');
-
-        // The level picker only offers visitors the levels flagged "free": enforce it here too,
-        // otherwise changing the `niveau` parameter exposes the levels reserved to members.
-        if (!$this->canAccessLevel($level)) {
-            wp_send_json_error([
-                'message' => __('Please log in to access this level.', 'form-quizz-fqi3')
-            ]);
-        }
-
-        $this->start_session_if_needed();
-        // Ensure we have a current attempt id in session (best-effort)
-        $attempt_id = $this->getCurrentAttemptId();
-        if ($attempt_id <= 0 && is_user_logged_in()) {
-            $attempt_id = $this->createAttempt(get_current_user_id(), $level);
-        }
-        $questions = $this->getQuestions($level);
-
-        if (empty($questions)) {
-            wp_send_json([
-                'error' => sprintf(
-                    // translators: %s represents the level (e.g., 'beginner', 'intermediate', 'advanced') where no questions are found.
-                    __('No questions found in %s level.', 'form-quizz-fqi3'),
-                    '<span id="levelChoose"></span>'
-                )
-            ]);
-        }
-
-        // Notify listeners that the final question set has been fixed for this request
-        // Allows addons (e.g., Question Bank Pro) to persist a snapshot or log
-        do_action(
-            'fqi3_quiz_questions_drawn',
-            get_current_user_id() ?: 0,
-            $level,
-            array_map('intval', wp_list_pluck($questions, 'id')),
-            ['source' => 'core', 'attempt_id' => $attempt_id]
-        );
-
-        $this->incrementQuizCount();
-        wp_send_json($questions);
-    }
-
-    /**
-     * Whether the current visitor may request the questions of a level.
-     *
-     * Visitors who are not logged in can only access levels flagged as free. Logged-in users
-     * are not restricted here (the daily limit is enforced separately). A level that does not
-     * exist is let through so that the regular "no questions found" response is returned.
-     *
-     * @param string $level Level slug.
-     * @return bool
-     * @since 3.4.0
-     */
-    private function canAccessLevel(string $level): bool {
-        if (is_user_logged_in()) {
-            return true;
-        }
-
-        $levels = fqi3_get_free_quiz_levels();
-        if (!isset($levels[$level])) {
-            return true;
-        }
-
-        return !empty($levels[$level]['free']);
-    }
-
-    /**
-     * Get questions for a specific level
-     * 
-     * @param string $level The level for which to retrieve questions
-     * @return array The questions for the specified level
-    */
-    private function getQuestions(string $level): array {
-        // Number of questions comes from the settings (it was hard-coded to 10 before).
-        $limit = max(1, min(100, (int) ($this->options['fqi3_number_questions_per_quiz'] ?? 10)));
-
-        // The draw can be user-specific (see the `fqi3_quiz_questions_draw` filter), so the cache
-        // key includes the user: otherwise a persistent object cache would hand one user's set to another.
-        $cacheKey = sprintf('questions_%s_u%d_n%d', $level, get_current_user_id(), $limit);
-        $questions = wp_cache_get($cacheKey, self::CACHE_GROUP);
-
-        if (false === $questions) {
-            // Allow addons to provide a deterministic question set for this level
-            $user_id = get_current_user_id() ?: 0;
-            $context = ['source' => 'core', 'level' => $level];
-            $draw = apply_filters(
-                'fqi3_quiz_questions_draw',
-                ['question_ids' => [], 'meta' => []],
-                $level,
-                $user_id,
-                $context
-            );
-
-            global $wpdb;
-            if (is_array($draw) && !empty($draw['question_ids']) && is_array($draw['question_ids'])) {
-                // Sanitize and ensure unique IDs
-                $ids = array_values(array_unique(array_map('intval', $draw['question_ids'])));
-                $ids = array_filter($ids, static fn($v) => $v > 0);
-
-                if (!empty($ids)) {
-                    // Fetch all requested questions (preserve order in PHP)
-                    $placeholders = implode(',', array_fill(0, count($ids), '%d'));
-                    $sql = "SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE id IN ($placeholders)";
-                    $prepared = $wpdb->prepare($sql, $ids);
-                    $questions = $wpdb->get_results($prepared, ARRAY_A);
-
-                    // Preserve the order provided by addon
-                    $orderMap = array_flip($ids);
-                    usort($questions, static function ($a, $b) use ($orderMap) {
-                        $ia = $orderMap[(int)($a['id'] ?? 0)] ?? PHP_INT_MAX;
-                        $ib = $orderMap[(int)($b['id'] ?? 0)] ?? PHP_INT_MAX;
-                        return $ia <=> $ib;
-                    });
-                } else {
-                    $questions = [];
-                }
-            } else {
-                // Fallback to core random selection by level
-                $questions = $wpdb->get_results(
-                    $wpdb->prepare(
-                        "SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE niveau = %s ORDER BY RAND() LIMIT %d",
-                        $level,
-                        $limit
-                    ),
-                    ARRAY_A
-                );
-            }
-
-            if ($questions) {
-                array_walk($questions, function(&$question) {
-                    $question['options'] = json_decode($question['options'], true);
-                });
-
-                wp_cache_set($cacheKey, $questions, self::CACHE_GROUP, 300);
-            }
-        }
-
-        return $questions ?: [];
-    }
-
-    /**
-     * Handle cookie operations
-     * 
-     * @param string $action The action to perform ('get' or 'set')
-     * @param string|null $value The value to set (for 'set' action)
-     * @return int|null The value of the cookie (for 'get' action)
-    */
-    private function handleCookie(string $action, ?string $value = null): ?int {
-        switch ($action) {
-            case 'get':
-                return isset($_COOKIE[self::COOKIE_QUIZ_COUNT]) 
-                    ? (int)$_COOKIE[self::COOKIE_QUIZ_COUNT] 
-                    : 0;
-            
-            case 'set':
-                $expire = strtotime('tomorrow');
-                setcookie(
-                    self::COOKIE_QUIZ_COUNT,
-                    $value,
-                    $expire,
-                    COOKIEPATH,
-                    COOKIE_DOMAIN,
-                    is_ssl(),
-                    true
-                );
-                $_COOKIE[self::COOKIE_QUIZ_COUNT] = $value;
-                return null;
-            
-            case 'reset':
-                return $this->handleCookie('set', '0');
-            
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * Check if quiz access should be blocked
-    */
-    private function shouldBlockQuizAccess(): bool {
-        if (!is_user_logged_in()) {
-            return false;
-        }
-
-        $user = wp_get_current_user();
-        if (!in_array('subscriber', $user->roles)) {
-            return false;
-        }
-
-        return !$this->canTakeQuiz();
-    }
-
-    /**
-     * Check if user can take another quiz based on the daily limit.
-     * 
-     * This method retrieves the current quiz count and compares it to a configurable daily limit stored in the database.
-     * The daily limit is obtained from the 'free_trials_per_day' option, with a default value of 3 if not set.
-     * It returns true if the quiz count is below the daily limit, otherwise false.
-     * 
-     * @return bool True if the user can take another quiz, otherwise false.
-     * @since 1.2.0 Added configurable daily limit option.
-     * @since 1.1.0 Initial release.
-    */
-    public function canTakeQuiz(): bool {
-        $dailyLimit = (int)($this->options['fqi3_free_trials_per_day'] ?? 3);
-        
-        return $this->getDailyQuizCount() < $dailyLimit;
-    }
-
-    /**
-     * Get attempts information
-     * 
-     * This method calculates the remaining quiz attempts by subtracting
-     * the number of attempts made (stored in a cookie) from the total number
-     * of free trials allowed per day (retrieved from plugin options).
-     *
-     * @return int The number of remaining attempts. Returns 0 if there are no remaining attempts.
-     *
-     * @since 1.3.0
-    */
-    public function getAttemptsInfo(): array {
-        $totalAttempts = (int)($this->options['fqi3_free_trials_per_day'] ?? 0);
-        $attemptsMade = $this->getDailyQuizCount();
-        $remainingAttempts = max(0, $totalAttempts - $attemptsMade);
-
-        return [
-            'total_attempts' => $totalAttempts,
-            'attempts_made' => $attemptsMade,
-            'remaining_attempts' => $remainingAttempts
-        ];
-    }
-
-    /**
-     * Output dynamic CSS
-    */
-    public function outputDynamicCSS(): void {
-        $cssVars = [
-            'color-text-pre-form' => $this->options['fqi3_color_text_pre_form'] ?? '',
-            'color-text-top-question' => $this->options['fqi3_color_text_top_question'] ?? '',
-            'color-bg-top-question' => $this->options['fqi3_color_bg_top_question'] ?? '',
-            'color-text-btn' => $this->options['fqi3_color_text_btn'] ?? '',
-            'color-bg-btn' => $this->options['fqi3_color_bg_btn'] ?? ''
-        ];
-
-        $css = ':root {' . PHP_EOL;
-        foreach ($cssVars as $key => $value) {
-            $css .= sprintf('    --%s: %s;%s', $key, esc_attr($value), PHP_EOL);
-        }
-        $css .= '}';
-
-        printf('<style>%s</style>', $css);
-    }
-
-     /**
-     * Handle timer settings
-     * 
-     * This method is triggered via AJAX and handles saving the timer settings (whether the timer is enabled and its duration) 
-     * into the user's session. If the timer is enabled, it stores the 'enable_timer' status and the 'timer_duration' (default 5 minutes). 
-     * If the timer is disabled, it clears the session values for the timer.
-     *
-     * It also validates the AJAX request by checking the session and the nonce for security.
-     * 
-     * @since 1.2.0
-    */
-    public function handleSaveTimerSettings(): void {
-        $this->start_session_if_needed();
-
-        check_ajax_referer('fqi3_session_nonce', 'nonce');
-
-        $enableTimer = $_POST['enable_timer'] ?? 'no';
-        $_SESSION['fqi3_enable_timer'] = $enableTimer;
-
-        if ($enableTimer === 'yes') {
-            $_SESSION['fqi3_timer_duration'] = (int)($_POST['timer_duration'] ?? 5);
-        } else {
-            unset($_SESSION['fqi3_timer_duration']);
-        }
-
-        wp_send_json_success();
-    }
-
-    /**
-     * Register quiz start
-     * 
-     * This method is triggered via AJAX and handles registering the start of a quiz session.
-     * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
-     * 
-     * If all checks pass, it triggers the 'fqi3_quiz_started' action hook to notify other plugins or extensions.
-     * 
-     * @since 3.0.0
-    */
-    public function fqi3_register_quiz_start(): void {
-        check_ajax_referer('fqi3_session_nonce', 'nonce');
-    
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Utilisateur non connecté.']);
-            return;
-        }
-    
-        $user_id = get_current_user_id();
-    
-        if (!$user_id || !is_numeric($user_id)) {
-            wp_send_json_error(['message' => 'ID utilisateur invalide.']);
-            return;
-        }
-
-        $quiz_level = sanitize_text_field($_POST['quiz_level'] ?? '');
-
-        if (empty($quiz_level)) {
-            wp_send_json_error(['message' => 'Niveau du quiz manquant.']);
-            return;
-        }
-    
-        // Create a server-side attempt and store in session
-        $this->start_session_if_needed();
-        $attempt_id = $this->createAttempt((int)$user_id, (string)$quiz_level);
-        // Back-compat action
-        do_action('fqi3_quiz_started', $user_id, $quiz_level);
-        // New detailed action with attempt id
-        do_action('fqi3_quiz_attempt_started', (int)$attempt_id, (int)$user_id, (string)$quiz_level);
-
-        wp_send_json_success(['message' => 'Quiz démarré avec succès.', 'attempt_id' => (int)$attempt_id]);
-    }
-
-    /**
-     * Register quiz completion
-     * 
-     * This method is triggered via AJAX and handles registering the completion of a quiz session.
-     * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
-     * 
-     * If all checks pass, it triggers the 'fqi3_quiz_completed' action hook to notify other plugins or extensions.
-     * 
-     * @since 3.0.0
-    */
-    public function fqi3_register_quiz_complete_handler(): void {
-        check_ajax_referer('fqi3_session_nonce', 'nonce');
-    
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => 'Utilisateur non connecté.']);
-            return;
-        }
-    
-        $user_id = get_current_user_id();
-    
-        if (!$user_id || !is_numeric($user_id)) {
-            wp_send_json_error(['message' => 'ID utilisateur invalide.']);
-            return;
-        }
-
-        $quiz_level = sanitize_text_field(wp_unslash($_POST['quiz_level'] ?? ''));
-    
-        if (empty($quiz_level)) {
-            wp_send_json_error(['message' => 'Niveau du quiz manquant.']);
-            return;
-        }
-
-        if (!$this->isKnownLevel($quiz_level)) {
-            wp_send_json_error(['message' => __('Invalid quiz level.', 'form-quizz-fqi3')]);
-            return;
-        }
-
-        $quiz_score = $this->sanitizeQuizScore($_POST['quiz_score'] ?? 0);
-
-        // Complete the current attempt if available
-        $this->start_session_if_needed();
-        $attempt_id = $this->getCurrentAttemptId();
-        if ($attempt_id > 0) {
-            $this->completeAttempt($attempt_id, $quiz_score);
-        }
-
-        // Back-compat
-        do_action('fqi3_quiz_completed', $user_id, $quiz_level);
-        // New detailed action
-        do_action('fqi3_quiz_attempt_completed', (int)$attempt_id, (int)$user_id, (string)$quiz_level, (float)$quiz_score);
-    
-        wp_send_json_success([
-            'message' => 'Quiz terminé avec succès.',
-            'level' => $quiz_level,
-            'score' => $quiz_score,
-            'attempt_id' => (int)$attempt_id
-        ]);
-    }
-
-    /**
-     * Process quiz hooks
-     * 
-     * This method is triggered via AJAX and handles processing the quiz hooks.
-     * It checks the nonce for security and triggers the 'fqi3_before_results_quiz_form' action hook.
-     * 
-     * @since 3.0.0
-    */
-    public function process_quiz_hooks_handler(): void {
-        check_ajax_referer('fqi3_session_nonce', 'nonce');
-        
-        $user_id = get_current_user_id();
-        $quiz_level = sanitize_text_field(wp_unslash($_POST['quiz_level'] ?? ''));
-
-        if (!$this->isKnownLevel($quiz_level)) {
-            wp_send_json_error(['message' => __('Invalid quiz level.', 'form-quizz-fqi3')]);
-            return;
-        }
-
-        $quiz_score = $this->sanitizeQuizScore($_POST['quiz_score'] ?? 0);
-
-        do_action('fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score);
-        
-        wp_send_json_success([
-            'message' => 'Hooks processed successfully'
-        ]);
-    }
-    
-    /**
-     * Initialize quiz levels
-     * 
-     * @since 1.2.2
-    */
-    public function initializeLevels(): void {
-        $this->levelsQuiz = fqi3_get_free_quiz_levels();
-    }
-
-    /**
-     * Whether the level exists in the configured quiz levels.
-     *
-     * @since 3.4.0
-     */
-    private function isKnownLevel(string $level): bool {
-        return $level !== '' && isset(fqi3_get_free_quiz_levels()[$level]);
-    }
-
-    /**
-     * Quiz scores are computed in the browser: only accept a percentage between 0 and 100.
-     *
-     * @param mixed $raw Raw POST value.
-     * @since 3.4.0
-     */
-    private function sanitizeQuizScore($raw): float {
-        $score = is_numeric($raw) ? (float) $raw : 0.0;
-
-        return max(0.0, min(100.0, round($score, 2)));
-    }
-
-    /**
-     * Sanitize level input
-    */
-    private function sanitizeLevel(string $level): string {
-        return sanitize_text_field($level);
-    }
-
-    /**
-     * Increment quiz count stored in the cookie.
-    */
-    private function incrementQuizCount(): void {
-        if (is_user_logged_in()) {
-            // Logged-in users: counted server-side, a cookie can be deleted or forged.
-            update_user_meta(get_current_user_id(), self::META_DAILY_COUNT, [
-                'date'  => current_time('Y-m-d'),
-                'count' => $this->getDailyQuizCount() + 1,
-            ]);
-            return;
-        }
-
-        $count = $this->handleCookie('get');
-        $this->handleCookie('set', (string)($count + 1));
-    }
-
-    /**
-     * Number of quizzes started today (site timezone).
-     *
-     * Logged-in users: stored in user meta, reset when the date changes.
-     * Visitors: cookie (informational only, the daily limit applies to logged-in subscribers).
-     *
-     * @return int
-     * @since 3.4.0
-     */
-    private function getDailyQuizCount(): int {
-        if (!is_user_logged_in()) {
-            return (int) $this->handleCookie('get');
-        }
-
-        $data = get_user_meta(get_current_user_id(), self::META_DAILY_COUNT, true);
-        if (is_array($data) && ($data['date'] ?? '') === current_time('Y-m-d')) {
-            return max(0, (int) ($data['count'] ?? 0));
-        }
-
-        return 0;
-    }
-
-    /**
-     * Ensure attempts table exists
-     */
-    public function ensure_attempts_table(): void {
-        // Autoloaded option: no database query once the table has been created.
-        if (get_option(self::ATTEMPTS_TABLE_OPTION) === self::ATTEMPTS_TABLE_VERSION) {
-            return;
-        }
-
-        global $wpdb;
-        $table = $wpdb->prefix . 'fqi3_quiz_attempts';
-        $charset_collate = $wpdb->get_charset_collate();
-        $sql = "CREATE TABLE IF NOT EXISTS `$table` (
+if ( ! class_exists( 'FQI3_Frontend' ) ) :
+
+	class FQI3_Frontend {
+		private static $instance = null;
+
+		/** @var FQI3_Template_Manager */
+		private FQI3_Template_Manager $template_manager;
+
+		/** @var array */
+		private array $levelsQuiz = array();
+
+		/** @var array */
+		private array $options = array();
+
+		/** @var string */
+		private const COOKIE_QUIZ_COUNT = 'fqi3_quiz_count';
+		private const META_DAILY_COUNT  = 'fqi3_daily_quiz_count';
+
+		/** Option remembering that the attempts table exists (avoids a DDL query on every request). */
+		private const ATTEMPTS_TABLE_OPTION  = 'fqi3_attempts_table_version';
+		private const ATTEMPTS_TABLE_VERSION = '1';
+
+		/** @var string */
+		private const CACHE_GROUP = 'free_quiz';
+		/** @var string */
+		private const ATTEMPT_SESSION_KEY = 'fqi3_attempt_id';
+
+		public static function getInstance() {
+			if ( self::$instance === null ) {
+				self::$instance = new self();
+			}
+			return self::$instance;
+		}
+
+		/**
+		 * Initialize the frontend functionality
+		 */
+		public function __construct() {
+			$this->template_manager = new FQI3_Template_Manager();
+			$this->options          = fqi3_get_options();
+
+			// Initialize hooks
+			$this->initHooks();
+		}
+
+		private function start_session_if_needed(): void {
+			if ( session_status() === PHP_SESSION_NONE ) {
+				session_start();
+			}
+		}
+
+		/**
+		 * Initialize WordPress hooks
+		 */
+		private function initHooks(): void {
+			// Shortcodes @since 1.3.0
+			add_shortcode( 'free_quiz_form', array( $this, 'free_quiz_form_shortcode' ) );
+			add_shortcode( 'fqi3_quizz_form', array( $this, 'renderForm' ) );
+			add_shortcode( 'fqi3_remaining_attempts', array( $this, 'renderRemainingAttempts' ) );
+
+			// AJAX handlers
+			add_action( 'wp_ajax_get_questions', array( $this, 'handleGetQuestions' ) );
+			add_action( 'wp_ajax_nopriv_get_questions', array( $this, 'handleGetQuestions' ) );
+			add_action( 'wp_ajax_increment_quiz_count', array( $this, 'handleIncrementQuizCount' ) );
+			add_action( 'wp_ajax_nopriv_increment_quiz_count', array( $this, 'handleIncrementQuizCount' ) );
+			add_action( 'wp_ajax_save_timer_settings', array( $this, 'handleSaveTimerSettings' ) );
+			add_action( 'wp_ajax_nopriv_save_timer_settings', array( $this, 'handleSaveTimerSettings' ) );
+
+			// Start & Finish quizz
+			add_action( 'wp_ajax_fqi3_register_quiz_start', array( $this, 'fqi3_register_quiz_start' ) );
+			add_action( 'wp_ajax_nopriv_fqi3_register_quiz_start', array( $this, 'fqi3_register_quiz_start' ) );
+			add_action( 'wp_ajax_fqi3_register_quiz_complete', array( $this, 'fqi3_register_quiz_complete_handler' ) );
+			add_action( 'wp_ajax_nopriv_fqi3_register_quiz_complete', array( $this, 'fqi3_register_quiz_complete_handler' ) );
+			add_action( 'wp_ajax_fqi3_process_quiz_hooks', array( $this, 'process_quiz_hooks_handler' ) );
+			add_action( 'wp_ajax_nopriv_fqi3_process_quiz_hooks', array( $this, 'process_quiz_hooks_handler' ) );
+
+			// Other hooks
+			add_action( 'wp_head', array( $this, 'outputDynamicCSS' ) );
+			add_action( 'wp_loaded', array( $this, 'initializeLevels' ) );
+			// Ensure attempts table exists (lightweight safety)
+			add_action( 'init', array( $this, 'ensure_attempts_table' ) );
+		}
+
+		/**
+		 * Render the quiz form
+		 */
+		public function renderForm(): string {
+			\Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
+			$this->start_session_if_needed();
+
+			$data = $this->prepareQuizFormData();
+
+			return $this->template_manager->render( 'quiz-form', $data );
+		}
+
+		/**
+		 * Redirects the old [free_quiz_form] shortcode to the new [fqi3_quizz_form] shortcode.
+		 *
+		 * This method ensures backward compatibility by processing the old shortcode and rendering
+		 * the quiz form using the same logic as the new [fqi3_quizz_form] shortcode. It acts as an alias
+		 * for the new shortcode to avoid breaking sites that still use the old one.
+		 *
+		 * @param array $atts Shortcode attributes passed by the user (optional).
+		 *
+		 * @return string The rendered HTML of the quiz form.
+		 * @since 3.0.0
+		 */
+		public function free_quiz_form_shortcode( $atts ) {
+			return $this->renderForm( $atts );
+		}
+
+		/**
+		 * Prepare data for quiz form template
+		 */
+		private function prepareQuizFormData(): array {
+			$is_user_logged_in = is_user_logged_in();
+
+			return array(
+				'text_pre_form'     => wp_kses_post(
+					$this->options['fqi3_text_pre_form'] ?? sprintf(
+						'<h1>%s</h1>',
+						__( 'Default Title', 'form-quizz-fqi3' )
+					)
+				),
+				'selected_page_url' => $this->getSalesPageUrl(),
+				'is_user_logged_in' => $is_user_logged_in,
+				'current_user'      => $is_user_logged_in ? wp_get_current_user() : null,
+				'title_form'        => $is_user_logged_in
+					? __( 'Choose your level:', 'form-quizz-fqi3' )
+					: __( 'As no logged user, you are only acces to:', 'form-quizz-fqi3' ),
+				'levels'            => $this->levelsQuiz,
+				'timer_settings'    => $this->getTimerSettings(),
+				'sharing_enabled'   => empty( $this->options['fqi3_disable_sharing'] ),
+				'translations'      => $this->getTranslations(),
+			);
+		}
+
+		/**
+		 * Render remaining attempts
+		 *
+		 * @return string The rendered HTML of the remaining attempts template.
+		*/
+		public function renderRemainingAttempts(): string {
+			\Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
+			$data = $this->prepareAttemptsData();
+
+			return $this->template_manager->render( 'remaining-attempts', $data );
+		}
+
+		/**
+		 * Prepare data for attempts template
+		 *
+		 * @return array The data for the attempts template.
+		*/
+		private function prepareAttemptsData(): array {
+			$user_id         = get_current_user_id();
+			$is_premium_user = fqi3_userHasAnyRole( $user_id, fqi3_getUserPremiumRoles() );
+
+			return array(
+				'infos_attempts'  => $this->getAttemptsInfo(),
+				'is_premium_user' => $is_premium_user,
+				'sales_page_url'  => $this->getSalesPageUrl(),
+			);
+		}
+
+		/**
+		 * Get attempts data
+		*/
+		public function getAttemptsData(): array {
+			return $this->prepareAttemptsData();
+		}
+
+		/**
+		 * Get timer settings
+		*/
+		private function getTimerSettings(): array {
+			return array(
+				'enabled'  => isset( $_SESSION['fqi3_enable_timer'] )
+					&& $_SESSION['fqi3_enable_timer'] === 'yes',
+				'duration' => isset( $_SESSION['fqi3_timer_duration'] )
+					? intval( $_SESSION['fqi3_timer_duration'] )
+					: 5,
+			);
+		}
+
+		/**
+		 * Get sales page URL
+		*/
+		private function getSalesPageUrl(): string {
+			$page_id = $this->options['fqi3_sales_page'] ?? '';
+			return $page_id ? get_permalink( $page_id ) : '#';
+		}
+
+		/**
+		 * Get translations for templates
+		*/
+		public function getTranslations(): array {
+			$num_questions = $this->options['fqi3_number_questions_per_quiz'] ?? 10;
+			return array(
+				'start'           => __( 'Start', 'form-quizz-fqi3' ),
+				// translators: %s is the name or username of the user.
+				'welcome'         => __( 'Welcome, %s. Happy to see you again for some fun learning!', 'form-quizz-fqi3' ),
+				'loading'         => __( 'Loading...', 'form-quizz-fqi3' ),
+				'next'            => __( 'Next', 'form-quizz-fqi3' ),
+				'results'         => __( 'Results', 'form-quizz-fqi3' ),
+				'restart_quiz'    => __( 'Restart the quizz', 'form-quizz-fqi3' ),
+				'sign_up'         => __( 'Sign Up to Access More Levels', 'form-quizz-fqi3' ),
+				'go_back'         => __( 'Go back to the start', 'form-quizz-fqi3' ),
+				'share_results'   => __( 'Share your results:', 'form-quizz-fqi3' ),
+				'share_facebook'  => __( 'Share on Facebook', 'form-quizz-fqi3' ),
+				'share_x'         => __( 'Share on X', 'form-quizz-fqi3' ),
+				'share_linkedin'  => __( 'Share on LinkedIn', 'form-quizz-fqi3' ),
+				'upgrade_message' => __( 'Upgrade to our premium version to get unlimited access!', 'form-quizz-fqi3' ),
+				'view_details'    => __( 'View Details and register', 'form-quizz-fqi3' ),
+				'timer_label'     => sprintf(
+					/* translators: %d is the number of questions in the quiz. */
+					__( 'Do you want to activate a timer to complete the %d questions?', 'form-quizz-fqi3' ),
+					intval( $num_questions )
+				),
+				'timer_duration'  => __( 'How many minutes?', 'form-quizz-fqi3' ),
+			);
+		}
+
+		/**
+		 * Handle AJAX request for getting questions based on the user's level.
+		 *
+		 * This method checks if the user is logged in and if they have reached their daily quiz limit.
+		 * If the user is allowed to take a quiz, it retrieves questions from the database,
+		 * caches the results, and returns them as JSON. If no questions are found, it returns an error message.
+		 *
+		 * @return void
+		*/
+		public function handleGetQuestions(): void {
+			if ( $this->shouldBlockQuizAccess() ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'You have reached your quiz limit for today.', 'form-quizz-fqi3' ),
+					)
+				);
+			}
+
+			$level = $this->sanitizeLevel( $_GET['niveau'] ?? 'free' );
+
+			// The level picker only offers visitors the levels flagged "free": enforce it here too,
+			// otherwise changing the `niveau` parameter exposes the levels reserved to members.
+			if ( ! $this->canAccessLevel( $level ) ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Please log in to access this level.', 'form-quizz-fqi3' ),
+					)
+				);
+			}
+
+			$this->start_session_if_needed();
+			// Ensure we have a current attempt id in session (best-effort)
+			$attempt_id = $this->getCurrentAttemptId();
+			if ( $attempt_id <= 0 && is_user_logged_in() ) {
+				$attempt_id = $this->createAttempt( get_current_user_id(), $level );
+			}
+			$questions = $this->getQuestions( $level );
+
+			if ( empty( $questions ) ) {
+				wp_send_json(
+					array(
+						'error' => sprintf(
+						// translators: %s represents the level (e.g., 'beginner', 'intermediate', 'advanced') where no questions are found.
+							__( 'No questions found in %s level.', 'form-quizz-fqi3' ),
+							'<span id="levelChoose"></span>'
+						),
+					)
+				);
+			}
+
+			// Notify listeners that the final question set has been fixed for this request
+			// Allows addons (e.g., Question Bank Pro) to persist a snapshot or log
+			do_action(
+				'fqi3_quiz_questions_drawn',
+				get_current_user_id() ?: 0,
+				$level,
+				array_map( 'intval', wp_list_pluck( $questions, 'id' ) ),
+				array(
+					'source'     => 'core',
+					'attempt_id' => $attempt_id,
+				)
+			);
+
+			$this->incrementQuizCount();
+			wp_send_json( $questions );
+		}
+
+		/**
+		 * Whether the current visitor may request the questions of a level.
+		 *
+		 * Visitors who are not logged in can only access levels flagged as free. Logged-in users
+		 * are not restricted here (the daily limit is enforced separately). A level that does not
+		 * exist is let through so that the regular "no questions found" response is returned.
+		 *
+		 * @param string $level Level slug.
+		 * @return bool
+		 * @since 3.4.0
+		 */
+		private function canAccessLevel( string $level ): bool {
+			if ( is_user_logged_in() ) {
+				return true;
+			}
+
+			$levels = fqi3_get_free_quiz_levels();
+			if ( ! isset( $levels[ $level ] ) ) {
+				return true;
+			}
+
+			return ! empty( $levels[ $level ]['free'] );
+		}
+
+		/**
+		 * Get questions for a specific level
+		 *
+		 * @param string $level The level for which to retrieve questions
+		 * @return array The questions for the specified level
+		*/
+		private function getQuestions( string $level ): array {
+			// Number of questions comes from the settings (it was hard-coded to 10 before).
+			$limit = max( 1, min( 100, (int) ( $this->options['fqi3_number_questions_per_quiz'] ?? 10 ) ) );
+
+			// The draw can be user-specific (see the `fqi3_quiz_questions_draw` filter), so the cache
+			// key includes the user: otherwise a persistent object cache would hand one user's set to another.
+			$cacheKey  = sprintf( 'questions_%s_u%d_n%d', $level, get_current_user_id(), $limit );
+			$questions = wp_cache_get( $cacheKey, self::CACHE_GROUP );
+
+			if ( false === $questions ) {
+				// Allow addons to provide a deterministic question set for this level
+				$user_id = get_current_user_id() ?: 0;
+				$context = array(
+					'source' => 'core',
+					'level'  => $level,
+				);
+				$draw    = apply_filters(
+					'fqi3_quiz_questions_draw',
+					array(
+						'question_ids' => array(),
+						'meta'         => array(),
+					),
+					$level,
+					$user_id,
+					$context
+				);
+
+				global $wpdb;
+				if ( is_array( $draw ) && ! empty( $draw['question_ids'] ) && is_array( $draw['question_ids'] ) ) {
+					// Sanitize and ensure unique IDs
+					$ids = array_values( array_unique( array_map( 'intval', $draw['question_ids'] ) ) );
+					$ids = array_filter( $ids, static fn( $v ) => $v > 0 );
+
+					if ( ! empty( $ids ) ) {
+						// Fetch all requested questions (preserve order in PHP)
+						$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+						$sql          = "SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE id IN ($placeholders)";
+						$prepared     = $wpdb->prepare( $sql, $ids );
+						$questions    = $wpdb->get_results( $prepared, ARRAY_A );
+
+						// Preserve the order provided by addon
+						$orderMap = array_flip( $ids );
+						usort(
+							$questions,
+							static function ( $a, $b ) use ( $orderMap ) {
+								$ia = $orderMap[ (int) ( $a['id'] ?? 0 ) ] ?? PHP_INT_MAX;
+								$ib = $orderMap[ (int) ( $b['id'] ?? 0 ) ] ?? PHP_INT_MAX;
+								return $ia <=> $ib;
+							}
+						);
+					} else {
+						$questions = array();
+					}
+				} else {
+					// Fallback to core random selection by level
+					$questions = $wpdb->get_results(
+						$wpdb->prepare(
+							"SELECT * FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . ' WHERE niveau = %s ORDER BY RAND() LIMIT %d',
+							$level,
+							$limit
+						),
+						ARRAY_A
+					);
+				}
+
+				if ( $questions ) {
+					array_walk(
+						$questions,
+						function ( &$question ) {
+							$question['options'] = json_decode( $question['options'], true );
+						}
+					);
+
+					wp_cache_set( $cacheKey, $questions, self::CACHE_GROUP, 300 );
+				}
+			}
+
+			return $questions ?: array();
+		}
+
+		/**
+		 * Handle cookie operations
+		 *
+		 * @param string $action The action to perform ('get' or 'set')
+		 * @param string|null $value The value to set (for 'set' action)
+		 * @return int|null The value of the cookie (for 'get' action)
+		*/
+		private function handleCookie( string $action, ?string $value = null ): ?int {
+			switch ( $action ) {
+				case 'get':
+					return isset( $_COOKIE[ self::COOKIE_QUIZ_COUNT ] )
+					? (int) $_COOKIE[ self::COOKIE_QUIZ_COUNT ]
+					: 0;
+
+				case 'set':
+					$expire = strtotime( 'tomorrow' );
+					setcookie(
+						self::COOKIE_QUIZ_COUNT,
+						$value,
+						$expire,
+						COOKIEPATH,
+						COOKIE_DOMAIN,
+						is_ssl(),
+						true
+					);
+					$_COOKIE[ self::COOKIE_QUIZ_COUNT ] = $value;
+					return null;
+
+				case 'reset':
+					return $this->handleCookie( 'set', '0' );
+
+				default:
+					return null;
+			}
+		}
+
+		/**
+		 * Check if quiz access should be blocked
+		*/
+		private function shouldBlockQuizAccess(): bool {
+			if ( ! is_user_logged_in() ) {
+				return false;
+			}
+
+			$user = wp_get_current_user();
+			if ( ! in_array( 'subscriber', $user->roles ) ) {
+				return false;
+			}
+
+			return ! $this->canTakeQuiz();
+		}
+
+		/**
+		 * Check if user can take another quiz based on the daily limit.
+		 *
+		 * This method retrieves the current quiz count and compares it to a configurable daily limit stored in the database.
+		 * The daily limit is obtained from the 'free_trials_per_day' option, with a default value of 3 if not set.
+		 * It returns true if the quiz count is below the daily limit, otherwise false.
+		 *
+		 * @return bool True if the user can take another quiz, otherwise false.
+		 * @since 1.2.0 Added configurable daily limit option.
+		 * @since 1.1.0 Initial release.
+		*/
+		public function canTakeQuiz(): bool {
+			$dailyLimit = (int) ( $this->options['fqi3_free_trials_per_day'] ?? 3 );
+
+			return $this->getDailyQuizCount() < $dailyLimit;
+		}
+
+		/**
+		 * Get attempts information
+		 *
+		 * This method calculates the remaining quiz attempts by subtracting
+		 * the number of attempts made (stored in a cookie) from the total number
+		 * of free trials allowed per day (retrieved from plugin options).
+		 *
+		 * @return int The number of remaining attempts. Returns 0 if there are no remaining attempts.
+		 *
+		 * @since 1.3.0
+		*/
+		public function getAttemptsInfo(): array {
+			$totalAttempts     = (int) ( $this->options['fqi3_free_trials_per_day'] ?? 0 );
+			$attemptsMade      = $this->getDailyQuizCount();
+			$remainingAttempts = max( 0, $totalAttempts - $attemptsMade );
+
+			return array(
+				'total_attempts'     => $totalAttempts,
+				'attempts_made'      => $attemptsMade,
+				'remaining_attempts' => $remainingAttempts,
+			);
+		}
+
+		/**
+		 * Output dynamic CSS
+		*/
+		public function outputDynamicCSS(): void {
+			$cssVars = array(
+				'color-text-pre-form'     => $this->options['fqi3_color_text_pre_form'] ?? '',
+				'color-text-top-question' => $this->options['fqi3_color_text_top_question'] ?? '',
+				'color-bg-top-question'   => $this->options['fqi3_color_bg_top_question'] ?? '',
+				'color-text-btn'          => $this->options['fqi3_color_text_btn'] ?? '',
+				'color-bg-btn'            => $this->options['fqi3_color_bg_btn'] ?? '',
+			);
+
+			$css = ':root {' . PHP_EOL;
+			foreach ( $cssVars as $key => $value ) {
+				$css .= sprintf( '    --%s: %s;%s', $key, esc_attr( $value ), PHP_EOL );
+			}
+			$css .= '}';
+
+			printf( '<style>%s</style>', $css );
+		}
+
+		/**
+		 * Handle timer settings
+		 *
+		 * This method is triggered via AJAX and handles saving the timer settings (whether the timer is enabled and its duration)
+		 * into the user's session. If the timer is enabled, it stores the 'enable_timer' status and the 'timer_duration' (default 5 minutes).
+		 * If the timer is disabled, it clears the session values for the timer.
+		 *
+		 * It also validates the AJAX request by checking the session and the nonce for security.
+		 *
+		 * @since 1.2.0
+		*/
+		public function handleSaveTimerSettings(): void {
+			$this->start_session_if_needed();
+
+			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
+
+			$enableTimer                   = $_POST['enable_timer'] ?? 'no';
+			$_SESSION['fqi3_enable_timer'] = $enableTimer;
+
+			if ( $enableTimer === 'yes' ) {
+				$_SESSION['fqi3_timer_duration'] = (int) ( $_POST['timer_duration'] ?? 5 );
+			} else {
+				unset( $_SESSION['fqi3_timer_duration'] );
+			}
+
+			wp_send_json_success();
+		}
+
+		/**
+		 * Register quiz start
+		 *
+		 * This method is triggered via AJAX and handles registering the start of a quiz session.
+		 * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
+		 *
+		 * If all checks pass, it triggers the 'fqi3_quiz_started' action hook to notify other plugins or extensions.
+		 *
+		 * @since 3.0.0
+		*/
+		public function fqi3_register_quiz_start(): void {
+			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
+
+			if ( ! is_user_logged_in() ) {
+				wp_send_json_error( array( 'message' => 'Utilisateur non connecté.' ) );
+				return;
+			}
+
+			$user_id = get_current_user_id();
+
+			if ( ! $user_id || ! is_numeric( $user_id ) ) {
+				wp_send_json_error( array( 'message' => 'ID utilisateur invalide.' ) );
+				return;
+			}
+
+			$quiz_level = sanitize_text_field( $_POST['quiz_level'] ?? '' );
+
+			if ( empty( $quiz_level ) ) {
+				wp_send_json_error( array( 'message' => 'Niveau du quiz manquant.' ) );
+				return;
+			}
+
+			// Create a server-side attempt and store in session
+			$this->start_session_if_needed();
+			$attempt_id = $this->createAttempt( (int) $user_id, (string) $quiz_level );
+			// Back-compat action
+			do_action( 'fqi3_quiz_started', $user_id, $quiz_level );
+			// New detailed action with attempt id
+			do_action( 'fqi3_quiz_attempt_started', (int) $attempt_id, (int) $user_id, (string) $quiz_level );
+
+			wp_send_json_success(
+				array(
+					'message'    => 'Quiz démarré avec succès.',
+					'attempt_id' => (int) $attempt_id,
+				)
+			);
+		}
+
+		/**
+		 * Register quiz completion
+		 *
+		 * This method is triggered via AJAX and handles registering the completion of a quiz session.
+		 * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
+		 *
+		 * If all checks pass, it triggers the 'fqi3_quiz_completed' action hook to notify other plugins or extensions.
+		 *
+		 * @since 3.0.0
+		*/
+		public function fqi3_register_quiz_complete_handler(): void {
+			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
+
+			if ( ! is_user_logged_in() ) {
+				wp_send_json_error( array( 'message' => 'Utilisateur non connecté.' ) );
+				return;
+			}
+
+			$user_id = get_current_user_id();
+
+			if ( ! $user_id || ! is_numeric( $user_id ) ) {
+				wp_send_json_error( array( 'message' => 'ID utilisateur invalide.' ) );
+				return;
+			}
+
+			$quiz_level = sanitize_text_field( wp_unslash( $_POST['quiz_level'] ?? '' ) );
+
+			if ( empty( $quiz_level ) ) {
+				wp_send_json_error( array( 'message' => 'Niveau du quiz manquant.' ) );
+				return;
+			}
+
+			if ( ! $this->isKnownLevel( $quiz_level ) ) {
+				wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			$quiz_score = $this->sanitizeQuizScore( $_POST['quiz_score'] ?? 0 );
+
+			// Complete the current attempt if available
+			$this->start_session_if_needed();
+			$attempt_id = $this->getCurrentAttemptId();
+			if ( $attempt_id > 0 ) {
+				$this->completeAttempt( $attempt_id, $quiz_score );
+			}
+
+			// Back-compat
+			do_action( 'fqi3_quiz_completed', $user_id, $quiz_level );
+			// New detailed action
+			do_action( 'fqi3_quiz_attempt_completed', (int) $attempt_id, (int) $user_id, (string) $quiz_level, (float) $quiz_score );
+
+			wp_send_json_success(
+				array(
+					'message'    => 'Quiz terminé avec succès.',
+					'level'      => $quiz_level,
+					'score'      => $quiz_score,
+					'attempt_id' => (int) $attempt_id,
+				)
+			);
+		}
+
+		/**
+		 * Process quiz hooks
+		 *
+		 * This method is triggered via AJAX and handles processing the quiz hooks.
+		 * It checks the nonce for security and triggers the 'fqi3_before_results_quiz_form' action hook.
+		 *
+		 * @since 3.0.0
+		*/
+		public function process_quiz_hooks_handler(): void {
+			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
+
+			$user_id    = get_current_user_id();
+			$quiz_level = sanitize_text_field( wp_unslash( $_POST['quiz_level'] ?? '' ) );
+
+			if ( ! $this->isKnownLevel( $quiz_level ) ) {
+				wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			$quiz_score = $this->sanitizeQuizScore( $_POST['quiz_score'] ?? 0 );
+
+			do_action( 'fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score );
+
+			wp_send_json_success(
+				array(
+					'message' => 'Hooks processed successfully',
+				)
+			);
+		}
+
+		/**
+		 * Initialize quiz levels
+		 *
+		 * @since 1.2.2
+		*/
+		public function initializeLevels(): void {
+			$this->levelsQuiz = fqi3_get_free_quiz_levels();
+		}
+
+		/**
+		 * Whether the level exists in the configured quiz levels.
+		 *
+		 * @since 3.4.0
+		 */
+		private function isKnownLevel( string $level ): bool {
+			return $level !== '' && isset( fqi3_get_free_quiz_levels()[ $level ] );
+		}
+
+		/**
+		 * Quiz scores are computed in the browser: only accept a percentage between 0 and 100.
+		 *
+		 * @param mixed $raw Raw POST value.
+		 * @since 3.4.0
+		 */
+		private function sanitizeQuizScore( $raw ): float {
+			$score = is_numeric( $raw ) ? (float) $raw : 0.0;
+
+			return max( 0.0, min( 100.0, round( $score, 2 ) ) );
+		}
+
+		/**
+		 * Sanitize level input
+		*/
+		private function sanitizeLevel( string $level ): string {
+			return sanitize_text_field( $level );
+		}
+
+		/**
+		 * Increment quiz count stored in the cookie.
+		*/
+		private function incrementQuizCount(): void {
+			if ( is_user_logged_in() ) {
+				// Logged-in users: counted server-side, a cookie can be deleted or forged.
+				update_user_meta(
+					get_current_user_id(),
+					self::META_DAILY_COUNT,
+					array(
+						'date'  => current_time( 'Y-m-d' ),
+						'count' => $this->getDailyQuizCount() + 1,
+					)
+				);
+				return;
+			}
+
+			$count = $this->handleCookie( 'get' );
+			$this->handleCookie( 'set', (string) ( $count + 1 ) );
+		}
+
+		/**
+		 * Number of quizzes started today (site timezone).
+		 *
+		 * Logged-in users: stored in user meta, reset when the date changes.
+		 * Visitors: cookie (informational only, the daily limit applies to logged-in subscribers).
+		 *
+		 * @return int
+		 * @since 3.4.0
+		 */
+		private function getDailyQuizCount(): int {
+			if ( ! is_user_logged_in() ) {
+				return (int) $this->handleCookie( 'get' );
+			}
+
+			$data = get_user_meta( get_current_user_id(), self::META_DAILY_COUNT, true );
+			if ( is_array( $data ) && ( $data['date'] ?? '' ) === current_time( 'Y-m-d' ) ) {
+				return max( 0, (int) ( $data['count'] ?? 0 ) );
+			}
+
+			return 0;
+		}
+
+		/**
+		 * Ensure attempts table exists
+		 */
+		public function ensure_attempts_table(): void {
+			// Autoloaded option: no database query once the table has been created.
+			if ( get_option( self::ATTEMPTS_TABLE_OPTION ) === self::ATTEMPTS_TABLE_VERSION ) {
+				return;
+			}
+
+			global $wpdb;
+			$table           = $wpdb->prefix . 'fqi3_quiz_attempts';
+			$charset_collate = $wpdb->get_charset_collate();
+			$sql             = "CREATE TABLE IF NOT EXISTS `$table` (
             `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             `user_id` BIGINT UNSIGNED NOT NULL,
             `level` VARCHAR(50) NOT NULL,
@@ -764,97 +801,111 @@ class FQI3_Frontend {
             KEY `level_idx` (`level`),
             KEY `started_at_idx` (`started_at`)
         ) $charset_collate;";
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-        $wpdb->query($sql);
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->query( $sql );
 
-        update_option(self::ATTEMPTS_TABLE_OPTION, self::ATTEMPTS_TABLE_VERSION);
-    }
+			update_option( self::ATTEMPTS_TABLE_OPTION, self::ATTEMPTS_TABLE_VERSION );
+		}
 
-    /**
-     * Create an attempt and store id in session
-     */
-    private function createAttempt(int $user_id, string $level): int {
-        global $wpdb;
-        $this->ensure_attempts_table();
-        $table = $wpdb->prefix . 'fqi3_quiz_attempts';
-        $insert = static function () use ($wpdb, $table, $user_id, $level) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-            return $wpdb->insert($table, [
-                'user_id' => $user_id,
-                'level' => sanitize_text_field($level),
-                'started_at' => current_time('mysql', 1),
-            ], [
-                '%d','%s','%s'
-            ]);
-        };
-        $ins = $insert();
-        if (!$ins) {
-            // The table may have been dropped while the "already created" flag remains: recreate it once and retry.
-            delete_option(self::ATTEMPTS_TABLE_OPTION);
-            $this->ensure_attempts_table();
-            $ins = $insert();
-        }
-        if ($ins) {
-            $attempt_id = (int)$wpdb->insert_id;
-            $_SESSION[self::ATTEMPT_SESSION_KEY] = $attempt_id;
-            return $attempt_id;
-        }
-        return 0;
-    }
+		/**
+		 * Create an attempt and store id in session
+		 */
+		private function createAttempt( int $user_id, string $level ): int {
+			global $wpdb;
+			$this->ensure_attempts_table();
+			$table  = $wpdb->prefix . 'fqi3_quiz_attempts';
+			$insert = static function () use ( $wpdb, $table, $user_id, $level ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				return $wpdb->insert(
+					$table,
+					array(
+						'user_id'    => $user_id,
+						'level'      => sanitize_text_field( $level ),
+						'started_at' => current_time( 'mysql', 1 ),
+					),
+					array(
+						'%d',
+						'%s',
+						'%s',
+					)
+				);
+			};
+			$ins    = $insert();
+			if ( ! $ins ) {
+				// The table may have been dropped while the "already created" flag remains: recreate it once and retry.
+				delete_option( self::ATTEMPTS_TABLE_OPTION );
+				$this->ensure_attempts_table();
+				$ins = $insert();
+			}
+			if ( $ins ) {
+				$attempt_id                            = (int) $wpdb->insert_id;
+				$_SESSION[ self::ATTEMPT_SESSION_KEY ] = $attempt_id;
+				return $attempt_id;
+			}
+			return 0;
+		}
 
-    /**
-     * Get current attempt id from session
-     */
-    private function getCurrentAttemptId(): int {
-        return isset($_SESSION[self::ATTEMPT_SESSION_KEY]) ? (int)$_SESSION[self::ATTEMPT_SESSION_KEY] : 0;
-    }
+		/**
+		 * Get current attempt id from session
+		 */
+		private function getCurrentAttemptId(): int {
+			return isset( $_SESSION[ self::ATTEMPT_SESSION_KEY ] ) ? (int) $_SESSION[ self::ATTEMPT_SESSION_KEY ] : 0;
+		}
 
-    /**
-     * Complete an attempt
-     */
-    private function completeAttempt(int $attempt_id, float $score): void {
-        if ($attempt_id <= 0) { return; }
-        global $wpdb;
-        $table = $wpdb->prefix . 'fqi3_quiz_attempts';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-        $wpdb->update($table, [
-            'score' => $score,
-            'completed_at' => current_time('mysql', 1),
-        ], [
-            'id' => $attempt_id
-        ], [
-            '%f','%s'
-        ], [
-            '%d'
-        ]);
-        // Clear session so a new quiz gets a new attempt id
-        unset($_SESSION[self::ATTEMPT_SESSION_KEY]);
-    }
+		/**
+		 * Complete an attempt
+		 */
+		private function completeAttempt( int $attempt_id, float $score ): void {
+			if ( $attempt_id <= 0 ) {
+				return; }
+			global $wpdb;
+			$table = $wpdb->prefix . 'fqi3_quiz_attempts';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->update(
+				$table,
+				array(
+					'score'        => $score,
+					'completed_at' => current_time( 'mysql', 1 ),
+				),
+				array(
+					'id' => $attempt_id,
+				),
+				array(
+					'%f',
+					'%s',
+				),
+				array(
+					'%d',
+				)
+			);
+			// Clear session so a new quiz gets a new attempt id
+			unset( $_SESSION[ self::ATTEMPT_SESSION_KEY ] );
+		}
 
-    /**
-     * Handle increment quiz count AJAX request
-     */
-    public function handleIncrementQuizCount(): void {
-        check_ajax_referer('fqi3_cookies_nonce', 'nonce');
+		/**
+		 * Handle increment quiz count AJAX request
+		 */
+		public function handleIncrementQuizCount(): void {
+			check_ajax_referer( 'fqi3_cookies_nonce', 'nonce' );
 
-        // Logged-in users are already counted server-side when the questions are served
-        // (handleGetQuestions). Counting again here would consume two trials per quiz.
-        if (!is_user_logged_in()) {
-            $this->incrementQuizCount();
-        }
-        wp_send_json_success();
-    }
+			// Logged-in users are already counted server-side when the questions are served
+			// (handleGetQuestions). Counting again here would consume two trials per quiz.
+			if ( ! is_user_logged_in() ) {
+				$this->incrementQuizCount();
+			}
+			wp_send_json_success();
+		}
 
-    /**
-     * Get quiz levels
-     * 
-     * @return array
-     */
-    public function getLevelsQuiz(): array {
-        return $this->levelsQuiz;
-    }
-}
+		/**
+		 * Get quiz levels
+		 *
+		 * @return array
+		 */
+		public function getLevelsQuiz(): array {
+			return $this->levelsQuiz;
+		}
+	}
 
-FQI3_Frontend::getInstance();
+	FQI3_Frontend::getInstance();
 
 endif;
