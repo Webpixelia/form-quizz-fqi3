@@ -102,7 +102,7 @@ form-quizz-fqi3/
 - PHP 8.0+
 - Composer (optional, for development tooling)
 
-There is no Node.js build step: the JavaScript and CSS files under `assets/` are loaded as they are.
+There is no Node.js build step: the JavaScript and CSS files under `assets/` are loaded as they are. Third-party libraries used on public pages are bundled in `assets/vendor/` (see `assets/vendor/README.md` for versions and update instructions).
 
 ### Scheduled tasks (WP-Cron)
 
@@ -128,7 +128,7 @@ All user input is sanitized and output is escaped. The plugin follows WordPress 
 
 - Quiz scoring happens in the browser: scores sent by the client are informational. Do not use them for anything that needs to be tamper-proof (certificates, rewards with a monetary value) without an additional server-side check.
 
-## Upgrade notes (unreleased, 3.3.1)
+## Upgrade notes (3.4.0)
 
 - The Premium Member role is no longer removed when the plugin is deactivated. It is removed on uninstall only if "Delete data on uninstall" is enabled.
 - The GitHub token is no longer saved from the settings screen. Define `GITHUB_PERSONAL_TOKEN` in `wp-config.php` (sites that already have it keep working).
@@ -137,6 +137,15 @@ All user input is sanitized and output is escaped. The plugin follows WordPress 
 - Daily limit: one quiz started now consumes exactly one trial (the previous cookie-based counter could consume two). Counters start from zero after the update.
 - The number of questions per quiz now follows the "Number of questions per quiz" setting.
 - Monthly statistics are now actually scheduled.
+- Front-end CSS/JS are loaded only on pages that contain one of the plugin's shortcodes or blocks. If you display the plugin through a page builder, a widget or a template and notice unstyled content, force the loading with the `fqi3_load_frontend_assets` filter:
+
+  ```php
+  add_filter( 'fqi3_load_frontend_assets', function ( $load ) {
+      return $load || is_page( 'my-quiz-page' );
+  } );
+  ```
+
+- Chart.js and canvas-confetti are bundled in `assets/vendor/` instead of being loaded from a CDN on public pages. The admin screens still load Bootstrap and Driver.js from a CDN (pinned versions).
 
 ## Support
 

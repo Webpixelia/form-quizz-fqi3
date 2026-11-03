@@ -33,6 +33,10 @@ class FQI3_Frontend {
     /** @var string */
     private const COOKIE_QUIZ_COUNT = 'fqi3_quiz_count';
     private const META_DAILY_COUNT = 'fqi3_daily_quiz_count';
+
+    /** Option remembering that the attempts table exists (avoids a DDL query on every request). */
+    private const ATTEMPTS_TABLE_OPTION  = 'fqi3_attempts_table_version';
+    private const ATTEMPTS_TABLE_VERSION = '1';
     
     /** @var string */
     private const CACHE_GROUP = 'free_quiz';
@@ -99,6 +103,7 @@ class FQI3_Frontend {
      * Render the quiz form
      */
     public function renderForm(): string {
+        \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
         $this->start_session_if_needed();
 
         $data = $this->prepareQuizFormData();
@@ -152,6 +157,7 @@ class FQI3_Frontend {
      * @return string The rendered HTML of the remaining attempts template.
     */
     public function renderRemainingAttempts(): string {
+        \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
         $data = $this->prepareAttemptsData();
         
         return $this->template_manager->render('remaining-attempts', $data);
@@ -298,7 +304,7 @@ class FQI3_Frontend {
      *
      * @param string $level Level slug.
      * @return bool
-     * @since 3.3.1
+     * @since 3.4.0
      */
     private function canAccessLevel(string $level): bool {
         if (is_user_logged_in()) {
@@ -687,7 +693,7 @@ class FQI3_Frontend {
      * Visitors: cookie (informational only, the daily limit applies to logged-in subscribers).
      *
      * @return int
-     * @since 3.3.1
+     * @since 3.4.0
      */
     private function getDailyQuizCount(): int {
         if (!is_user_logged_in()) {
@@ -706,6 +712,11 @@ class FQI3_Frontend {
      * Ensure attempts table exists
      */
     public function ensure_attempts_table(): void {
+        // Autoloaded option: no database query once the table has been created.
+        if (get_option(self::ATTEMPTS_TABLE_OPTION) === self::ATTEMPTS_TABLE_VERSION) {
+            return;
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . 'fqi3_quiz_attempts';
         $charset_collate = $wpdb->get_charset_collate();
@@ -723,6 +734,8 @@ class FQI3_Frontend {
         ) $charset_collate;";
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery
         $wpdb->query($sql);
+
+        update_option(self::ATTEMPTS_TABLE_OPTION, self::ATTEMPTS_TABLE_VERSION);
     }
 
     /**
@@ -732,14 +745,23 @@ class FQI3_Frontend {
         global $wpdb;
         $this->ensure_attempts_table();
         $table = $wpdb->prefix . 'fqi3_quiz_attempts';
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-        $ins = $wpdb->insert($table, [
-            'user_id' => $user_id,
-            'level' => sanitize_text_field($level),
-            'started_at' => current_time('mysql', 1),
-        ], [
-            '%d','%s','%s'
-        ]);
+        $insert = static function () use ($wpdb, $table, $user_id, $level) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            return $wpdb->insert($table, [
+                'user_id' => $user_id,
+                'level' => sanitize_text_field($level),
+                'started_at' => current_time('mysql', 1),
+            ], [
+                '%d','%s','%s'
+            ]);
+        };
+        $ins = $insert();
+        if (!$ins) {
+            // The table may have been dropped while the "already created" flag remains: recreate it once and retry.
+            delete_option(self::ATTEMPTS_TABLE_OPTION);
+            $this->ensure_attempts_table();
+            $ins = $insert();
+        }
         if ($ins) {
             $attempt_id = (int)$wpdb->insert_id;
             $_SESSION[self::ATTEMPT_SESSION_KEY] = $attempt_id;

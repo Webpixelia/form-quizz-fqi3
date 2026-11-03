@@ -742,7 +742,7 @@ class FQI3_Import_Export_Page {
      * the unguessable file names remain the protection, and a `location` deny rule is advised.
      *
      * @param string $dir Absolute directory path.
-     * @since 3.3.1
+     * @since 3.4.0
      */
     private function protect_directory(string $dir): void {
         $dir = trailingslashit($dir);
@@ -766,7 +766,7 @@ class FQI3_Import_Export_Page {
      * @param mixed $raw Raw value from the import file.
      * @return string JSON-encoded list of 2+ sanitized answers.
      * @throws \InvalidArgumentException When the value is not a usable list of answers.
-     * @since 3.3.1
+     * @since 3.4.0
      */
     private function normalize_question_options($raw): string {
         $options = is_string($raw) ? json_decode($raw, true) : $raw;
@@ -787,7 +787,7 @@ class FQI3_Import_Export_Page {
      *
      * @param mixed $value Raw value.
      * @return mixed Sanitized value (arrays keep their keys).
-     * @since 3.3.1
+     * @since 3.4.0
      */
     private function sanitize_import_option_value($value) {
         if (is_array($value)) {

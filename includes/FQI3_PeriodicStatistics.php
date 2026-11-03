@@ -207,6 +207,8 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
             string $custom_box_classes = '',
             string $custom_box_styles = ''
         ): string {
+            FQI3_Statistics::getInstance()->enqueue_assets();
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $userId = get_current_user_id();
             $atts = shortcode_atts([
                 'user_id' => $userId

@@ -36,10 +36,13 @@ if (!defined('ABSPATH')) {
         private const CACHE_DURATION = DAY_IN_SECONDS;
 
         /**
-         * URL for Chart.js CDN
+         * Version of the bundled Chart.js (assets/vendor/chartjs).
          * @var string
          */
-        private const CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js';
+        private const CHART_VERSION = '4.5.1';
+
+        /** @var bool Whether the chart data has already been localized on this request. */
+        private bool $chart_data_localized = false;
         
         /**
          * Instance of the awards manager
@@ -71,7 +74,9 @@ if (!defined('ABSPATH')) {
         private function init_hooks(): void {
             add_action('wp_ajax_update_quiz_statistics', [$this, 'handle_statistics_update']);
             add_action('wp_ajax_nopriv_update_quiz_statistics', [$this, 'handle_statistics_update']);
-            add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
+            add_action('wp_enqueue_scripts', [$this, 'register_assets']);
+            // Chart data needs a database lookup: only localize it when the chart script is really enqueued.
+            add_action('wp_enqueue_scripts', [$this, 'maybe_localize_chart_data'], 100);
             
             // Register shortcodes for displaying statistics
             $this->register_shortcodes();
@@ -144,10 +149,42 @@ if (!defined('ABSPATH')) {
          * @return void
          */
         public function enqueue_assets(): void {
-            wp_enqueue_script('chartjs', self::CHART_CDN, [], null, true);
-            wp_register_script('fqi3-pie-chart-init', FQI3_ASSETS . '/js/pie-chart.js', ['chartjs'], null, true);
+            $this->register_assets();
+
+            wp_enqueue_script('chartjs');
             wp_enqueue_script('fqi3-pie-chart-init');
 
+            $this->maybe_localize_chart_data();
+        }
+
+        /**
+         * Registers the chart scripts without loading them (idempotent).
+         * Chart.js is bundled with the plugin (no third-party CDN request).
+         *
+         * @return void
+         * @since 3.4.0
+         */
+        public function register_assets(): void {
+            if (!wp_script_is('chartjs', 'registered')) {
+                wp_register_script('chartjs', FQI3_ASSETS . '/vendor/chartjs/chart.umd.min.js', [], self::CHART_VERSION, true);
+            }
+            if (!wp_script_is('fqi3-pie-chart-init', 'registered')) {
+                wp_register_script('fqi3-pie-chart-init', FQI3_ASSETS . '/js/pie-chart.js', ['chartjs'], FQI3_VERSION, true);
+            }
+        }
+
+        /**
+         * Localizes the chart data once, and only if the chart init script is enqueued.
+         *
+         * @return void
+         * @since 3.4.0
+         */
+        public function maybe_localize_chart_data(): void {
+            if ($this->chart_data_localized || !wp_script_is('fqi3-pie-chart-init', 'enqueued')) {
+                return;
+            }
+
+            $this->chart_data_localized = true;
             $this->localize_chart_data();
         }
 
@@ -524,10 +561,14 @@ if (!defined('ABSPATH')) {
             string $custom_box_classes = '',
             string $custom_box_styles = ''
         ): string {
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $validation_result = $this->validate_user_permissions(__('your statistics','form-quizz-fqi3'));
             if ($validation_result !== null) {
                 return $this->render_error_message($validation_result);
             }
+
+            // Charts are only needed once the user is allowed to see their statistics
+            $this->enqueue_assets();
     
             $stats = $this->get_user_statistics(get_current_user_id());
             if (empty($stats)) {
@@ -879,6 +920,7 @@ if (!defined('ABSPATH')) {
             string $custom_box_classes = '',
             string $custom_box_styles = ''
         ): string {
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $validation_result = $this->validate_user_permissions(__('your comparative statistics', 'form-quizz-fqi3'));
             if ($validation_result !== null) {
                 return $this->render_error_message($validation_result);
@@ -1052,6 +1094,7 @@ if (!defined('ABSPATH')) {
          * @return string HTML output of badge cards or error message
         */
         public function render_user_badge_cards(): string {
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $validation_result = $this->validate_badge_access();
             if ($validation_result !== null) {
                 return $this->render_error_message($validation_result);

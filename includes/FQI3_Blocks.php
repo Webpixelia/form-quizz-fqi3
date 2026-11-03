@@ -206,6 +206,7 @@ if (!class_exists('FQI3_Blocks')) :
          * @return string Rendered block HTML
          */
         public function renderQuizFormBlock($attributes = [], $content = ''): string {
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $attrs = array_merge(self::$QUIZ_FORM_DEFAULTS, $attributes);
 
             // Data attributes for JS
@@ -330,6 +331,7 @@ if (!class_exists('FQI3_Blocks')) :
          * @return string Rendered block HTML
          */
         public function renderRemainingAttemptsBlock($attributes = [], $content = ''): string {
+            \Form_Quizz_FQI3\FormQuizzFQI3::getInstance()->enqueueFrontendAssets();
             $attempts_data = $this->frontend->getAttemptsData();
             $gutenberg_styles = BlocksUtils::extractGutenbergStyles();
             

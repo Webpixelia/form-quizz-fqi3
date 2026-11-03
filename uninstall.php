@@ -35,6 +35,7 @@ if (isset($options['fqi3_delete_data']) && $options['fqi3_delete_data']) {
         'fqi3_options',
         'fqi3_quiz_levels',   
         'fqi3_encryption_key',
+        'fqi3_attempts_table_version',
     ];
     foreach ($options_to_delete as $option) {
         delete_option($option);

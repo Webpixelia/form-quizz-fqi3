@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 5.6
 Tested up to: 6.8.2
-Stable tag: 3.3.0
+Stable tag: 3.4.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -119,6 +119,21 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 10. Developer page View
 
 == Changelog ==
+= 3.4.0 =
+* Security: Exporting, adding, editing and deleting questions now require a capability and a nonce. Revoking the API token and sending the test e-mail require administrator rights.
+* Security: Badges can only be awarded to the logged-in user, and visitors can no longer request quiz levels reserved to logged-in users.
+* Security: The plugin no longer writes to wp-config.php. Define GITHUB_PERSONAL_TOKEN there manually (existing definitions keep working).
+* Security: Import backups and reports are stored in protected folders with unguessable file names (on nginx, add a deny rule for fqi3_backups and fqi3_reports).
+* Fix: A failed import could wipe all questions (TRUNCATE cannot be rolled back). The import now uses DELETE, backs up the existing data first and validates the file.
+* Fix: Deactivating the plugin no longer removes the Premium Member role from users (it is removed on uninstall if data deletion is enabled).
+* Fix: Administrators who also have the Premium Member role are no longer redirected out of wp-admin.
+* Fix: Monthly statistics were never scheduled. Cron events are now removed on deactivation and uninstall.
+* Fix: Questions cache is now per user, and the number of questions per quiz follows the setting (it was fixed to 10).
+* Improvement: The daily quiz limit is counted server-side for logged-in users. One quiz started consumes one trial and counters restart from zero.
+* Improvement: Chart.js and canvas-confetti are bundled with the plugin (no third-party CDN request on public pages). Front-end assets are only loaded on pages using the plugin, new filter fqi3_load_frontend_assets to force loading.
+* Improvement: The attempts table is no longer checked on every request.
+* Improvement: README aligned with the code.
+
 = 3.3.0 =
 * Refactor: Gutenberg blocks refactored with native options, custom attributes, and introduction of the new FQI3_Blocks class.
 * Added: Core plugin hooks (PHP) and shared JavaScript utils (`window.fqi3Blocks.utils`) for easier extension by add-ons.

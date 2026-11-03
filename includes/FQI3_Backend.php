@@ -561,7 +561,7 @@ class FQI3_Backend {
      * is not a permission check.
      *
      * @return bool
-     * @since 3.3.1
+     * @since 3.4.0
      */
     public function user_can_manage_questions(): bool {
         return current_user_can('edit_posts') && $this->user_has_any_role($this->get_allowed_roles());

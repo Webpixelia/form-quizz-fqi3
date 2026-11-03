@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 3.3.0
+ * Version: 3.4.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Update URI: https://github.com/Webpixelia/form-quizz-fqi3
@@ -69,7 +69,18 @@ final class FormQuizzFQI3 {
      *
      * @var string
      */
-    private const FQI3_VERSION = '3.3.0';
+    private const FQI3_VERSION = '3.4.0';
+
+    /** Shortcodes whose presence in a post means the front-end assets are needed. */
+    private const FRONTEND_SHORTCODES = [
+        'fqi3_quizz_form',
+        'free_quiz_form',
+        'fqi3_remaining_attempts',
+        'fqi3_user_statistics',
+        'fqi3_comparative_statistics',
+        'fqi3_current_user_badges',
+        'fqi3_periodic_stats',
+    ];
 
     /**
      * Required PHP version
@@ -567,15 +578,80 @@ final class FormQuizzFQI3 {
      * Enqueue frontend assets
      */
     public function frontendAssets(): void {
-        // Core styles
-        wp_enqueue_style('fqi3-style', FQI3_ASSETS . '/css/front-style.css', [], self::FQI3_VERSION, 'all');
+        // Always registered (so that add-ons depending on these handles keep working),
+        // but only enqueued where the plugin is actually used.
+        $this->registerFrontendAssets();
 
-        // Scripts
-        wp_enqueue_script('confetti-js', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js', [], null, true);
-        wp_enqueue_script('fqi3-script', FQI3_ASSETS . '/js/front-script.js', ['jquery'], self::FQI3_VERSION, true);
+        /**
+         * Force (or prevent) the loading of the plugin's front-end assets on the current page.
+         *
+         * By default they are loaded on singular content containing one of the plugin's shortcodes or blocks.
+         * Shortcodes rendered by a page builder, a widget or a template are detected when they render.
+         * Return true to load the assets on a page where the plugin is used in another way.
+         *
+         * @since 3.4.0
+         * @param bool $load Whether the current page uses the plugin.
+         */
+        if ((bool) apply_filters('fqi3_load_frontend_assets', $this->currentPageUsesPlugin())) {
+            $this->enqueueFrontendAssets();
+        }
+    }
 
-        // Localize script
+    /**
+     * Register front-end styles and scripts (idempotent).
+     *
+     * @since 3.4.0
+     */
+    public function registerFrontendAssets(): void {
+        if (wp_script_is('fqi3-script', 'registered')) {
+            return;
+        }
+
+        wp_register_style('fqi3-style', FQI3_ASSETS . '/css/front-style.css', [], self::FQI3_VERSION, 'all');
+        // Bundled locally (assets/vendor): no request to a third-party CDN from visitors' browsers.
+        wp_register_script('confetti-js', FQI3_ASSETS . '/vendor/canvas-confetti/confetti.browser.min.js', [], '1.9.3', true);
+        wp_register_script('fqi3-script', FQI3_ASSETS . '/js/front-script.js', ['jquery'], self::FQI3_VERSION, true);
+
         wp_localize_script('fqi3-script', 'fqi3Data', $this->getFrontendLocalization());
+    }
+
+    /**
+     * Enqueue the front-end styles and scripts. Safe to call several times, and from a shortcode or block render callback.
+     *
+     * @since 3.4.0
+     */
+    public function enqueueFrontendAssets(): void {
+        $this->registerFrontendAssets();
+
+        wp_enqueue_style('fqi3-style');
+        wp_enqueue_script('confetti-js');
+        wp_enqueue_script('fqi3-script');
+    }
+
+    /**
+     * Whether the current singular content contains one of the plugin's shortcodes or blocks.
+     */
+    private function currentPageUsesPlugin(): bool {
+        if (!is_singular()) {
+            return false;
+        }
+
+        $post = get_post();
+        if (!$post instanceof \WP_Post || $post->post_content === '') {
+            return false;
+        }
+
+        if (strpos($post->post_content, 'wp:fqi3/') !== false) {
+            return true;
+        }
+
+        foreach (self::FRONTEND_SHORTCODES as $tag) {
+            if (has_shortcode($post->post_content, $tag)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
