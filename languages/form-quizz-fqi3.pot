@@ -1,15 +1,15 @@
-# Copyright (C) 2025 Jonathan Webpixelia
+# Copyright (C) 2026 Jonathan Webpixelia
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Quizz FQI3 3.3.0\n"
+"Project-Id-Version: Form Quizz FQI3 3.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-09-23T11:09:35+00:00\n"
+"POT-Creation-Date: 2026-11-03T07:20:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: form-quizz-fqi3\n"
@@ -17,7 +17,7 @@ msgstr ""
 #. Plugin Name of the plugin
 #: form-quizz-fqi3.php
 #: includes/fqi3-config-functions.php:171
-#: includes/FQI3_Blocks.php:261
+#: includes/FQI3_Blocks.php:262
 msgid "Form Quizz FQI3"
 msgstr ""
 
@@ -41,113 +41,88 @@ msgid "This plugin is not listed in the WordPress.org directory."
 msgstr ""
 
 #. translators: 1: Current PHP version 2: Required PHP version
-#: form-quizz-fqi3.php:167
+#: form-quizz-fqi3.php:178
 #, php-format
 msgid "Form Quizz FQI3 requires PHP version %2$s or higher. Your current version is %1$s."
 msgstr ""
 
-#: form-quizz-fqi3.php:465
+#: form-quizz-fqi3.php:476
 msgid "Are you sure you want to revoke the API token?"
 msgstr ""
 
-#: form-quizz-fqi3.php:466
+#: form-quizz-fqi3.php:477
 msgid "Unable to copy the shortcode. Please try again."
 msgstr ""
 
-#: form-quizz-fqi3.php:467
+#: form-quizz-fqi3.php:478
 msgid "Insert image"
 msgstr ""
 
-#: form-quizz-fqi3.php:468
+#: form-quizz-fqi3.php:479
 msgid "Use this image"
 msgstr ""
 
-#: form-quizz-fqi3.php:469
+#: form-quizz-fqi3.php:480
 msgid "Upload image"
 msgstr ""
 
-#: form-quizz-fqi3.php:470
+#: form-quizz-fqi3.php:481
 msgid "Answer choice"
 msgstr ""
 
-#: form-quizz-fqi3.php:471
+#: form-quizz-fqi3.php:482
 #: templates/question-form.php:105
 msgid "Remove Answer Option"
 msgstr ""
 
-#: form-quizz-fqi3.php:472
+#: form-quizz-fqi3.php:483
 msgid "You must have at least 4 answer options."
 msgstr ""
 
-#: form-quizz-fqi3.php:500
+#: form-quizz-fqi3.php:511
 #: includes/admin/class-add-ons.php:436
 msgid "No add-ons found."
 msgstr ""
 
-#: form-quizz-fqi3.php:501
+#: form-quizz-fqi3.php:512
 msgid "Please wait..."
 msgstr ""
 
-#: form-quizz-fqi3.php:502
-#: form-quizz-fqi3.php:526
+#: form-quizz-fqi3.php:513
 msgid "An unexpected error occurred."
 msgstr ""
 
-#: form-quizz-fqi3.php:503
+#: form-quizz-fqi3.php:514
 msgid "Installing add-on..."
 msgstr ""
 
-#: form-quizz-fqi3.php:504
+#: form-quizz-fqi3.php:515
 msgid "Activating add-on..."
 msgstr ""
 
-#: form-quizz-fqi3.php:505
+#: form-quizz-fqi3.php:516
 msgid "Deactivating add-on..."
 msgstr ""
 
-#: form-quizz-fqi3.php:506
+#: form-quizz-fqi3.php:517
 #: includes/admin/class-add-ons.php:1304
 #: includes/admin/class-add-ons.php:1664
 #: includes/admin/class-add-questions.php:76
+#: includes/admin/class-add-questions.php:107
+#: includes/admin/class-edit-questions.php:97
 msgid "You are not allowed to perform this action."
 msgstr ""
 
-#: form-quizz-fqi3.php:507
+#: form-quizz-fqi3.php:518
 #: includes/admin/class-add-questions.php:83
 msgid "Invalid security token."
 msgstr ""
 
-#: form-quizz-fqi3.php:508
+#: form-quizz-fqi3.php:519
 msgid "Submitting..."
 msgstr ""
 
-#: form-quizz-fqi3.php:524
-msgid "Please enter a GitHub token."
-msgstr ""
-
-#: form-quizz-fqi3.php:525
-msgid "GitHub token must contain at least 20 characters."
-msgstr ""
-
-#: form-quizz-fqi3.php:527
-msgid "Server communication error."
-msgstr ""
-
-#: form-quizz-fqi3.php:528
-msgid "Current token"
-msgstr ""
-
-#: form-quizz-fqi3.php:529
-#: includes/admin/class-license-settings.php:78
-msgid "Enter new token to update"
-msgstr ""
-
-#: form-quizz-fqi3.php:530
-#: includes/admin/class-license-settings.php:190
-msgid "GitHub token saved successfully!"
-msgstr ""
-
-#: form-quizz-fqi3.php:563
+#: form-quizz-fqi3.php:566
 #: includes/admin/class-api-settings.php:304
 #: includes/admin/class-developper.php:282
 #: includes/admin/class-import-export.php:52
@@ -155,53 +130,53 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: form-quizz-fqi3.php:566
+#: form-quizz-fqi3.php:569
 #: templates/header.php:27
 msgid "Support"
 msgstr ""
 
-#: form-quizz-fqi3.php:644
+#: form-quizz-fqi3.php:712
 msgid "Please select a level before starting the quiz."
 msgstr ""
 
 #. Translators: %s is the limit number of quiz per day
-#: form-quizz-fqi3.php:646
+#: form-quizz-fqi3.php:714
 #, php-format
 msgid "You have reached the limit of %s quizzes per day as a free logged in user."
 msgstr ""
 
 #. Translators: %1$s is the number of correct answer if singular, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:648
+#: form-quizz-fqi3.php:716
 #, php-format
 msgid "You have %1$s correct answer on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 
 #. Translators: %1$s is the number of correct answers if plural, %2$s is the total number of questions, %3$s is the percentage of correct answers, %4$s is the finished level
-#: form-quizz-fqi3.php:650
+#: form-quizz-fqi3.php:718
 #, php-format
 msgid "You have %1$s correct answers on %2$s. (%3$s%) for the %4$s level"
 msgstr ""
 
-#: form-quizz-fqi3.php:651
+#: form-quizz-fqi3.php:719
 msgid "Select an answer before moving on to the next question."
 msgstr ""
 
-#: form-quizz-fqi3.php:652
+#: form-quizz-fqi3.php:720
 #: includes/admin/class-view-questions.php:123
 #: templates/partials/quiz-results.php:50
 msgid "Question"
 msgstr ""
 
-#: form-quizz-fqi3.php:653
+#: form-quizz-fqi3.php:721
 msgid "on"
 msgstr ""
 
-#: form-quizz-fqi3.php:654
+#: form-quizz-fqi3.php:722
 msgid "Oops! Your time is up! Feel free to try again."
 msgstr ""
 
 #. Translators: %1$s is the URL site, %2$s is  the number of correct answers, %3$s is the total number of questions, %3$s is the percentage of correct answers
-#: form-quizz-fqi3.php:656
+#: form-quizz-fqi3.php:724
 #, php-format
 msgid "I just finished the quiz on %1$s and I answered %2$s of %3$s questions correctly; that's %4$s%. Try it too; it's free!"
 msgstr ""
@@ -482,8 +457,8 @@ msgstr ""
 #: includes/admin/class-add-ons.php:501
 #: includes/admin/class-dashboard.php:106
 #: includes/admin/class-view-questions.php:391
-#: includes/admin/class-view-questions.php:506
-#: includes/admin/class-view-questions.php:727
+#: includes/admin/class-view-questions.php:507
+#: includes/admin/class-view-questions.php:739
 #: templates/question-form.php:61
 msgid "Free"
 msgstr ""
@@ -574,14 +549,14 @@ msgstr ""
 
 #: includes/admin/class-add-ons.php:762
 #: includes/admin/class-add-ons.php:883
-#: includes/admin/class-edit-questions.php:96
-#: includes/admin/class-emails-settings.php:264
-#: includes/admin/class-license-settings.php:155
+#: includes/admin/class-edit-questions.php:104
+#: includes/admin/class-emails-settings.php:268
 msgid "Security check failed."
 msgstr ""
 
 #: includes/admin/class-add-ons.php:767
-#: includes/admin/class-license-settings.php:162
+#: includes/admin/class-emails-settings.php:249
+#: includes/FQI3_Api.php:393
 msgid "You do not have permission to perform this action."
 msgstr ""
 
@@ -1011,51 +986,51 @@ msgstr ""
 msgid "Validation passed."
 msgstr ""
 
-#: includes/admin/class-add-questions.php:108
+#: includes/admin/class-add-questions.php:116
 msgid "Security check failed"
 msgstr ""
 
 #. Translators: %s indicates the name of the required field missing.
-#: includes/admin/class-add-questions.php:153
-#: includes/admin/class-add-questions.php:199
-#: includes/admin/class-edit-questions.php:169
+#: includes/admin/class-add-questions.php:161
+#: includes/admin/class-add-questions.php:207
+#: includes/admin/class-edit-questions.php:177
 #, php-format
 msgid "Field %s is required"
 msgstr ""
 
 #. Translators: %d indicates the number of the field answer.
-#: includes/admin/class-add-questions.php:169
-#: includes/admin/class-add-questions.php:239
-#: includes/admin/class-edit-questions.php:235
+#: includes/admin/class-add-questions.php:177
+#: includes/admin/class-add-questions.php:247
+#: includes/admin/class-edit-questions.php:243
 #, php-format
 msgid "Answer %d cannot be empty"
 msgstr ""
 
-#: includes/admin/class-add-questions.php:185
-#: includes/admin/class-add-questions.php:261
-#: includes/admin/class-edit-questions.php:210
+#: includes/admin/class-add-questions.php:193
+#: includes/admin/class-add-questions.php:269
+#: includes/admin/class-edit-questions.php:218
 msgid "Invalid correct answer selection"
 msgstr ""
 
 #. Translators: %d indicates the minimum answers required.
-#: includes/admin/class-add-questions.php:218
-#: includes/admin/class-edit-questions.php:190
+#: includes/admin/class-add-questions.php:226
+#: includes/admin/class-edit-questions.php:198
 #, php-format
 msgid "At least %d answers are required"
 msgstr ""
 
 #. Translators: %d indicates the maximum answers authorized.
-#: includes/admin/class-add-questions.php:226
-#: includes/admin/class-edit-questions.php:197
+#: includes/admin/class-add-questions.php:234
+#: includes/admin/class-edit-questions.php:205
 #, php-format
 msgid "Maximum %d answers are allowed"
 msgstr ""
 
-#: includes/admin/class-add-questions.php:285
+#: includes/admin/class-add-questions.php:293
 msgid "Error encoding answers"
 msgstr ""
 
-#: includes/admin/class-add-questions.php:304
+#: includes/admin/class-add-questions.php:312
 msgid "Database error occurred while inserting the question"
 msgstr ""
 
@@ -1269,8 +1244,8 @@ msgstr ""
 #: includes/admin/class-attempts.php:322
 #: includes/admin/class-dashboard.php:99
 #: includes/admin/class-view-questions.php:118
-#: includes/FQI3_Statistics.php:642
-#: includes/FQI3_Statistics.php:984
+#: includes/FQI3_Statistics.php:683
+#: includes/FQI3_Statistics.php:1026
 msgid "Level"
 msgstr ""
 
@@ -1293,7 +1268,7 @@ msgid "To"
 msgstr ""
 
 #: includes/admin/class-attempts.php:156
-#: includes/admin/class-view-questions.php:423
+#: includes/admin/class-view-questions.php:424
 msgid "Export CSV"
 msgstr ""
 
@@ -1393,7 +1368,7 @@ msgstr ""
 
 #: includes/admin/class-badges-settings.php:165
 #: includes/admin/class-badges-settings.php:208
-#: includes/FQI3_Awards.php:601
+#: includes/FQI3_Awards.php:603
 msgid "Threshold:"
 msgstr ""
 
@@ -1534,8 +1509,8 @@ msgid "Number of questions"
 msgstr ""
 
 #: includes/admin/class-dashboard.php:106
-#: includes/admin/class-view-questions.php:506
-#: includes/admin/class-view-questions.php:727
+#: includes/admin/class-view-questions.php:507
+#: includes/admin/class-view-questions.php:739
 msgid "Premium"
 msgstr ""
 
@@ -1548,7 +1523,7 @@ msgid "List of badges"
 msgstr ""
 
 #: includes/admin/class-dashboard.php:134
-#: includes/FQI3_Awards.php:598
+#: includes/FQI3_Awards.php:600
 msgid "Badge Type"
 msgstr ""
 
@@ -2209,32 +2184,32 @@ msgstr ""
 msgid "Edit question"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:131
+#: includes/admin/class-edit-questions.php:139
 msgid "Question not found."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:150
+#: includes/admin/class-edit-questions.php:158
 msgid "Error: Question options not found or invalid."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:179
-#: includes/admin/class-view-questions.php:638
+#: includes/admin/class-edit-questions.php:187
+#: includes/admin/class-view-questions.php:641
 msgid "Invalid question ID"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:243
+#: includes/admin/class-edit-questions.php:251
 msgid "Failed to encode answers"
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:311
+#: includes/admin/class-edit-questions.php:319
 msgid "Failed to update question."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:338
+#: includes/admin/class-edit-questions.php:346
 msgid "Invalid question ID. Please choose the question to modify in the question consultation page."
 msgstr ""
 
-#: includes/admin/class-edit-questions.php:342
+#: includes/admin/class-edit-questions.php:350
 msgid "View questions"
 msgstr ""
 
@@ -2305,11 +2280,11 @@ msgstr ""
 msgid "Send Test Email"
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:253
+#: includes/admin/class-emails-settings.php:257
 msgid "Email sending is disabled."
 msgstr ""
 
-#: includes/admin/class-emails-settings.php:260
+#: includes/admin/class-emails-settings.php:264
 msgid "Test email has been sent."
 msgstr ""
 
@@ -2453,7 +2428,7 @@ msgstr ""
 
 #: includes/admin/class-import-export.php:347
 #: includes/admin/class-import-export.php:382
-#: includes/FQI3_PeriodicStatistics.php:297
+#: includes/FQI3_PeriodicStatistics.php:324
 msgid "Security verification failed."
 msgstr ""
 
@@ -2484,9 +2459,33 @@ msgid "Invalid import data: No valid data sections found."
 msgstr ""
 
 #. Translators: %s is the error message.
-#: includes/admin/class-import-export.php:528
+#: includes/admin/class-import-export.php:541
 #, php-format
 msgid "Import failed: %s"
+msgstr ""
+
+#: includes/admin/class-import-export.php:729
+msgid "Unable to write the pre-import backup. Import aborted, no data was changed."
+msgstr ""
+
+#: includes/admin/class-import-export.php:775
+msgid "Invalid import data: a question has missing or invalid answer options."
+msgstr ""
+
+#: includes/admin/class-import-export.php:820
+msgid "Invalid import data: \"questions\" must be a list."
+msgstr ""
+
+#: includes/admin/class-import-export.php:824
+msgid "Invalid import data: malformed question entry."
+msgstr ""
+
+#: includes/admin/class-import-export.php:829
+msgid "Invalid import data: a question has an answer index outside its options."
+msgstr ""
+
+#: includes/admin/class-import-export.php:923
+msgid "Invalid import data: \"options\" must be an object."
 msgstr ""
 
 #: includes/admin/class-infos.php:52
@@ -2553,7 +2552,7 @@ msgid "User Statistics"
 msgstr ""
 
 #: includes/admin/class-infos.php:126
-#: includes/FQI3_Statistics.php:980
+#: includes/FQI3_Statistics.php:1022
 #: assets/js/fqi3-blocks-editor.js:150
 msgid "Comparative Statistics"
 msgstr ""
@@ -2737,73 +2736,40 @@ msgstr ""
 msgid "Advance"
 msgstr ""
 
-#: includes/admin/class-license-settings.php:48
+#: includes/admin/class-license-settings.php:49
 msgid "GitHub Personal Token"
 msgstr ""
 
-#: includes/admin/class-license-settings.php:59
+#: includes/admin/class-license-settings.php:60
 #: assets/js/driverjs-strings.js:15
 msgid "Configure your GitHub personal token here to enable access to add-ons and receive updates for the core plugin and installed add-ons."
 msgstr ""
 
-#: includes/admin/class-license-settings.php:79
-msgid "Enter your GitHub personal token"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:84
-msgid "Save Token"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:95
-msgid "Enter your GitHub personal token for API access."
-msgstr ""
-
-#: includes/admin/class-license-settings.php:100
-msgid "Create a new token on GitHub"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:106
+#: includes/admin/class-license-settings.php:75
 msgid "Current token:"
 msgstr ""
 
-#: includes/admin/class-license-settings.php:170
-msgid "Token cannot be empty."
+#: includes/admin/class-license-settings.php:80
+msgid "No GitHub token is defined."
 msgstr ""
 
-#: includes/admin/class-license-settings.php:177
-msgid "Invalid token format. GitHub tokens should contain only letters, numbers, and underscores."
+#: includes/admin/class-license-settings.php:85
+msgid "To set or change the token, add this line to your wp-config.php file (above the line \"That's all, stop editing!\"), then reload this page:"
 msgstr ""
 
-#: includes/admin/class-license-settings.php:203
-#: includes/admin/class-license-settings.php:298
+#: includes/admin/class-license-settings.php:91
+msgid "Create a new token on GitHub"
+msgstr ""
+
+#: includes/admin/class-license-settings.php:115
 msgid "Token cannot be empty"
 msgstr ""
 
-#: includes/admin/class-license-settings.php:209
-msgid "wp-config.php not found."
-msgstr ""
-
-#: includes/admin/class-license-settings.php:213
-msgid "wp-config.php is not writable. Please check file permissions."
-msgstr ""
-
-#: includes/admin/class-license-settings.php:219
-msgid "Failed to create backup of wp-config.php"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:225
-msgid "Failed to read wp-config.php"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:276
-msgid "Failed to write to wp-config.php"
-msgstr ""
-
-#: includes/admin/class-license-settings.php:311
+#: includes/admin/class-license-settings.php:128
 msgid "Failed to validate token with GitHub API."
 msgstr ""
 
-#: includes/admin/class-license-settings.php:317
+#: includes/admin/class-license-settings.php:134
 msgid "Invalid GitHub token."
 msgstr ""
 
@@ -2879,8 +2845,8 @@ msgid "Admin"
 msgstr ""
 
 #: includes/admin/class-statistics.php:291
-#: includes/FQI3_Awards.php:602
-#: includes/FQI3_Statistics.php:694
+#: includes/FQI3_Awards.php:604
+#: includes/FQI3_Statistics.php:735
 msgid "N/A"
 msgstr ""
 
@@ -2967,7 +2933,7 @@ msgid "Action"
 msgstr ""
 
 #: includes/admin/class-view-questions.php:128
-#: includes/admin/class-view-questions.php:529
+#: includes/admin/class-view-questions.php:530
 msgid "Edit"
 msgstr ""
 
@@ -2991,53 +2957,54 @@ msgstr ""
 msgid "Search questions..."
 msgstr ""
 
-#: includes/admin/class-view-questions.php:440
+#: includes/admin/class-view-questions.php:441
 msgid "Page"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:442
+#: includes/admin/class-view-questions.php:443
 msgid "of"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:458
+#: includes/admin/class-view-questions.php:459
 msgid "Previous"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:459
-#: includes/FQI3_Frontend.php:213
+#: includes/admin/class-view-questions.php:460
+#: includes/FQI3_Frontend.php:220
 msgid "Next"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:520
+#: includes/admin/class-view-questions.php:521
 msgid "Delete"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:579
+#: includes/admin/class-view-questions.php:580
 msgid "Show Options"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:620
-#: includes/admin/class-view-questions.php:732
+#: includes/admin/class-view-questions.php:621
+#: includes/admin/class-view-questions.php:744
 msgid "Unknown"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:632
+#: includes/admin/class-view-questions.php:635
+#: includes/admin/class-view-questions.php:674
 msgid "You do not have the necessary permissions to perform this action."
 msgstr ""
 
-#: includes/admin/class-view-questions.php:647
+#: includes/admin/class-view-questions.php:650
 msgid "Question deleted successfully"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:649
+#: includes/admin/class-view-questions.php:652
 msgid "Failed to delete question"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:744
+#: includes/admin/class-view-questions.php:756
 msgid "No questions found for export"
 msgstr ""
 
-#: includes/admin/class-view-questions.php:757
+#: includes/admin/class-view-questions.php:769
 msgid "Export Error"
 msgstr ""
 
@@ -3121,84 +3088,84 @@ msgstr ""
 msgid "Too many requests"
 msgstr ""
 
-#: includes/FQI3_Api.php:407
+#: includes/FQI3_Api.php:411
 msgid "Token successfully revoked."
 msgstr ""
 
-#: includes/FQI3_Api.php:631
+#: includes/FQI3_Api.php:635
 msgid "Insufficient scope for this endpoint."
 msgstr ""
 
-#: includes/FQI3_Api.php:694
+#: includes/FQI3_Api.php:698
 msgid "Database error occurred"
 msgstr ""
 
-#: includes/FQI3_Api.php:915
+#: includes/FQI3_Api.php:919
 msgid "User ID and level are required."
 msgstr ""
 
-#: includes/FQI3_Api.php:927
+#: includes/FQI3_Api.php:931
 msgid "Failed to save user performance."
 msgstr ""
 
-#: includes/FQI3_Api.php:942
+#: includes/FQI3_Api.php:946
 msgid "Performance updated successfully."
 msgstr ""
 
-#: includes/FQI3_Api.php:955
+#: includes/FQI3_Api.php:959
 msgid "Failed to update performance"
 msgstr ""
 
-#: includes/FQI3_Api.php:1034
+#: includes/FQI3_Api.php:1038
 msgid "Invalid badge type specified"
 msgstr ""
 
-#: includes/FQI3_Awards.php:559
-#: includes/FQI3_Awards.php:564
-#: includes/FQI3_Statistics.php:645
+#: includes/FQI3_Awards.php:561
+#: includes/FQI3_Awards.php:566
+#: includes/FQI3_Statistics.php:686
 msgid "Correct Answers"
 msgstr ""
 
-#: includes/FQI3_Awards.php:563
+#: includes/FQI3_Awards.php:565
 msgid "reach a total number of correct answers"
 msgstr ""
 
-#: includes/FQI3_Awards.php:567
-#: includes/FQI3_Awards.php:572
+#: includes/FQI3_Awards.php:569
+#: includes/FQI3_Awards.php:574
 msgid "Completed Quizzes"
 msgstr ""
 
-#: includes/FQI3_Awards.php:571
+#: includes/FQI3_Awards.php:573
 msgid "achieve a specific number of quizzes"
 msgstr ""
 
-#: includes/FQI3_Awards.php:575
-#: includes/FQI3_Statistics.php:193
-#: includes/FQI3_Statistics.php:197
-#: includes/FQI3_Statistics.php:647
+#: includes/FQI3_Awards.php:577
+#: includes/FQI3_Statistics.php:230
+#: includes/FQI3_Statistics.php:234
+#: includes/FQI3_Statistics.php:688
 msgid "Success Rate"
 msgstr ""
 
 #. translators: %s is the number of quizzes that the user has completed to achieve a specific success rate.
-#: includes/FQI3_Awards.php:581
+#: includes/FQI3_Awards.php:583
 #, php-format
 msgid "have a specific success rate since a specific number of quizzes (%s)"
 msgstr ""
 
-#: includes/FQI3_Awards.php:597
+#: includes/FQI3_Awards.php:599
 msgid "List of existing badges"
 msgstr ""
 
-#: includes/FQI3_Awards.php:599
+#: includes/FQI3_Awards.php:601
 msgid "How to get it"
 msgstr ""
 
-#: includes/FQI3_Awards.php:600
+#: includes/FQI3_Awards.php:602
 msgid "Badges versions"
 msgstr ""
 
 #. translators: %s represents the action or condition that needs to be fulfilled, e.g., 'complete a quiz' or 'reach a score.'
-#: includes/FQI3_Awards.php:604
+#: includes/FQI3_Awards.php:606
 #, php-format
 msgid "You need to %s"
 msgstr ""
@@ -3215,7 +3182,7 @@ msgstr ""
 msgid "Welcome to the quiz"
 msgstr ""
 
-#: includes/FQI3_Blocks.php:225
+#: includes/FQI3_Blocks.php:226
 msgid "Choose level :"
 msgstr ""
 
@@ -3244,218 +3211,226 @@ msgstr ""
 msgid "Hello, this is a generic message from the FQI3 plugin."
 msgstr ""
 
-#: includes/FQI3_Frontend.php:133
+#: includes/FQI3_Frontend.php:139
 msgid "Default Title"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:139
+#: includes/FQI3_Frontend.php:145
 msgid "Choose your level:"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:140
+#: includes/FQI3_Frontend.php:146
 msgid "As no logged user, you are only acces to:"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:209
+#: includes/FQI3_Frontend.php:216
 msgid "Start"
 msgstr ""
 
 #. translators: %s is the name or username of the user.
-#: includes/FQI3_Frontend.php:211
+#: includes/FQI3_Frontend.php:218
 #, php-format
 msgid "Welcome, %s. Happy to see you again for some fun learning!"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:212
+#: includes/FQI3_Frontend.php:219
 msgid "Loading..."
 msgstr ""
 
-#: includes/FQI3_Frontend.php:214
+#: includes/FQI3_Frontend.php:221
 msgid "Results"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:215
+#: includes/FQI3_Frontend.php:222
 msgid "Restart the quizz"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:216
+#: includes/FQI3_Frontend.php:223
 msgid "Sign Up to Access More Levels"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:217
+#: includes/FQI3_Frontend.php:224
 msgid "Go back to the start"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:218
+#: includes/FQI3_Frontend.php:225
 msgid "Share your results:"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:219
+#: includes/FQI3_Frontend.php:226
 msgid "Share on Facebook"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:220
+#: includes/FQI3_Frontend.php:227
 msgid "Share on X"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:221
+#: includes/FQI3_Frontend.php:228
 msgid "Share on LinkedIn"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:222
+#: includes/FQI3_Frontend.php:229
 msgid "Upgrade to our premium version to get unlimited access!"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:223
+#: includes/FQI3_Frontend.php:230
 msgid "View Details and register"
 msgstr ""
 
 #. translators: %d is the number of questions in the quiz.
-#: includes/FQI3_Frontend.php:226
+#: includes/FQI3_Frontend.php:233
 #, php-format
 msgid "Do you want to activate a timer to complete the %d questions?"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:229
+#: includes/FQI3_Frontend.php:236
 msgid "How many minutes?"
 msgstr ""
 
-#: includes/FQI3_Frontend.php:245
+#: includes/FQI3_Frontend.php:252
 msgid "You have reached your quiz limit for today."
 msgstr ""
 
-#. translators: %s represents the level (e.g., 'beginner', 'intermediate', 'advanced') where no questions are found.
 #: includes/FQI3_Frontend.php:262
+msgid "Please log in to access this level."
+msgstr ""
+
+#. translators: %s represents the level (e.g., 'beginner', 'intermediate', 'advanced') where no questions are found.
+#: includes/FQI3_Frontend.php:278
 #, php-format
 msgid "No questions found in %s level."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:192
+#: includes/FQI3_PeriodicStatistics.php:121
+msgid "Once Weekly"
+msgstr ""
+
+#: includes/FQI3_PeriodicStatistics.php:219
 msgid "your advanced statistics"
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:205
+#: includes/FQI3_PeriodicStatistics.php:232
 msgid "Your advanced statistics"
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:221
+#: includes/FQI3_PeriodicStatistics.php:248
 msgid "No advanced statistics yet but that shouldn't last long if you keep up your efforts by regularly completing quizzes."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:274
+#: includes/FQI3_PeriodicStatistics.php:301
 msgid "Monthly Statistics"
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:278
+#: includes/FQI3_PeriodicStatistics.php:305
 msgid "Weekly Statistics"
 msgstr ""
 
 #. translators: %s: field name
-#: includes/FQI3_PeriodicStatistics.php:312
+#: includes/FQI3_PeriodicStatistics.php:339
 #, php-format
 msgid "Field %s is required."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:325
+#: includes/FQI3_PeriodicStatistics.php:352
 msgid "Invalid user ID."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:333
+#: includes/FQI3_PeriodicStatistics.php:360
 msgid "Invalid date format."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:342
+#: includes/FQI3_PeriodicStatistics.php:369
 msgid "End date must be after start date."
 msgstr ""
 
 #. translators: %d: maximum number of days
-#: includes/FQI3_PeriodicStatistics.php:353
+#: includes/FQI3_PeriodicStatistics.php:380
 #, php-format
 msgid "Date range cannot exceed %d days."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:361
+#: includes/FQI3_PeriodicStatistics.php:388
 msgid "End date cannot be in the future."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:371
+#: includes/FQI3_PeriodicStatistics.php:398
 msgid "Statistics recorded successfully for user."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:403
+#: includes/FQI3_PeriodicStatistics.php:430
 msgid "Invalid date format provided."
 msgstr ""
 
-#: includes/FQI3_PeriodicStatistics.php:407
+#: includes/FQI3_PeriodicStatistics.php:434
 msgid "End date cannot be before start date."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:194
+#: includes/FQI3_Statistics.php:231
 msgid "Failure Rate"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:218
+#: includes/FQI3_Statistics.php:255
 msgid "Statistics updated successfully"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:238
+#: includes/FQI3_Statistics.php:275
 msgid "User not logged in or does not have the required role"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:527
+#: includes/FQI3_Statistics.php:565
 msgid "your statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:535
+#: includes/FQI3_Statistics.php:576
 msgid "No statistics found for your account."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:557
+#: includes/FQI3_Statistics.php:598
 msgid "this section"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:563
+#: includes/FQI3_Statistics.php:604
 msgid "Statistics option disabled. For more details, please inquire with the administrator."
 msgstr ""
 
 #. translators: %s is the subject section in a shortcode
-#: includes/FQI3_Statistics.php:568
+#: includes/FQI3_Statistics.php:609
 #, php-format
 msgid "If you want to access %s, you must be logged in."
 msgstr ""
 
 #. translators: %s is the subject section in a shortcode
-#: includes/FQI3_Statistics.php:573
+#: includes/FQI3_Statistics.php:614
 #, php-format
 msgid "You must be a premium member to view %s."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:621
+#: includes/FQI3_Statistics.php:662
 msgid "Your statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:643
+#: includes/FQI3_Statistics.php:684
 msgid "Total Quizzes"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:644
+#: includes/FQI3_Statistics.php:685
 msgid "Total Questions Answered"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:646
+#: includes/FQI3_Statistics.php:687
 msgid "Overall average"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:648
+#: includes/FQI3_Statistics.php:689
 msgid "Best Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:726
+#: includes/FQI3_Statistics.php:767
 msgid "Average Score"
 msgstr ""
 
 #. translators: %s is the number of quizzes completed.
-#: includes/FQI3_Statistics.php:851
+#: includes/FQI3_Statistics.php:892
 #, php-format
 msgid "%s quiz completed"
 msgid_plural "%s quizzes completed"
@@ -3463,55 +3438,55 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %s is the level (e.g., 'beginner', 'intermediate', 'advanced') where the action or achievement took place.
-#: includes/FQI3_Statistics.php:861
+#: includes/FQI3_Statistics.php:902
 #, php-format
 msgid "in %s level"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:882
+#: includes/FQI3_Statistics.php:924
 msgid "your comparative statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:890
+#: includes/FQI3_Statistics.php:932
 msgid "No statistics"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:985
+#: includes/FQI3_Statistics.php:1027
 msgid "Your Best Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:986
+#: includes/FQI3_Statistics.php:1028
 msgid "The Best Overall Score"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:994
+#: includes/FQI3_Statistics.php:1036
 msgid "You do not have access to this feature"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:995
-#: includes/FQI3_Statistics.php:1003
+#: includes/FQI3_Statistics.php:1037
+#: includes/FQI3_Statistics.php:1045
 msgid "No data yet"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1063
+#: includes/FQI3_Statistics.php:1106
 msgid "No badges found for your account."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1079
+#: includes/FQI3_Statistics.php:1122
 msgid "your badges"
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1141
+#: includes/FQI3_Statistics.php:1184
 msgid "Awarded badge"
 msgid_plural "Awarded badges"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/FQI3_Statistics.php:1157
+#: includes/FQI3_Statistics.php:1200
 msgid "No badges awarded."
 msgstr ""
 
-#: includes/FQI3_Statistics.php:1187
+#: includes/FQI3_Statistics.php:1230
 msgid "Awarded on"
 msgstr ""
 
