@@ -158,7 +158,10 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
         private function recordPeriodicStatistics(string $periodType, string $startDate, string $endDate, ?int $userId = null): void {
             global $wpdb;
         
+            // When a user is given, only that user's rows are recorded (the user id used to be passed to
+            // prepare() without a matching placeholder, so every user's rows were recorded and duplicated).
             $userCondition = $userId ? [$startDate, $endDate, $userId] : [$startDate, $endDate];
+            $userSql = $userId ? ' AND user_id = %d' : '';
                 
             $results = $wpdb->get_results($wpdb->prepare("
                 SELECT user_id, level,
@@ -168,7 +171,7 @@ if ( ! class_exists( 'FQI3_PeriodicStatistics' ) ) :
                     success_rate,
                     best_score
                 FROM {$wpdb->prefix}" . FQI3_TABLE_PERFORMANCE . "
-                WHERE DATE(last_updated) BETWEEN %s AND %s
+                WHERE DATE(last_updated) BETWEEN %s AND %s{$userSql}
                 GROUP BY user_id, level
             ", ...$userCondition));
         

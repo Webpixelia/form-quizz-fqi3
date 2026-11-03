@@ -88,7 +88,7 @@ class FQI3_Emails {
             do_action(self::CRON_HOOK);
             
             $pages = fqi3_get_admin_pages();
-            wp_redirect(admin_url('admin.php?page=' . $pages['options']['slug'] . '&debug=1'));
+            wp_safe_redirect(admin_url('admin.php?page=' . $pages['options']['slug'] . '&debug=1'));
             exit;
         } catch (\Exception $e) {
             $this->log('Debug execution failed', ['error' => $e->getMessage()]);

@@ -4,8 +4,8 @@ Donate link: https://buymeacoffee.com/webpixelia
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
-Requires at least: 5.6
-Tested up to: 6.8.2
+Requires at least: 6.8
+Tested up to: 7.1.4
 Stable tag: 3.4.0
 Requires PHP: 8.0
 
@@ -132,6 +132,17 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 * Improvement: The daily quiz limit is counted server-side for logged-in users. One quiz started consumes one trial and counters restart from zero.
 * Improvement: Chart.js and canvas-confetti are bundled with the plugin (no third-party CDN request on public pages). Front-end assets are only loaded on pages using the plugin, new filter fqi3_load_frontend_assets to force loading.
 * Improvement: The attempts table is no longer checked on every request.
+* Security: Forwarded IP headers (X-Forwarded-For) are no longer trusted by default for API rate limiting, the API log and the import log. Behind a reverse proxy or CDN, declare it with the fqi3_trusted_proxies filter.
+* Security: New API tokens are encrypted with AES-256-GCM using a key derived from the WordPress salts. Existing tokens keep working. If you change the salts, generate a new token.
+* Security: CSV exports neutralize spreadsheet formulas, the incorrect answers table no longer interprets question text as HTML, and quiz scores sent by the browser are limited to 0-100 for existing levels only.
+* Fix: REST API rate limiting counted two requests per call, the configured limit is now exact.
+* Fix: Importing levels dropped the free flag of the last level (and logged PHP warnings).
+* Fix: Periodic statistics recorded for one user were recorded for every user.
+* Fix: Statistics are saved with a single atomic query (no lost updates when two quizzes end together) and coherent values.
+* Fix: Add-on installation renames the downloaded folder through the WordPress upgrader instead of renaming any folder with a similar name.
+* Improvement: Uninstall removes all plugin options, transients, the attempts table and the export folders.
+* Improvement: Internal redirects use wp_safe_redirect, CSV exports are paged in a stable order.
+* Dev: PHPUnit unit tests, an integration smoke test and a PHPCS configuration (see tests/README.md).
 * Improvement: README aligned with the code.
 
 = 3.3.0 =

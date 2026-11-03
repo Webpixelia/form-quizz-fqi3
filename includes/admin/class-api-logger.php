@@ -30,10 +30,7 @@ class FQI3_API_Logger {
         if ($this->log_level === 'off') return;
 
         // IP client
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0];
-        }
+        $ip = fqi3_get_client_ip();
 
         $log_data = [
             'time' => current_time('mysql'),

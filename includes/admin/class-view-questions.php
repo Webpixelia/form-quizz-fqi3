@@ -715,7 +715,7 @@ class FQI3_View_Questions_Page {
                 // Fetch questions in batches
                 $questions = $wpdb->get_results(
                     $wpdb->prepare(
-                        "SELECT * FROM `{$table_name}` LIMIT %d OFFSET %d",
+                        "SELECT * FROM `{$table_name}` ORDER BY id ASC LIMIT %d OFFSET %d",
                         $batch_size,
                         $offset
                     )
@@ -740,11 +740,12 @@ class FQI3_View_Questions_Page {
                         $level_info['label'],
                         wp_kses_post($question->q),
                         wp_kses_post($question->q2),
-                        implode('; ', array_map('esc_html', $options)),
-                        esc_html($options[$correct_answer_index] ?? __('Unknown', 'form-quizz-fqi3'))
+                        implode('; ', array_map('strval', $options)),
+                        (string) ($options[$correct_answer_index] ?? __('Unknown', 'form-quizz-fqi3'))
                     ];
                     
-                    fputcsv($output, $row);
+                    // A CSV cell is not HTML: no entity escaping, but neutralize spreadsheet formulas.
+                    fputcsv($output, array_map('fqi3_csv_safe', $row));
                 }
                 
                 $offset += $batch_size;

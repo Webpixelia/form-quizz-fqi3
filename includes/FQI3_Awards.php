@@ -82,7 +82,7 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
                     
                     // Ensure the badges are unserialized if needed
                     $this->badges_cache = is_serialized($badges_options) ? 
-                        unserialize($badges_options) : $badges_options;
+                        unserialize($badges_options, ['allowed_classes' => false]) : $badges_options;
                     
                     // Cache the badges
                     wp_cache_set(

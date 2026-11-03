@@ -289,67 +289,52 @@ if (!defined('ABSPATH')) {
         */
         public function save_user_performance(int $user_id, string $level, int $correct_answers, int $total_questions): bool {
             global $wpdb;
-            
+
+            // Values come from the browser: keep them coherent (0 <= correct <= total <= 100 questions).
+            $total_questions = max(0, min($total_questions, 100));
+            $correct_answers = max(0, min($correct_answers, $total_questions));
+
+            if ($user_id <= 0 || $level === '') {
+                return false;
+            }
+
             try {
                 $table_name = $wpdb->prefix . FQI3_TABLE_PERFORMANCE;
-                
-                // Calculate score
                 $score = ($total_questions > 0) ? ($correct_answers / $total_questions) * 100 : 0;
-                
-                // Get existing stats
-                $existing_stats = $wpdb->get_row($wpdb->prepare(
-                    "SELECT * FROM $table_name WHERE user_id = %d AND level = %s",
-                    $user_id, $level
-                ));
-                
-                if ($wpdb->last_error) {
-                    throw new \Exception($wpdb->last_error);
-                }
-                
-                if ($existing_stats) {
-                    // Update existing stats
-                    $new_total_quizzes = $existing_stats->total_quizzes + 1;
-                    $new_total_good_answers = $existing_stats->total_good_answers + $correct_answers;
-                    $new_total_questions_answered = $existing_stats->total_questions_answered + $total_questions;
-                    
-                    $updated_data = [
-                        'total_quizzes' => $new_total_quizzes,
-                        'total_questions_answered' => $new_total_questions_answered,
-                        'total_good_answers' => $new_total_good_answers,
-                        'success_rate' => ($new_total_good_answers / max(1, $new_total_questions_answered)) * 100,
-                        'best_score' => max($existing_stats->best_score, $score),
-                        'last_updated' => current_time('mysql')
-                    ];
-                    
-                    $result = $wpdb->update($table_name, $updated_data, ['user_id' => $user_id, 'level' => $level]);
-                } else {
-                    // Insert new stats
-                    $result = $wpdb->insert($table_name, [
-                        'user_id' => $user_id,
-                        'level' => $level,
-                        'total_quizzes' => 1,
-                        'total_questions_answered' => $total_questions,
-                        'total_good_answers' => $correct_answers,
-                        'success_rate' => $score,
-                        'best_score' => $score,
-                        'last_updated' => current_time('mysql')
-                    ]);
-                }
-                
+                $now = current_time('mysql');
+
+                // One atomic statement (unique key user_level): no read-modify-write race between two
+                // quizzes finished at the same time. Assignments are evaluated left to right, so success_rate
+                // uses the already-updated totals.
+                $sql = $wpdb->prepare(
+                    "INSERT INTO `$table_name`
+                        (user_id, level, total_quizzes, total_questions_answered, total_good_answers, success_rate, best_score, last_updated)
+                     VALUES (%d, %s, 1, %d, %d, %f, %f, %s)
+                     ON DUPLICATE KEY UPDATE
+                        total_quizzes = total_quizzes + 1,
+                        total_questions_answered = total_questions_answered + %d,
+                        total_good_answers = total_good_answers + %d,
+                        success_rate = (total_good_answers / GREATEST(1, total_questions_answered)) * 100,
+                        best_score = GREATEST(COALESCE(best_score, 0), %f),
+                        last_updated = %s",
+                    $user_id, $level, $total_questions, $correct_answers, $score, $score, $now,
+                    $total_questions, $correct_answers, $score, $now
+                );
+
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery
+                $result = $wpdb->query($sql);
+
                 if ($result === false) {
                     throw new \Exception($wpdb->last_error);
                 }
-                
+
                 // Invalidate caches
                 delete_transient('fqi3_stats_' . $user_id);
-                
+
                 return true;
-                
+
             } catch (\Exception $e) {
-                // Log error if logger is available
-                if (isset($this->logger)) {
-                    error_log('FQI3: Failed to save user performance: ' . $e->getMessage());
-                }
+                error_log('FQI3: Failed to save user performance: ' . $e->getMessage());
                 return false;
             }
         }

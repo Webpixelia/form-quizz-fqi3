@@ -392,10 +392,15 @@ class FQI3_Api_Settings {
 endif;
 
 class TokenManager {
+    /** Prefix of tokens encrypted with AES-256-GCM (authenticated). Tokens without it use the legacy format. */
+    private const V2_PREFIX = 'v2:';
+    private const V2_METHOD = 'aes-256-gcm';
+
     private $key;
     private $method = 'aes-256-cbc';
 
     public function __construct() {
+        // Legacy key (stored in the database), only needed to read tokens created before 3.4.0.
         $this->key = $this->get_encryption_key();
     }
 
@@ -408,13 +413,47 @@ class TokenManager {
         return hex2bin($key);
     }
 
+    /**
+     * Key derived from the WordPress salts (wp-config.php): a leak of the database alone does not reveal it.
+     * Note: rotating the salts invalidates the stored token, generate a new one afterwards.
+     */
+    private function get_v2_key(): string {
+        return hash('sha256', 'fqi3-api-token|' . wp_salt('auth'), true);
+    }
+
     public function encrypt_token($token) {
+        if (in_array(self::V2_METHOD, openssl_get_cipher_methods(), true)) {
+            $iv = random_bytes(12);
+            $tag = '';
+            $cipher = openssl_encrypt((string) $token, self::V2_METHOD, $this->get_v2_key(), OPENSSL_RAW_DATA, $iv, $tag, '', 16);
+            if ($cipher !== false && strlen($tag) === 16) {
+                return self::V2_PREFIX . base64_encode($iv . $tag . $cipher);
+            }
+        }
+
+        // Fallback (OpenSSL without GCM): legacy format
         $iv = random_bytes(openssl_cipher_iv_length($this->method));
         $encrypted = openssl_encrypt($token, $this->method, $this->key, 0, $iv);
         return base64_encode($iv . $encrypted);
     }
 
     public function decrypt_token($encrypted_token) {
+        if (!is_string($encrypted_token) || $encrypted_token === '') {
+            return false;
+        }
+
+        if (strpos($encrypted_token, self::V2_PREFIX) === 0) {
+            $raw = base64_decode(substr($encrypted_token, strlen(self::V2_PREFIX)), true);
+            if ($raw === false || strlen($raw) < 28) {
+                return false;
+            }
+            $iv = substr($raw, 0, 12);
+            $tag = substr($raw, 12, 16);
+            $cipher = substr($raw, 28);
+            return openssl_decrypt($cipher, self::V2_METHOD, $this->get_v2_key(), OPENSSL_RAW_DATA, $iv, $tag);
+        }
+
+        // Legacy format (AES-256-CBC)
         $decoded = base64_decode($encrypted_token);
         $iv_length = openssl_cipher_iv_length($this->method);
         $iv = substr($decoded, 0, $iv_length);

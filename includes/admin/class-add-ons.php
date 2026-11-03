@@ -1469,22 +1469,34 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
 
             file_put_contents($tmp_file, $body);
 
+            // GitHub archives extract to "<owner>-<repo>-<sha>": rename the package folder to the add-on slug
+            // before it is copied to wp-content/plugins (instead of renaming an arbitrary folder afterwards).
+            $slug_for_package = (string) $addon['slug'];
+            $rename_source = function ($source, $remote_source) use ($slug_for_package) {
+                return $this->rename_package_source($source, $remote_source, $slug_for_package);
+            };
+
             // Install plugin
             $skin = new \WP_Ajax_Upgrader_Skin();
             $upgrader = new \Plugin_Upgrader($skin);
-            $result = $upgrader->install($tmp_file);
-            
-            // Clean temp file
-            @unlink($tmp_file);
+            add_filter('upgrader_source_selection', $rename_source, 10, 2);
+            try {
+                $result = $upgrader->install($tmp_file);
+            } finally {
+                remove_filter('upgrader_source_selection', $rename_source, 10);
+                // Clean temp file
+                @unlink($tmp_file);
+            }
 
             if (is_wp_error($result)) {
                 return $result;
             }
 
-            // Find and rename the plugin folder
-            $plugin_dir = $this->find_and_rename_plugin_dir($addon['slug'], $repo_name);
-            if (is_wp_error($plugin_dir)) {
-                return $plugin_dir;
+            $plugin_dir = WP_PLUGIN_DIR . '/' . $addon['slug'];
+            if (!is_dir($plugin_dir)) {
+                return new WP_Error('plugin_dir_not_found',
+                    __('Plugin installed but folder not found.', 'form-quizz-fqi3')
+                );
             }
 
             // Activate the plugin
@@ -1492,49 +1504,27 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
         }
 
         /**
-         * Find and rename plugin directory if needed
-         * Adapted for GitHub release format
+         * Rename the extracted package folder to the add-on slug (upgrader_source_selection callback).
          *
-         * @param string $expected_slug Expected plugin slug
-         * @param string $repo_name Repository name
-         * @return string|WP_Error Plugin directory path or WP_Error
+         * @param string $source        Extracted package folder.
+         * @param string $remote_source Folder containing the extracted package.
+         * @param string $slug          Expected add-on slug.
+         * @return string|WP_Error New source folder.
+         * @since 3.4.0
          */
-        private function find_and_rename_plugin_dir($expected_slug, $repo_name) {
-            $possible_names = [
-                $expected_slug,
-                $repo_name,
-                strtolower($repo_name),
-                $github_username . '-' . $repo_name,
-                $github_username . '-' . $repo_name . '-*'
-            ];
+        private function rename_package_source($source, $remote_source, string $slug) {
+            global $wp_filesystem;
 
-            // Search by exact slug first
-            $expected_dir = WP_PLUGIN_DIR . '/' . $expected_slug;
-            if (is_dir($expected_dir)) {
-                return $expected_dir;
+            $desired = trailingslashit($remote_source) . $slug . '/';
+            if (trailingslashit($source) === $desired) {
+                return $source;
             }
 
-            // Search existing folders
-            $all_dirs = glob(WP_PLUGIN_DIR . '/*', GLOB_ONLYDIR);
-            foreach ($all_dirs as $dir) {
-                $dir_name = basename($dir);
-                
-                // Check if the folder matches the repo
-                if (strpos($dir_name, $repo_name) !== false || 
-                    strpos($dir_name, $expected_slug) !== false) {
-                    
-                    // Rename to the expected slug
-                    $target_dir = WP_PLUGIN_DIR . '/' . $expected_slug;
-                    if (rename($dir, $target_dir)) {
-                        return $target_dir;
-                    }
-                    return $dir;
-                }
+            if (!$wp_filesystem || !$wp_filesystem->move($source, $desired, true)) {
+                return new WP_Error('rename_failed', __('Could not prepare the add-on folder.', 'form-quizz-fqi3'));
             }
 
-            return new WP_Error('plugin_dir_not_found', 
-                __('Plugin installed but folder not found.', 'form-quizz-fqi3')
-            );
+            return $desired;
         }
 
         /**
@@ -1786,8 +1776,8 @@ if ( !class_exists( 'FQI3_Addons_Page' ) ) :
                                 - <?php printf(
                                     /* translators: 1 = current version, 2 = latest version */
                                     __('Version %1$s → %2$s', 'form-quizz-fqi3'),
-                                    $addon['current_version'],
-                                    $addon['latest_version']
+                                    esc_html($addon['current_version']),
+                                    esc_html($addon['latest_version'])
                                 ); ?>
                                 <a href="<?php echo admin_url('plugins.php'); ?>" class="btn btn-sm btn-outline-primary ms-2">
                                     <?php _e('Update Now', 'form-quizz-fqi3'); ?>

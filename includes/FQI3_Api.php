@@ -236,6 +236,27 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * @return true|WP_Error True if authentication succeeded, WP_Error if it failed
          */
         public function check_token_auth(\WP_REST_Request $request): \WP_Error|bool {
+            // WordPress can evaluate a route's permission callback more than once for the same request:
+            // authenticate and consume a rate-limit slot only once per request object.
+            $request_id = spl_object_id($request);
+            if (!array_key_exists($request_id, self::$auth_results)) {
+                self::$auth_results[$request_id] = $this->authenticate_request($request);
+            }
+
+            return self::$auth_results[$request_id];
+        }
+
+        /** @var array<int, \WP_Error|bool> Authentication result per request object. */
+        private static array $auth_results = [];
+
+        /**
+         * Validates HTTPS, IP rate limit, token and token rate limit for a request.
+         *
+         * @param WP_REST_Request $request The incoming request object
+         * @return true|WP_Error
+         * @since 3.4.0
+         */
+        private function authenticate_request(\WP_REST_Request $request): \WP_Error|bool {
             // HTTPS enforcement
             $options = function_exists('fqi3_get_options') ? (array) fqi3_get_options() : (array) get_option('fqi3_options', []);
             $https_only = !empty($options['fqi3_api_https_only']);
@@ -319,14 +340,8 @@ if ( !class_exists( 'FQI3_Quiz_API' ) ) :
          * @since 3.0.0
          */
         private function get_client_ip(\WP_REST_Request $request): string {
-            $xff = $request->get_header('x-forwarded-for');
-            if (!empty($xff)) {
-                $parts = array_map('trim', explode(',', $xff));
-                if (!empty($parts[0])) return $parts[0];
-            }
-            $ip = $request->get_header('x-real-ip');
-            if (!empty($ip)) return $ip;
-            return isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+            // Forwarded headers are only honored behind a proxy declared with the `fqi3_trusted_proxies` filter.
+            return fqi3_get_client_ip();
         }
 
         /**

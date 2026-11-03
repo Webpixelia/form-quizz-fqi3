@@ -2,7 +2,7 @@
 
 Dernière mise à jour : 3 novembre 2026
 
-Branche de travail : `audit/phase-a-b` (commit `3f89f59, phases A à D + version 3.4.0`, basé sur `c71118b` – Release 3.3.0)
+Branche de travail : `audit/phase-a-b` (commit `5073731, phases A à E + version 3.4.0`, basé sur `c71118b` – Release 3.3.0)
 
 Légende : ☑ fait et vérifié · ◐ fait, à valider en conditions réelles · ☐ à faire · ⏸ décision requise
 
@@ -56,6 +56,11 @@ Légende : ☑ fait et vérifié · ◐ fait, à valider en conditions réelles 
 - Phase D : les CSS/JS du front ne sont chargés que sur les pages qui utilisent le plugin (filtre `fqi3_load_frontend_assets` pour forcer). Les addons qui utilisent `fqi3Data` ou `fqi3-script` sans passer par ces handles sont à tester.
 - Phase D : Chart.js et confetti sont servis par le plugin, plus de CDN sur les pages publiques.
 
+* Phase E : l'adresse IP utilisée par la limitation REST et les journaux est celle de la connexion directe. Derrière un proxy ou un CDN, déclarer `fqi3_trusted_proxies`, sinon tous les visiteurs partagent la même limite.
+* Phase E : les nouveaux tokens API utilisent un nouveau format de chiffrement ; changer les salts de `wp-config.php` invalide le token (à régénérer). Les anciens tokens restent valables.
+* Phase E : la limite de requêtes REST est maintenant exacte (elle comptait double) : les clients peuvent faire deux fois plus de requêtes qu'avant avec le même réglage.
+* Phase E : un score hors 0–100 est ramené dans cet intervalle et un niveau inconnu est refusé.
+
 ## 5. À tester chez toi (WordPress réel)
 
 ☐ Abonné connecté : `wp-admin/admin-post.php?action=export_questions` doit refuser (403). ☐ Administrateur : bouton « Export CSV » fonctionne. ☐ Suppression d'une question depuis la liste. ☐ Ajout et modification d'une question (rôle autorisé, puis rôle non autorisé). ☐ Import d'un JSON valide : questions et réglages importés, token API conservé. ☐ Import d'un JSON invalide (options absentes, answer hors limites) : aucune donnée perdue, message d'erreur clair. ☐ Un fichier `backup_*.json` apparaît dans `uploads/fqi3_backups/` avec `.htaccess` et `index.php`, et n'est pas accessible par URL. ☐ Désactiver puis réactiver le plugin : les membres Premium gardent leur rôle. ☐ Quiz terminé par un utilisateur connecté : badges toujours attribués. ☐ Révocation du token API et e-mail de test depuis l'admin.
@@ -88,6 +93,22 @@ Tests phase D :
 
 ☐ Site neuf : une tentative de quiz d'un connecté s'enregistre, `wp option get fqi3_attempts_table_version` renvoie 1.
 
+Tests phase E (les 39 tests unitaires et les 23 vérifications d'intégration passent déjà sur l'environnement de test) :
+
+☐ Lancer `phpunit` puis `tests/integration/smoke.sh` sur votre environnement de test (voir `tests/README.md`).
+
+☐ Derrière un proxy ou un CDN : déclarer `fqi3_trusted_proxies`, puis vérifier la limitation REST et le journal API.
+
+☐ Token : générer un token et appeler l'API ; vérifier qu'un token créé avant 3.4.0 fonctionne toujours.
+
+☐ Installer un addon depuis un vrai dépôt GitHub avec votre token ; vérifier que le dossier porte le bon slug.
+
+☐ Import/export avec un export réel de production, sur une copie : questions, niveaux gratuits, statistiques.
+
+☐ Quiz de bout en bout dans un navigateur (confettis, tableau des réponses incorrectes).
+
+☐ Désinstaller sur une copie avec « supprimer les données » coché.
+
 ## 6. Phase C – Corrections après validation
 
 Décisions de Jonathan : tout validé sauf H9, conservé tel quel (voulu).
@@ -114,23 +135,53 @@ Décisions de Jonathan : tout validé sauf H9, conservé tel quel (voulu).
 
 Risque connu : pour un shortcode rendu par un constructeur de pages, les styles arrivent en pied de page (flash de contenu non stylé possible). Le filtre `fqi3_load_frontend_assets` permet de les charger dans l'en-tête.
 
-## 8. Phase E – Qualité, tests, nettoyage
+## 8. Phase E – Robustesse, tests et nettoyage
 
-☐ Mise en place PHPUnit (tests unitaires purs exécutables ici ; intégration WP/REST/AJAX à lancer chez toi) et PHPCS (WordPress-Extra). ☐ Tests prévus : permissions des handlers, import (valide/invalide/rollback), REST (token, scopes, rate-limit), limite quotidienne. ☐ `save_user_performance` : bornes (0 ≤ bonnes réponses ≤ total) et mise à jour atomique (UPSERT). ☐ Scores envoyés par le client : bornage, puis réflexion sur une validation serveur. ☐ Token API : hash au lieu de AES-CBC non authentifié avec clé en base (si réaffichage inutile). ☐ IP : ne pas faire confiance à `X-Forwarded-For` par défaut (rate-limit REST, logger API, log d'import). ☐ Installateur d'addons : utiliser le dossier renvoyé par l'upgrader au lieu de renommer par recherche de sous-chaîne ; corriger `$github_username` non défini ; `activate_plugins` pour activer/désactiver ; échapper les versions affichées. ☐ Schéma : `dbDelta` sans `IF NOT EXISTS`, version de schéma, multisite, cohérence README (MySQL 5.6 vs colonne JSON). ☐ `uninstall.php` : ajouter `fqi3_quiz_attempts`, options manquantes, événements cron, dossiers de backups, multisite. ☐ JS : remplacer les `innerHTML` par `textContent` (résultats du quiz, messages admin). ☐ CSV : neutraliser les formules, retirer l'échappement HTML, ajouter `ORDER BY` à la pagination. ☐ Session PHP (`session_start`) côté front : remplacer par transients ou meta utilisateur. ☐ Divers : `class-abstract-settings.php` inexistant dans `loadDependencies`, textes français en dur (JS et PHP), `wp_redirect` → `wp_safe_redirect`, `unserialize` dans `FQI3_Awards`, version écrite à trois endroits, `Tested up to`, README et `composer.json`.
+Un environnement réel a été monté pour cette phase (WordPress 6.8.2, MariaDB 10.11, WP-CLI, plugin activé) : les phases A à C et les corrections de la phase E ont été vérifiées en conditions réelles, pas seulement par lecture du code.
 
-◐ `uninstall.php` : table `fqi3_quiz_attempts`, compteurs quotidiens et événements cron ajoutés ; options manquantes et multisite restent à faire.
+☑ **Tests livrés** : 39 tests unitaires PHPUnit (`tests/unit/`, sans WordPress) et un test d'intégration `tests/integration/smoke.sh` (23 vérifications sur un vrai WordPress : droits des handlers, limite quotidienne, import, API REST, cron, dossiers protégés, chargement des assets). Tout passe, sans aucun warning PHP du plugin. Une régression volontaire est bien détectée. Configuration PHPCS ajoutée (`.phpcs.xml.dist`) : le standard complet remonte surtout des remarques de style (environ 34 000, corrigeables automatiquement) ; le sous-ensemble sécurité est décrit dans `tests/README.md`.
 
-☑ `README.md` aligné sur le code (shortcodes réels, MySQL 5.7.8+/MariaDB 10.2.7+, pas de build NPM, modèle d'accès, sécurité, tâches cron, notes de mise à jour 3.3.1). Reste à décider : `readme.txt` indique « Requires at least: 5.6 » alors que l'en-tête du plugin indique 5.0 ; entrée de changelog 3.3.1 à écrire à la release.
+☑ **Statistiques** (`save_user_performance`) : une seule requête atomique (`INSERT … ON DUPLICATE KEY UPDATE`) et valeurs bornées. Vérifié sur MariaDB, y compris 12 quiz terminés en parallèle pour le même utilisateur et niveau : 12 quiz, 48 questions, 24 bonnes réponses, aucun écart.
 
-◐ **Version 3.4.0** : en-tête du plugin, constante `FQI3_VERSION`, `Stable tag` de `readme.txt`, entrée de changelog (affichée aussi dans la page Changelog du plugin) et notes de mise à jour du README. À compléter avec les résultats de la phase E avant la release.
+☑ **Scores envoyés par le navigateur** : bornés à 0–100, niveau obligatoire parmi les niveaux configurés. Vérifié (9999 devient 100, -50 devient 0, « abc » devient 0, niveau inconnu refusé).
 
-☐ Traductions : les nouvelles chaînes (messages d'import, « Please log in to access this level. », écran Licence, « Once Weekly », etc.) ne sont pas dans les `.pot`/`.po` FR et ES : régénérer avec `wp i18n make-pot`.
+☑ **IP** : `fqi3_get_client_ip()` ignore `X-Forwarded-For` sauf derrière un proxy déclaré via le filtre `fqi3_trusted_proxies` (limitation REST, journal API, journal d'import). Vérifié.
 
-☐ `readme.txt` : « Tested up to » (6.8.2) diffère de l'en-tête du plugin (6.7.1), et « Requires at least » (5.6) diffère de l'en-tête (5.0). À aligner après tests.
+☑ **Token API** : AES-256-GCM avec une clé dérivée des salts WordPress. Les anciens tokens (AES-CBC) restent lisibles, une altération est détectée. Vérifié de bout en bout avec l'API REST (token valide 200, invalide 401).
+
+☑ **Bug trouvé par les tests réels : limitation REST**. Une requête consommait deux créneaux (limite effective moitié de celle configurée). Corrigé : limite 3 donne exactement 3 requêtes, un `X-Forwarded-For` usurpé n'a plus d'effet.
+
+☑ **Bug trouvé : import des niveaux**. L'import passait par le sanitizer du formulaire, qui supprimait le drapeau « gratuit » du dernier niveau (et produisait des warnings PHP). Corrigé, et `fqi3_get_free_quiz_levels()` tolère les valeurs manquantes.
+
+☑ **Bug trouvé : statistiques périodiques**. L'enregistrement pour un utilisateur lisait et dupliquait les lignes de tous les utilisateurs. Corrigé (`AND user_id = %d`), 2 tests.
+
+◐ **Installateur d'addons** : le dossier extrait est renommé par `upgrader_source_selection` (plus de renommage d'un dossier quelconque), versions échappées, variable `$github_username` non définie supprimée. Vérifié avec un zip local au format GitHub (dossier renommé, plugin tiers intact). Non testé avec un vrai dépôt GitHub privé.
+
+◐ **JS** : tableau des réponses incorrectes construit avec le DOM. Vérifié avec jsdom (balises affichées comme texte, aucune injection). Pas de test dans un vrai navigateur.
+
+☑ **CSV** : cellules neutralisées contre les formules (questions et tentatives), plus d'échappement HTML dans le CSV, pagination avec `ORDER BY id`.
+
+☑ **Désinstallation** : options, transients, table des tentatives, dossiers d'export et compteurs quotidiens supprimés si « supprimer les données » est coché ; événements cron toujours supprimés. Vérifié.
+
+☑ **Divers** : redirections internes en `wp_safe_redirect`, `unserialize` avec `allowed_classes => false`. Analyse WPCS sécurité de tout le plugin : aucune injection SQL ni XSS réelle trouvée (SQL paramétré, seules les tables sont concaténées via `$wpdb->prefix`).
+
+☑ **Version 3.4.0** : changelog complété avec la phase E (`readme.txt`, visible aussi dans la page Changelog du plugin) et README (filtre proxies, token, tests). Les en-têtes WordPress minimum 6.8 et testé jusqu'à 7.1.4 ont été alignés par Jonathan.
+
+Reporté, avec la raison :
+
+☐ `session_start()` côté front : le remplacer impose de repenser le stockage de l'état du quiz (tentative en cours, minuteur). Risque de régression élevé, à traiter dans une version dédiée avec tests navigateur.
+
+☐ Schéma (`dbDelta` avec `IF NOT EXISTS`, version de schéma, multisite) : le fonctionnement actuel est correct (testé), mais toute modification demande une matrice de tests de mise à jour sur d'anciennes installations. Multisite ni supporté ni testé.
+
+☐ Validation serveur des scores : les scores restent calculés dans le navigateur. Une vraie validation exige que le serveur mémorise les questions servies et recalcule le score (changement d'architecture).
+
+☐ Traductions : les nouvelles chaînes ne sont pas dans les `.pot`/`.po` FR et ES, à régénérer avec `wp i18n make-pot`.
+
+☐ Mises à jour du plugin : pas de vérification d'intégrité (hash ou signature) des paquets téléchargés.
 
 ## 9. Non relu en détail
 
-☐ `FQI3_Emails`, `FQI3_PeriodicStatistics`, `FQI3_Blocks`, classes de réglages (sanitisation), `class-plugin-updater`, `class-api-logger`, reste de `FQI3_Api`, templates, CSS, éditeur de blocs.
+◐ Relus depuis l'audit initial : `FQI3_Emails` (planification, destinataires), `class-plugin-updater` (requête de release GitHub), `class-api-logger` (IP), `FQI3_PeriodicStatistics` (bug corrigé), sorties des templates et des pages d'admin (échappement contrôlé par WPCS puis lecture des cas à données variables : aucun XSS trouvé). Non relus en détail : `FQI3_Blocks` (rendu), classes de réglages hors niveaux (sanitisation), pages `dashboard`, `developper` et `infos`, CSS, éditeur de blocs, réponses de chaque endpoint REST (contrôle d'accès et limitation testés, pas chaque réponse).
 
 ## 10. Addons
 
@@ -146,3 +197,7 @@ Risque connu : pour un shortcode rendu par un constructeur de pages, les styles 
 
 - 3 nov. 2026 – Phase D appliquée (commit a78600f) : table des tentatives, chargement conditionnel des assets, Chart.js et confetti embarqués. 10 tests de logique OK.
 - 3 nov. 2026 – Version 3.4.0, changelog et notes README (commit 3f89f59). Patch livré : `fqi3-audit-phase-d.patch`, à appliquer sur l'état A+B+C.
+
+* 3 nov. 2026 – En-têtes alignés par Jonathan : WordPress 6.8 minimum, testé jusqu'à 7.1.4.
+* 3 nov. 2026 – Environnement réel monté (WordPress 6.8.2, MariaDB 10.11, WP-CLI) : les phases A à C sont vérifiées en conditions réelles. La phase E y a révélé trois bugs préexistants (limitation REST, import des niveaux, statistiques périodiques), corrigés.
+* 3 nov. 2026 – Phase E appliquée (commit 5073731) : 39 tests unitaires et 23 vérifications d'intégration. Patch livré : `fqi3-audit-phase-e.patch`, à appliquer sur l'état A+B+C+D (avec votre en-tête).

@@ -36,6 +36,11 @@ if (isset($options['fqi3_delete_data']) && $options['fqi3_delete_data']) {
         'fqi3_quiz_levels',   
         'fqi3_encryption_key',
         'fqi3_attempts_table_version',
+        'fqi3_addon_suggestions',
+        'fqi3_attempts_per_page',
+        'fqi3_attempts_retention_days',
+        'fqi3_core_schema_qtext_300',
+        'fqi3_sales_page_url',
     ];
     foreach ($options_to_delete as $option) {
         delete_option($option);
@@ -47,12 +52,27 @@ if (isset($options['fqi3_delete_data']) && $options['fqi3_delete_data']) {
     // Remove the premium role (kept on deactivation so members don't lose it)
     remove_role('premium_member');
 
-    // Delete transients fqi3_stats_{user_id}
-    $transient_prefix = '_transient_fqi3_stats_';
-    $wpdb->query(
-        $wpdb->prepare(
-            "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-            $wpdb->esc_like($transient_prefix) . '%'
-        )
-    );
+    // Delete every plugin transient (statistics, rate limits, notices) and its timeout
+    foreach (['_transient_fqi3_', '_transient_timeout_fqi3_'] as $transient_prefix) {
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+                $wpdb->esc_like($transient_prefix) . '%'
+            )
+        );
+    }
+
+    // Delete the import backups and reports (they contain questions, statistics and settings)
+    $uploads = wp_upload_dir(null, false);
+    foreach (['fqi3_backups', 'fqi3_reports'] as $folder) {
+        $dir = trailingslashit($uploads['basedir']) . $folder;
+        if (is_dir($dir)) {
+            foreach (glob($dir . '/{,.}*', GLOB_BRACE) ?: [] as $file) {
+                if (is_file($file)) {
+                    @unlink($file);
+                }
+            }
+            @rmdir($dir);
+        }
+    }
 }

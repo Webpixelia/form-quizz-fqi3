@@ -602,14 +602,19 @@ class FQI3_Frontend {
             return;
         }
 
-        $quiz_level = sanitize_text_field($_POST['quiz_level'] ?? '');
+        $quiz_level = sanitize_text_field(wp_unslash($_POST['quiz_level'] ?? ''));
     
         if (empty($quiz_level)) {
             wp_send_json_error(['message' => 'Niveau du quiz manquant.']);
             return;
         }
 
-        $quiz_score = isset($_POST['quiz_score']) ? floatval($_POST['quiz_score']) : 0;
+        if (!$this->isKnownLevel($quiz_level)) {
+            wp_send_json_error(['message' => __('Invalid quiz level.', 'form-quizz-fqi3')]);
+            return;
+        }
+
+        $quiz_score = $this->sanitizeQuizScore($_POST['quiz_score'] ?? 0);
 
         // Complete the current attempt if available
         $this->start_session_if_needed();
@@ -643,8 +648,14 @@ class FQI3_Frontend {
         check_ajax_referer('fqi3_session_nonce', 'nonce');
         
         $user_id = get_current_user_id();
-        $quiz_level = sanitize_text_field($_POST['quiz_level'] ?? '');
-        $quiz_score = isset($_POST['quiz_score']) ? floatval($_POST['quiz_score']) : 0;
+        $quiz_level = sanitize_text_field(wp_unslash($_POST['quiz_level'] ?? ''));
+
+        if (!$this->isKnownLevel($quiz_level)) {
+            wp_send_json_error(['message' => __('Invalid quiz level.', 'form-quizz-fqi3')]);
+            return;
+        }
+
+        $quiz_score = $this->sanitizeQuizScore($_POST['quiz_score'] ?? 0);
 
         do_action('fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score);
         
@@ -660,6 +671,27 @@ class FQI3_Frontend {
     */
     public function initializeLevels(): void {
         $this->levelsQuiz = fqi3_get_free_quiz_levels();
+    }
+
+    /**
+     * Whether the level exists in the configured quiz levels.
+     *
+     * @since 3.4.0
+     */
+    private function isKnownLevel(string $level): bool {
+        return $level !== '' && isset(fqi3_get_free_quiz_levels()[$level]);
+    }
+
+    /**
+     * Quiz scores are computed in the browser: only accept a percentage between 0 and 100.
+     *
+     * @param mixed $raw Raw POST value.
+     * @since 3.4.0
+     */
+    private function sanitizeQuizScore($raw): float {
+        $score = is_numeric($raw) ? (float) $raw : 0.0;
+
+        return max(0.0, min(100.0, round($score, 2)));
     }
 
     /**

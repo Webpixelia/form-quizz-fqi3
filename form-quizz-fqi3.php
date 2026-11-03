@@ -7,8 +7,8 @@
  * Author URI: https://webpixelia.com
  * Update URI: https://github.com/Webpixelia/form-quizz-fqi3
  * Requires PHP: 8.0
- * Requires at least: 5.0
- * Tested up to: 6.7.1
+ * Requires at least: 6.8
+ * Tested up to: 7.1.4
  * License: GPL-2.0+
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: form-quizz-fqi3
@@ -548,7 +548,7 @@ final class FormQuizzFQI3 {
     public function restrictAdminAccess() {
         // Never lock out someone who can manage the site (e.g. an administrator who also has the premium role)
         if (current_user_can(ROLE_PREMIUM) && !current_user_can('manage_options') && !wp_doing_ajax()) {
-            wp_redirect(home_url());
+            wp_safe_redirect(home_url());
             exit;
         }
     }

@@ -581,17 +581,19 @@ function showIncorrectAnswers() {
     const tbody = document.querySelector('#incorrect-answers-table tbody');
 
     if (storedIncorrectAnswers.length > 0) {
-        let rowsHTML = '';
+        // textContent: question and answers come from the database and may contain markup
+        tbody.textContent = '';
         storedIncorrectAnswers.forEach(answer => {
-            rowsHTML += `
-                <tr>
-                    <td style="padding: 10px; border: 1px solid #ccc;">${answer.question}</td>
-                    <td style="padding: 10px; border: 1px solid #ccc;">${answer.selectedAnswer}</td>
-                    <td style="padding: 10px; border: 1px solid #ccc;">${answer.correctAnswer}</td>
-                </tr>
-            `;
+            const row = document.createElement('tr');
+            [answer.question, answer.selectedAnswer, answer.correctAnswer].forEach(value => {
+                const cell = document.createElement('td');
+                cell.style.padding = '10px';
+                cell.style.border = '1px solid #ccc';
+                cell.textContent = value == null ? '' : String(value);
+                row.appendChild(cell);
+            });
+            tbody.appendChild(row);
         });
-        tbody.innerHTML = rowsHTML; // Injecter les lignes dans le tableau
     } else {
         tbody.innerHTML = `
             <tr>

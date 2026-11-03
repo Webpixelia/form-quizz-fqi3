@@ -9,8 +9,8 @@
 # macOS resource fork files
 *.rsrc
 
-# PHP Composer dependencies
-composer.lock
+# Composer dependencies
+/vendor/
 
 # Node.js dependencies (if applicable)
 node_modules/
@@ -39,7 +39,7 @@ node_modules/
 
 # PHPUnit
 phpunit.xml
-phpunit.xml.dist
+!phpunit.xml.dist
 
 # Backup files
 *.orig
@@ -52,3 +52,6 @@ autoload_static.php
 # Git-specific files
 *.rej
 *.patch
+
+# PHPUnit cache
+.phpunit.result.cache

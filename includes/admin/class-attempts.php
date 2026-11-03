@@ -327,7 +327,7 @@ class FQI3_Attempts_Page {
 
         if (!empty($all_rows)) {
             foreach ($all_rows as $r) {
-                fputcsv($out, [
+                fputcsv($out, array_map('fqi3_csv_safe', [
                     (int) $r->id,
                     (int) $r->user_id,
                     isset($r->display_name) ? $r->display_name : '',
@@ -336,7 +336,7 @@ class FQI3_Attempts_Page {
                     isset($r->score) ? $r->score : '',
                     isset($r->started_at) ? $r->started_at : '',
                     isset($r->completed_at) ? $r->completed_at : '',
-                ]);
+                ]));
             }
         }
 

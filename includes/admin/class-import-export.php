@@ -361,7 +361,7 @@ class FQI3_Import_Export_Page {
             [];
 
         if (empty($selected_types)) {
-            wp_redirect(add_query_arg('message', 'no_export_type_selected', wp_get_referer()));
+            wp_safe_redirect(add_query_arg('message', 'no_export_type_selected', wp_get_referer()));
             exit;
         }
 
@@ -479,11 +479,11 @@ class FQI3_Import_Export_Page {
 
             // Update WordPress options for present sections
             if (isset($sanitized_data['levels'])) {
-                update_option('fqi3_quiz_levels', $sanitized_data['levels']);
+                $this->update_option_without_form_sanitizer('fqi3_quiz_levels', $sanitized_data['levels']);
             }
 
             if (isset($sanitized_data['badges'])) {
-                update_option('fqi3_badges', $sanitized_data['badges']);
+                $this->update_option_without_form_sanitizer('fqi3_badges', $sanitized_data['badges']);
             }
 
             if (isset($sanitized_data['options'])) {
@@ -527,7 +527,7 @@ class FQI3_Import_Export_Page {
 
             // Redirect with success message
             $admin_pages = fqi3_get_admin_pages();
-            wp_redirect(admin_url('admin.php?page=' . $admin_pages['import_export']['slug'] . '&imported=success'));
+            wp_safe_redirect(admin_url('admin.php?page=' . $admin_pages['import_export']['slug'] . '&imported=success'));
             exit;
 
         } catch (\Throwable $e) {
@@ -683,28 +683,7 @@ class FQI3_Import_Export_Page {
      * @return string
      */
     private function get_client_ip(): string {
-        $ip_keys = [
-            'HTTP_CLIENT_IP', 
-            'HTTP_X_FORWARDED_FOR', 
-            'HTTP_X_FORWARDED', 
-            'HTTP_X_CLUSTER_CLIENT_IP', 
-            'HTTP_FORWARDED_FOR', 
-            'HTTP_FORWARDED', 
-            'REMOTE_ADDR'
-        ];
-
-        foreach ($ip_keys as $key) {
-            if (array_key_exists($key, $_SERVER) === true) {
-                foreach (explode(',', $_SERVER[$key]) as $ip) {
-                    $ip = trim($ip);
-                    if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
-                        return $ip;
-                    }
-                }
-            }
-        }
-
-        return 'unknown';
+        return fqi3_get_client_ip();
     }
 
     /**
@@ -755,6 +734,30 @@ class FQI3_Import_Export_Page {
                 $dir . '.htaccess',
                 "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nOrder allow,deny\nDeny from all\n</IfModule>\n"
             );
+        }
+    }
+
+    /**
+     * Save an option whose settings-form sanitizer must not run on already sanitized import data.
+     *
+     * The levels form sanitizer expects a trailing blank row (it drops the last level's "free" flag on any
+     * other input), so importing levels through update_option() silently changed which level is free.
+     *
+     * @param string $option Option name.
+     * @param mixed  $value  Value, already sanitized by the import.
+     * @since 3.4.0
+     */
+    private function update_option_without_form_sanitizer(string $option, $value): void {
+        global $wp_filter;
+
+        $hook = 'sanitize_option_' . $option;
+        $saved = $wp_filter[$hook] ?? null;
+        remove_all_filters($hook);
+
+        update_option($option, $value);
+
+        if ($saved !== null) {
+            $wp_filter[$hook] = $saved;
         }
     }
 

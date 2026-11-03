@@ -21,7 +21,7 @@ Form Quizz FQI3 is a complete solution for adding interactive quizzes to your Wo
 
 ## Requirements
 
-- WordPress 5.0 or higher
+- WordPress 6.8 or higher
 - PHP 8.0 or higher
 - MySQL 5.7.8 or higher, or MariaDB 10.2.7 or higher (the questions table uses a `JSON` column)
 
@@ -126,7 +126,21 @@ All user input is sanitized and output is escaped. The plugin follows WordPress 
   location ~* /uploads/fqi3_(backups|reports)/ { deny all; }
   ```
 
-- Quiz scoring happens in the browser: scores sent by the client are informational. Do not use them for anything that needs to be tamper-proof (certificates, rewards with a monetary value) without an additional server-side check.
+- Quiz scoring happens in the browser: the server only checks that a score is between 0 and 100 and that the level exists. Do not use scores for anything that needs to be tamper-proof (certificates, rewards with a monetary value) without an additional server-side check.
+- The client IP used for API rate limiting and logs is the direct connection address. `X-Forwarded-For` is ignored unless the connecting address is declared as a trusted proxy:
+
+  ```php
+  add_filter( 'fqi3_trusted_proxies', function () {
+      return [ '203.0.113.10' ]; // your reverse proxy / load balancer (exact IP addresses)
+  } );
+  ```
+
+  Behind a CDN or reverse proxy without this filter, every visitor appears with the proxy's address and the per-IP limit applies to all of them together.
+- API tokens are stored encrypted (AES-256-GCM, key derived from the WordPress salts). If you change the salts in `wp-config.php`, generate a new token in the API settings.
+
+## Tests
+
+Unit tests (`phpunit`) and a smoke test against a real WordPress site are available, see `tests/README.md`.
 
 ## Upgrade notes (3.4.0)
 
@@ -137,6 +151,9 @@ All user input is sanitized and output is escaped. The plugin follows WordPress 
 - Daily limit: one quiz started now consumes exactly one trial (the previous cookie-based counter could consume two). Counters start from zero after the update.
 - The number of questions per quiz now follows the "Number of questions per quiz" setting.
 - Monthly statistics are now actually scheduled.
+- The REST API rate limit used to count two requests per call: limits now apply exactly as configured.
+- API rate limiting and logs no longer trust `X-Forwarded-For` unless you declare your proxy with the `fqi3_trusted_proxies` filter (see Security).
+- Tokens created before 3.4.0 keep working. New tokens use a new encryption format.
 - Front-end CSS/JS are loaded only on pages that contain one of the plugin's shortcodes or blocks. If you display the plugin through a page builder, a widget or a template and notice unstyled content, force the loading with the `fqi3_load_frontend_assets` filter:
 
   ```php

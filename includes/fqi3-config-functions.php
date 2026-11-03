@@ -30,8 +30,8 @@ function fqi3_get_free_quiz_levels() {
         $levels = [];
         foreach ($stored_levels['fqi3_quiz_levels_name'] as $index => $name) {
             $levels[$name] = [
-                'label' => $stored_levels['fqi3_quiz_levels_label'][$index],
-                'free'  => (bool) $stored_levels['fqi3_quiz_levels_is_free'][$index],
+                'label' => $stored_levels['fqi3_quiz_levels_label'][$index] ?? $name,
+                'free'  => !empty($stored_levels['fqi3_quiz_levels_is_free'][$index]),
             ];
         }
         return $levels;
@@ -472,4 +472,58 @@ function fqi3_mask_license_key($license_key, $visible_start = 4, $visible_end = 
     return substr($license_key, 0, $visible_start)
          . str_repeat('*', $length - ($visible_start + $visible_end))
          . substr($license_key, -$visible_end);
+}
+
+/**
+ * Get the IP address of the client.
+ *
+ * Forwarded headers (X-Forwarded-For) are spoofable by anyone who can reach the server directly, so they are
+ * only used when the direct peer (REMOTE_ADDR) is a proxy you declared with the `fqi3_trusted_proxies` filter.
+ * The client is then the first address, from the right, that is not a trusted proxy.
+ *
+ * @return string A valid IP address, or '0.0.0.0' when it cannot be determined.
+ * @since 3.4.0
+ */
+function fqi3_get_client_ip(): string {
+    $remote = isset($_SERVER['REMOTE_ADDR']) ? trim((string) $_SERVER['REMOTE_ADDR']) : '';
+    $ip = filter_var($remote, FILTER_VALIDATE_IP) ? $remote : '0.0.0.0';
+
+    /**
+     * IP addresses of the reverse proxies / load balancers placed in front of WordPress.
+     *
+     * Example: add_filter( 'fqi3_trusted_proxies', fn() => [ '203.0.113.10' ] );
+     *
+     * @since 3.4.0
+     * @param string[] $proxies Exact IP addresses (no CIDR ranges).
+     */
+    $trusted = (array) apply_filters('fqi3_trusted_proxies', []);
+
+    if ($trusted && in_array($ip, $trusted, true) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $chain = array_map('trim', explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']));
+        foreach (array_reverse($chain) as $candidate) {
+            if (!filter_var($candidate, FILTER_VALIDATE_IP)) {
+                continue;
+            }
+            if (!in_array($candidate, $trusted, true)) {
+                return $candidate;
+            }
+        }
+    }
+
+    return $ip;
+}
+
+/**
+ * Neutralize a value written to a CSV file so a spreadsheet does not run it as a formula.
+ *
+ * @param mixed $value Cell value.
+ * @return mixed Same value, prefixed with an apostrophe when it starts with =, +, -, @, tab or carriage return.
+ * @since 3.4.0
+ */
+function fqi3_csv_safe($value) {
+    if (is_string($value) && $value !== '' && strpbrk($value[0], "=+-@\t\r") !== false) {
+        return "'" . $value;
+    }
+
+    return $value;
 }
