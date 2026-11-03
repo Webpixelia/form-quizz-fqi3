@@ -276,7 +276,9 @@ if ( ! class_exists( 'FQI3_Statistics' ) ) :
 			check_ajax_referer( 'fqi3_cookies_nonce', 'security' );
 
 			if ( ! fqi3_userHasAnyRole( get_current_user_id(), fqi3_getUserPremiumRoles() ) ) {
-				throw new \Exception( __( 'User not logged in or does not have the required role', 'form-quizz-fqi3' ) );
+				throw new \Exception(
+					esc_html__( 'User not logged in or does not have the required role', 'form-quizz-fqi3' )
+				);
 			}
 		}
 

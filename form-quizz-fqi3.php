@@ -189,7 +189,7 @@ final class FormQuizzFQI3 {
 			PHP_VERSION,
 			self::REQUIRED_PHP_VERSION
 		);
-		echo '<div class="notice notice-error"><p>' . $message . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html( $message ) . '</p></div>';
 	}
 
 	/**

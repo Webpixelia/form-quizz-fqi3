@@ -238,7 +238,7 @@ if ( ! class_exists( 'FQI3_Dashboard_Page' ) ) :
 			);
 
 			if ( empty( $users ) ) {
-				echo '<p>' . __( 'No users found.', 'form-quizz-fqi3' ) . '</p>';
+				echo '<p>' . esc_html__( 'No users found.', 'form-quizz-fqi3' ) . '</p>';
 				return;
 			}
 
