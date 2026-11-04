@@ -26,9 +26,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Composer autoload
-require_once __DIR__ . '/vendor/autoload.php';
-
 // Desactivate update check on wordpress.org
 add_filter(
 	'http_request_args',
@@ -294,7 +291,6 @@ final class FormQuizzFQI3 {
 	private function loadDependencies(): void {
 		$files = array(
 			'fqi3-config-functions.php',
-			'admin/class-abstract-settings.php',
 			'Utils/BlocksUtils.php',
 			'FQI3_Template_Manager.php',
 			'FQI3_Awards.php',

@@ -12,8 +12,7 @@ encryption, asset loading detection, periodic statistics). WordPress functions a
 phpunit            # PHPUnit 9.6 or 10, PHP 8.0+, uses phpunit.xml.dist
 ```
 
-The `vendor/` folder of this plugin is committed, so PHPUnit is not added to `composer.json`: use a global
-PHPUnit (`composer global require phpunit/phpunit`, or your system package).
+Development dependencies are managed through Composer. Install them with `composer install` before running the tests.
 
 ## 2. Integration smoke test (real WordPress)
 

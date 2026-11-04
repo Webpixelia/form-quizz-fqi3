@@ -47,7 +47,7 @@ final class PluginHelpersTest extends TestCase {
     }
 
     public function testFrontendAssetsAreDetectedOnPagesUsingThePlugin(): void {
-        fqi3_test_load('form-quizz-fqi3.php', ["require_once __DIR__ . '/vendor/autoload.php';" => '']);
+        fqi3_test_load('form-quizz-fqi3.php');
         $plugin = fqi3_instance('Form_Quizz_FQI3\FormQuizzFQI3');
 
         $uses = static function (string $content) use ($plugin): bool {
