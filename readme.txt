@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 6.8
 Tested up to: 7.1.4
-Stable tag: 3.4.0
+Stable tag: 3.4.1
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -119,6 +119,10 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 10. Developer page View
 
 == Changelog ==
+= 3.4.1 =
+* Fix: Add-on installation buttons now send the correct add-on slug.
+* Change: Only Subscription, Notifications, Webhooks & Automations, and Social Login add-ons are available for installation.
+
 = 3.4.0 =
 * Security: Exporting, adding, editing and deleting questions now require a capability and a nonce. Revoking the API token and sending the test e-mail require administrator rights.
 * Security: Badges can only be awarded to the logged-in user, and visitors can no longer request quiz levels reserved to logged-in users.

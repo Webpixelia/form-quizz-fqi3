@@ -132,7 +132,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 						'slug' => 'form-quizz-fqi3-subscription-addon',
 						'name' => 'Subscription Add-on',
 					),
-					'available'   => true,
+					'available'   => false,
 				),
 				array(
 					'title'       => 'Social Login Add-On',
@@ -174,7 +174,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-email-marketing-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-email-marketing-addon' ),
 					'dependance'  => '',
-					'available'   => true,
+					'available'   => false,
 				),
 				array(
 					'title'       => 'Notifications: Email, WhatsApp & SMS',
@@ -216,7 +216,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-certificates-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-certificates-addon' ),
 					'dependance'  => '',
-					'available'   => true,
+					'available'   => false,
 				),
 				array(
 					'title'       => 'Question Bank Pro Add-on',
@@ -236,7 +236,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-question-bank-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-question-bank-addon' ),
 					'dependance'  => '',
-					'available'   => true,
+					'available'   => false,
 				),
 				array(
 					'title'       => 'WooCommerce Integration',
@@ -292,7 +292,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-leads-crm-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-leads-crm-addon' ),
 					'dependance'  => '',
-					'available'   => true,
+					'available'   => false,
 				),
 				array(
 					'title'       => 'Multilingual & Localization',
@@ -571,7 +571,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 								<?php else : ?>
 									<?php if ( ! $is_installed ) : ?>
 										<?php if ( $dependencies_satisfied ) : ?>
-											<?php if ( ! empty( $addon['github_repo'] ) ) : ?>
+											<?php if ( empty( $addon['github_repo'] ) ) : ?>
 												<button 
 													class="btn btn-secondary disabled" 
 													disabled>
