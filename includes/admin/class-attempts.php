@@ -354,7 +354,10 @@ class FQI3_Attempts_Page {
 				__( 'Score', 'form-quizz-fqi3' ),
 				__( 'Started', 'form-quizz-fqi3' ),
 				__( 'Completed', 'form-quizz-fqi3' ),
-			)
+			),
+			',',
+			'"',
+			'\\'
 		);
 
 		if ( ! empty( $all_rows ) ) {
@@ -373,7 +376,10 @@ class FQI3_Attempts_Page {
 							isset( $r->started_at ) ? $r->started_at : '',
 							isset( $r->completed_at ) ? $r->completed_at : '',
 						)
-					)
+					),
+					',',
+					'"',
+					'\\'
 				);
 			}
 		}

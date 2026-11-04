@@ -256,7 +256,7 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 		private function export_questions(): array {
 			global $wpdb;
 			$table_name = $this->backend->get_quiz_table_name();
-			$questions  = $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A );
+			$questions  = $this->ensure_rows( $wpdb->get_results( "SELECT * FROM $table_name", ARRAY_A ) );
 			return array_map(
 				function ( $q ) {
 					unset( $q['id'] );
@@ -283,7 +283,7 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 				$query .= $wpdb->prepare( ' WHERE user_id = %d', $user_id );
 			}
 
-			$results = $wpdb->get_results( $query, ARRAY_A );
+			$results = $this->ensure_rows( $wpdb->get_results( $query, ARRAY_A ) );
 
 			return array_map(
 				function ( $row ) {
@@ -310,7 +310,7 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 
 			$query .= ' ORDER BY created_at DESC';
 
-			$results = $wpdb->get_results( $query, ARRAY_A );
+			$results = $this->ensure_rows( $wpdb->get_results( $query, ARRAY_A ) );
 
 			return array_map(
 				function ( $row ) {
@@ -334,13 +334,49 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 		private function send_export_file( array $export_data, array $selected_types ): void {
 			$filename = 'fqi3_' . implode( '_', $selected_types ) . '_' . date( 'Y-m-d_H-i-s' ) . '.json';
 
+			// Encode first: an encoding failure must not produce an empty download.
+			$json = wp_json_encode( $export_data, JSON_PRETTY_PRINT );
+			if ( false === $json ) {
+				wp_die(
+					esc_html( sprintf( __( 'Export failed: JSON encoding error (%s).', 'form-quizz-fqi3' ), json_last_error_msg() ) ),
+					'',
+					array( 'response' => 500 )
+				);
+			}
+
+			// Discard any stray output (notices, other plugins) that would corrupt the file.
+			while ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+
 			header( 'Content-Type: application/json' );
 			header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
 			header( 'Pragma: no-cache' );
 			header( 'Expires: 0' );
 
-			echo wp_json_encode( $export_data, JSON_PRETTY_PRINT );
+			echo $json;
 			exit;
+		}
+
+		/**
+		 * Make sure a $wpdb->get_results() call returned rows.
+		 *
+		 * get_results() returns null on SQL error (missing table, etc.); stop with a clear message
+		 * instead of letting array_map() raise an uncaught TypeError.
+		 *
+		 * @param mixed $rows Result of $wpdb->get_results().
+		 * @return array
+		 */
+		private function ensure_rows( $rows ): array {
+			global $wpdb;
+			if ( ! is_array( $rows ) ) {
+				wp_die(
+					esc_html( sprintf( __( 'Export failed: database error (%s).', 'form-quizz-fqi3' ), $wpdb->last_error ) ),
+					'',
+					array( 'response' => 500 )
+				);
+			}
+			return $rows;
 		}
 
 		/**

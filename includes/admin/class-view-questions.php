@@ -703,13 +703,6 @@ if ( ! class_exists( 'FQI3_View_Questions_Page' ) ) :
 				// Buffer the output to prevent memory issues
 				ob_start();
 
-				// Set headers with proper encoding and cache control
-				nocache_headers();
-				header( 'Content-Type: text/csv; charset=utf-8' );
-				header( 'Content-Disposition: attachment; filename="quiz_questions_' . date( 'Y-m-d_H-i-s' ) . '.csv"' );
-				header( 'Pragma: no-cache' );
-				header( 'Expires: 0' );
-
 				// Create CSV writer with memory efficiency
 				$output = fopen( 'php://temp', 'r+' );
 
@@ -723,7 +716,8 @@ if ( ! class_exists( 'FQI3_View_Questions_Page' ) ) :
 					'Options',
 					'Correct Answer',
 				);
-				fputcsv( $output, $headers );
+				fputcsv( $output, $headers, ',', '"', '\\' );
+				$total = 0;
 
 				do {
 					// Fetch questions in batches
@@ -762,26 +756,39 @@ if ( ! class_exists( 'FQI3_View_Questions_Page' ) ) :
 						);
 
 						// A CSV cell is not HTML: no entity escaping, but neutralize spreadsheet formulas.
-						fputcsv( $output, array_map( 'fqi3_csv_safe', $row ) );
+						fputcsv( $output, array_map( 'fqi3_csv_safe', $row ), ',', '"', '\\' );
 					}
 
+					$total  += count( $questions );
 					$offset += $batch_size;
 
 				} while ( ! empty( $questions ) );
 
 				// Check if any questions were processed
-				if ( $offset === 0 ) {
+				if ( 0 === $total ) {
 					throw new \Exception( __( 'No questions found for export', 'form-quizz-fqi3' ) );
 				}
+
+				// Drop stray output (notices, other plugins), then send headers only once the CSV is ready,
+				// so a failure never produces an attachment containing an error page.
+				while ( ob_get_level() > 0 ) {
+					ob_end_clean();
+				}
+				nocache_headers();
+				header( 'Content-Type: text/csv; charset=utf-8' );
+				header( 'Content-Disposition: attachment; filename="quiz_questions_' . date( 'Y-m-d_H-i-s' ) . '.csv"' );
+				header( 'Pragma: no-cache' );
+				header( 'Expires: 0' );
 
 				// Output the CSV content
 				rewind( $output );
 				fpassthru( $output );
 				fclose( $output );
-				ob_end_flush();
 
-			} catch ( \Exception $e ) {
-				ob_end_clean();
+			} catch ( \Throwable $e ) {
+				while ( ob_get_level() > 0 ) {
+					ob_end_clean();
+				}
 				wp_die(
 					esc_html( $e->getMessage() ),
 					__( 'Export Error', 'form-quizz-fqi3' ),
