@@ -10,6 +10,8 @@ define('FQI3_VERSION', '0.0.0-test');
 define('FQI3_ASSETS', 'http://example.test/assets');
 define('FQI3_TABLE_PERFORMANCE', 'fqi3_performance');
 define('OBJECT', 'OBJECT');
+define('ARRAY_A', 'ARRAY_A');
+define('FQI3_TABLE_QUIZZES', 'fqi3_quizzes');
 
 /** In-memory state shared by the stubs (reset it in setUp). */
 final class WpState {
@@ -22,6 +24,10 @@ final class WpState {
     public static bool $singular = true;
     public static string $postContent = '';
     public static array $server = [];
+    /** Roles of the current user (see wp_get_current_user()). */
+    public static array $roles = ['administrator'];
+    /** Every do_action() call: [hook, args]. */
+    public static array $actions = [];
 
     public static function reset(): void {
         self::$options = [];
@@ -32,6 +38,19 @@ final class WpState {
         self::$today = '2026-11-03';
         self::$singular = true;
         self::$postContent = '';
+        self::$roles = ['administrator'];
+        self::$actions = [];
+    }
+
+    /** Number of times an action fired. */
+    public static function fired(string $hook): int {
+        return count(array_filter(self::$actions, static fn($a) => $a[0] === $hook));
+    }
+
+    /** Arguments of the last firing of an action (null if it never fired). */
+    public static function lastArgs(string $hook): ?array {
+        $found = array_values(array_filter(self::$actions, static fn($a) => $a[0] === $hook));
+        return $found ? end($found)[1] : null;
     }
 }
 
@@ -41,15 +60,20 @@ class FakeWpdb {
     public string $prefix = 'wp_';
     public array $queries = [];
     public bool $failNextInsert = false;
-    public int $insert_id = 5;
+    public int $insert_id = 4;
+    /** Value returned by query() (affected rows); true by default. */
+    public $queryReturn = true;
+    /** Rows returned by get_results(). */
+    public array $rows = [];
     public function get_charset_collate(): string { return ''; }
-    public function query($sql) { $this->queries[] = $sql; return true; }
+    public function query($sql) { $this->queries[] = $sql; return $this->queryReturn; }
     /** Records the prepared statement and its arguments instead of running it. */
     public array $prepared = [];
     public function prepare($sql, ...$args) { $this->prepared[] = ['sql' => $sql, 'args' => $args]; return $sql; }
-    public function get_results($sql, $output = OBJECT) { return []; }
+    public function get_results($sql, $output = OBJECT) { return $this->rows; }
     public function insert() {
         if ($this->failNextInsert) { $this->failNextInsert = false; return false; }
+        $this->insert_id++;
         return 1;
     }
 }
@@ -83,7 +107,19 @@ function wp_json_encode($d, $f = 0) { return json_encode($d, $f); }
 function wp_unslash($v) { return $v; }
 function trailingslashit($s) { return rtrim($s, '/') . '/'; }
 function wp_salt($scheme = 'auth') { return 'unit-test-salt-' . $scheme; }
-function wp_send_json_success($d = null) { throw new RuntimeException('json_success'); }
+/** What wp_send_json*() would have printed before dying. */
+final class WpJsonResponse extends RuntimeException {
+    public function __construct(public bool $ok, public $payload = null) { parent::__construct($ok ? 'json_success' : 'json_error'); }
+}
+function wp_send_json_success($d = null) { throw new WpJsonResponse(true, $d); }
+function wp_send_json_error($d = null, $status = null) { throw new WpJsonResponse(false, $d); }
+function wp_send_json($d = null) { throw new WpJsonResponse(true, $d); }
+function do_action($hook, ...$args) { WpState::$actions[] = [$hook, $args]; foreach (WpState::$filters[$hook] ?? [] as $cb) { $cb(...$args); } }
+function delete_user_meta($u, $k) { unset(WpState::$userMeta[$u][$k]); return true; }
+function wp_list_pluck($list, $field) { return array_map(static fn($i) => is_array($i) ? $i[$field] : $i->$field, $list); }
+function wp_cache_get(...$a) { return false; }
+function wp_cache_set(...$a) { return true; }
+function wp_get_current_user() { return (object) ['roles' => WpState::$roles]; }
 function check_ajax_referer(...$a) { return true; }
 function is_ssl() { return true; }
 function is_admin() { return false; }
@@ -98,6 +134,8 @@ function fqi3_test_load(string $relativePath, array $replace = []): void {
     if (isset($loaded[$relativePath])) { return; }
     $src = file_get_contents(dirname(__DIR__) . '/' . $relativePath);
     $src = preg_replace('/^\s*(FQI3_[A-Za-z_]+|FormQuizzFQI3)::getInstance\(\);\s*$/m', '', $src);
+    // PHPUnit has already printed output, so a real session_start() would fail: keep $_SESSION as a plain array.
+    $src = str_replace('session_start();', '$_SESSION = $_SESSION ?? array();', $src);
     foreach ($replace as $from => $to) { $src = str_replace($from, $to, $src); }
     $tmp = tempnam(sys_get_temp_dir(), 'fqi3_') . '.php';
     file_put_contents($tmp, $src);

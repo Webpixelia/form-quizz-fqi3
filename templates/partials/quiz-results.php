@@ -11,7 +11,11 @@ $login_url            = isset( $settings_ubscription['login_register'] )
 
 ?>
 <div id="result-container" class="result-box custom-box <?php echo esc_attr( $custom_box_classes ?? '' ); ?>" style="display:none; <?php echo esc_attr( $custom_box_styles ?? '' ); ?>">
-<?php do_action( 'fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score ); ?>
+<?php
+// Fired at render time with placeholder values (no quiz has been played yet): never verified.
+// The same action is fired again after the quiz with the server-side result (see FQI3_Frontend::process_quiz_hooks_handler()).
+do_action( 'fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score, false );
+?>
 	<h1><?php echo esc_html( $translations['results'] ); ?></h1>
 	<p id="result-text"></p>
 	<div class="end-bt">

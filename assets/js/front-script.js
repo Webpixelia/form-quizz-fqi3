@@ -1,6 +1,8 @@
 let selectedLevel = "";
 let currentQuestionIndex = 0;
 let correctAnswers = 0;
+// Option index chosen for each question ({question id: index}); sent at the end so the server can compute the score.
+let userAnswers = {};
 let answerSelected = false;
 let questions = [];
 let totalQuestions = 0;
@@ -232,6 +234,7 @@ function startQuiz(niveau) {
 
                 // Charger les questions
                 questions = data;
+                userAnswers = {};
                 totalQuestions = questions.length;
 
                 loadQuestion(niveau);
@@ -510,6 +513,10 @@ function checkAnswer(selectedIndex) {
         const selectedKey = selectedOptionElement.getAttribute('data-key');
         const correctKey = correctIndex.toString();
 
+        if (currentQuestion.id !== undefined) {
+            userAnswers[currentQuestion.id] = parseInt(selectedKey, 10);
+        }
+
         markAnswerCorrectness(selectedOptionElement, selectedKey, correctKey);
 
         // Si la réponse est incorrecte, enregistrez-la
@@ -725,7 +732,8 @@ async function showResults() {
 
     const quizCompleteData = {
         quiz_level: userLevelValue,
-        quiz_score: percentage.toFixed(2),
+        // The score is computed by the server from these answers.
+        answers: JSON.stringify(userAnswers),
         nonce: fqi3Data.session.nonce
     };
 
@@ -824,6 +832,7 @@ function restartQuiz() {
         selectedLevel = selectedLevelElement.value; // Mettre à jour la variable selectedLevel
         currentQuestionIndex = 0;
         correctAnswers = 0;
+        userAnswers = {};
         document.getElementById('result-container').style.display = 'none';
         document.getElementById('quiz-questions-container').style.display = 'block';
         loadQuestion(selectedLevel); // Charger la première question du niveau sélectionné

@@ -71,6 +71,13 @@ A Gutenberg block is also available for the quiz form. The "Infos" admin page li
 
 The plugin provides several hooks and filters for advanced customization. Please refer to the developer documentation for more information.
 
+Notes for add-on developers (quiz lifecycle):
+
+- Boot from the `fqi3_loaded` action (or `plugins_loaded` at priority 10+), never while your main file is included: WordPress loads `form-quizz-fqi3-xxx/` before `form-quizz-fqi3/`, so the core is not available yet.
+- `fqi3_quiz_started` / `fqi3_quiz_attempt_started` and `fqi3_quiz_completed` / `fqi3_quiz_attempt_completed` fire once per attempt, for logged-in users only, with an `attempt_id` greater than 0 (the legacy hooks receive it as a third argument).
+- A quiz can only be completed if the server served its questions; the score passed to `fqi3_quiz_attempt_completed` is computed by the server from the submitted answers. It is reliable enough to score leads, with one limit: the correct answers are still sent to the browser with the questions, so a determined user can read them and submit perfect answers (the questions have to be served first, which counts against the daily limit).
+- `fqi3_before_results_quiz_form` has a fourth argument, `$verified`. Only a call with `$verified === true` carries a server-side result.
+
 ## Extensions
 
 Form Quizz FQI3 supports several extensions to enhance its functionality:
@@ -163,6 +170,12 @@ Unit tests (`phpunit`) and a smoke test against a real WordPress site are availa
   ```
 
 - Chart.js and canvas-confetti are bundled in `assets/vendor/` instead of being loaded from a CDN on public pages. The admin screens still load Bootstrap and Driver.js from a CDN (pinned versions).
+
+## Upgrade notes (quiz lifecycle)
+
+- A quiz is now completed against the questions the server served: a completion request without served questions, on another level, too fast (see the `fqi3_min_seconds_per_question` filter) or for an attempt that is already closed is refused, and the score is computed by the server from the submitted `answers`. Custom front-ends that call `fqi3_register_quiz_complete` must send `answers` (JSON `{question id: chosen option index}`) instead of `quiz_score`.
+- `fqi3_quiz_started`, `fqi3_quiz_attempt_started`, `fqi3_quiz_completed` and `fqi3_quiz_attempt_completed` fire once per attempt.
+- `fqi3_before_results_quiz_form` has a fourth `$verified` argument.
 
 ## Support
 

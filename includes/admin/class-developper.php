@@ -397,7 +397,10 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 
 				<h4><?php esc_html_e( 'User Meta Keys', 'form-quizz-fqi3' ); ?></h4>
 				<ul>
-					<li><?php esc_html_e( 'No specific user meta keys are written directly by the parent plugin; data is primarily stored in custom tables (performance, periodic statistics).', 'form-quizz-fqi3' ); ?></li>
+					<li><?php esc_html_e( 'Quiz data is primarily stored in custom tables (performance, periodic statistics, attempts). The parent plugin writes these user meta keys:', 'form-quizz-fqi3' ); ?></li>
+					<li><code>fqi3_daily_quiz_count</code> — <?php esc_html_e( 'quizzes started today (daily limit).', 'form-quizz-fqi3' ); ?></li>
+					<li><code>fqi3_open_attempt</code> — <?php esc_html_e( 'attempt in progress: attempt id, level and the questions served for it. Removed when the attempt is completed.', 'form-quizz-fqi3' ); ?></li>
+					<li><code>fqi3_last_result</code> — <?php esc_html_e( 'server-side result of the last completed attempt, consumed once by fqi3_before_results_quiz_form.', 'form-quizz-fqi3' ); ?></li>
 				</ul>
 
 				<h4 class="mt-4"><?php esc_html_e( 'Hooks', 'form-quizz-fqi3' ); ?><?php echo self::get_new_badge(); ?></h4>
@@ -416,12 +419,24 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 						<small><code>do_action('fqi3_quiz_questions_drawn', $user_id, $level, $question_ids, ['source'=>'core','attempt_id'=>N])</code></small>
 					</li>
 					<li>
-						<code>fqi3_quiz_attempt_started</code> — <?php esc_html_e( '(action) Server‑side attempt created.', 'form-quizz-fqi3' ); ?><br>
-						<small><code>do_action('fqi3_quiz_attempt_started', $attempt_id, $user_id, $level)</code></small>
+						<code>fqi3_loaded</code> — <?php esc_html_e( '(action) The core is loaded. Boot add-ons from here (or from plugins_loaded at priority 10+): WordPress loads "form-quizz-fqi3-xxx/" plugins before "form-quizz-fqi3/", so the core constants and classes do not exist while an add-on main file is being included.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_loaded', $version)</code></small>
 					</li>
 					<li>
-						<code>fqi3_quiz_attempt_completed</code> — <?php esc_html_e( '(action) Attempt completed with score.', 'form-quizz-fqi3' ); ?><br>
-						<small><code>do_action('fqi3_quiz_attempt_completed', $attempt_id, $user_id, $level, $score)</code></small>
+						<code>fqi3_quiz_started</code> / <code>fqi3_quiz_attempt_started</code> — <?php esc_html_e( '(action) A server-side attempt was created. Fired once per attempt, for logged-in users only. attempt_id is always greater than 0.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_quiz_started', $user_id, $level, $attempt_id)</code> <code>do_action('fqi3_quiz_attempt_started', $attempt_id, $user_id, $level)</code></small>
+					</li>
+					<li>
+						<code>fqi3_quiz_completed</code> / <code>fqi3_quiz_attempt_completed</code> — <?php esc_html_e( '(action) An attempt was completed. Fired exactly once per attempt, for logged-in users only, after the server checked that its questions were served, and with a score computed by the server from the submitted answers (the score sent by the browser is ignored). attempt_id is always greater than 0.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_quiz_completed', $user_id, $level, $attempt_id)</code> <code>do_action('fqi3_quiz_attempt_completed', $attempt_id, $user_id, $level, $score)</code></small>
+					</li>
+					<li>
+						<code>fqi3_before_results_quiz_form</code> — <?php esc_html_e( '(action) Before the results are displayed. Only trust it when $verified is true (logged-in user: level and score recorded by the server). It is also fired at page render with placeholder values and $verified = false, and for visitors with browser-supplied values: never use an unverified call to grant points, badges or data.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_before_results_quiz_form', $user_id, $level, $score, $verified)</code></small>
+					</li>
+					<li>
+						<code>fqi3_min_seconds_per_question</code> — <?php esc_html_e( '(filter) Minimum seconds per question between the questions being served and the completion of the quiz (default 1, 0 disables the check).', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_min_seconds_per_question', 1, $level)</code></small>
 					</li>
 					<li>
 						<code>fqi3_admin_quiz_questions_top_panel</code> — <?php esc_html_e( '(action) Inject a top panel into the core questions screen.', 'form-quizz-fqi3' ); ?><br>

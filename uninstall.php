@@ -48,6 +48,8 @@ if ( isset( $options['fqi3_delete_data'] ) && $options['fqi3_delete_data'] ) {
 
 	// Remove the per-user daily quiz counters
 	delete_metadata( 'user', 0, 'fqi3_daily_quiz_count', '', true );
+	delete_metadata( 'user', 0, 'fqi3_open_attempt', '', true );
+	delete_metadata( 'user', 0, 'fqi3_last_result', '', true );
 
 	// Remove the premium role (kept on deactivation so members don't lose it)
 	remove_role( 'premium_member' );

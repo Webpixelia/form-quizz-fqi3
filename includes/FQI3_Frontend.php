@@ -44,6 +44,18 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/** @var string */
 		private const ATTEMPT_SESSION_KEY = 'fqi3_attempt_id';
 
+		/**
+		 * User meta: the attempt in progress (attempt id, level, questions served for it, timestamps).
+		 * One open attempt per user. It is what the completion request is checked against.
+		 */
+		private const META_OPEN_ATTEMPT = 'fqi3_open_attempt';
+
+		/** User meta: result of the last completed attempt, consumed once by `fqi3_process_quiz_hooks`. */
+		private const META_LAST_RESULT = 'fqi3_last_result';
+
+		/** An attempt that was started but never served any question is reused for this long (seconds). */
+		private const OPEN_ATTEMPT_REUSE_TTL = 21600;
+
 		public static function getInstance() {
 			if ( self::$instance === null ) {
 				self::$instance = new self();
@@ -271,10 +283,11 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 			}
 
 			$this->start_session_if_needed();
-			// Ensure we have a current attempt id in session (best-effort)
-			$attempt_id = $this->getCurrentAttemptId();
-			if ( $attempt_id <= 0 && is_user_logged_in() ) {
-				$attempt_id = $this->createAttempt( get_current_user_id(), $level );
+			// Logged-in users get a server-side attempt (the one opened by "quiz start", or a new one).
+			$user_id    = get_current_user_id();
+			$attempt_id = 0;
+			if ( $user_id > 0 ) {
+				$attempt_id = $this->acquireAttempt( $user_id, $level )['attempt_id'];
 			}
 			$questions = $this->getQuestions( $level );
 
@@ -289,6 +302,10 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 					)
 				);
 			}
+
+			// Bind the served questions to the attempt: the completion request is validated against them.
+			$question_ids = array_map( 'intval', wp_list_pluck( $questions, 'id' ) );
+			$this->rememberServedQuestions( $attempt_id, $user_id, $level, $question_ids );
 
 			// Notify listeners that the final question set has been fixed for this request
 			// Allows addons (e.g., Question Bank Pro) to persist a snapshot or log
@@ -561,12 +578,14 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * Register quiz start
 		 *
-		 * This method is triggered via AJAX and handles registering the start of a quiz session.
-		 * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
+		 * This method is triggered via AJAX and opens (or reuses) the server-side attempt of the current user.
+		 * Only logged-in users, subject to the daily limit, can start a quiz on a known level.
 		 *
-		 * If all checks pass, it triggers the 'fqi3_quiz_started' action hook to notify other plugins or extensions.
+		 * `fqi3_quiz_started` and `fqi3_quiz_attempt_started` fire once per attempt: a repeated request
+		 * (double click, retry) reuses the attempt that has not served any question yet and fires nothing.
 		 *
 		 * @since 3.0.0
+		 * @since 3.4.1 Validates the level, applies the daily limit and reuses the open attempt.
 		*/
 		public function fqi3_register_quiz_start(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
@@ -583,25 +602,37 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 				return;
 			}
 
-			$quiz_level = sanitize_text_field( $_POST['quiz_level'] ?? '' );
+			$quiz_level = sanitize_text_field( wp_unslash( $_POST['quiz_level'] ?? '' ) );
 
 			if ( empty( $quiz_level ) ) {
 				wp_send_json_error( array( 'message' => 'Niveau du quiz manquant.' ) );
 				return;
 			}
 
-			// Create a server-side attempt and store in session
+			if ( ! $this->isKnownLevel( $quiz_level ) ) {
+				wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			if ( $this->shouldBlockQuizAccess() ) {
+				wp_send_json_error( array( 'message' => __( 'You have reached your quiz limit for today.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
 			$this->start_session_if_needed();
-			$attempt_id = $this->createAttempt( (int) $user_id, (string) $quiz_level );
-			// Back-compat action
-			do_action( 'fqi3_quiz_started', $user_id, $quiz_level );
-			// New detailed action with attempt id
-			do_action( 'fqi3_quiz_attempt_started', (int) $attempt_id, (int) $user_id, (string) $quiz_level );
+			$attempt = $this->acquireAttempt( (int) $user_id, $quiz_level );
+
+			if ( $attempt['is_new'] ) {
+				// Back-compat action (the attempt id is an extra argument: callbacks declared with 2 are unaffected).
+				do_action( 'fqi3_quiz_started', $user_id, $quiz_level, $attempt['attempt_id'] );
+				// Detailed action with attempt id
+				do_action( 'fqi3_quiz_attempt_started', $attempt['attempt_id'], (int) $user_id, $quiz_level );
+			}
 
 			wp_send_json_success(
 				array(
 					'message'    => 'Quiz démarré avec succès.',
-					'attempt_id' => (int) $attempt_id,
+					'attempt_id' => $attempt['attempt_id'],
 				)
 			);
 		}
@@ -609,12 +640,17 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * Register quiz completion
 		 *
-		 * This method is triggered via AJAX and handles registering the completion of a quiz session.
-		 * It checks if the user is logged in and if the user ID is valid. It also checks if the quiz level is provided.
+		 * This method is triggered via AJAX and closes the attempt in progress of the current user.
 		 *
-		 * If all checks pass, it triggers the 'fqi3_quiz_completed' action hook to notify other plugins or extensions.
+		 * The request is only accepted when the questions of the attempt were served by the server, on the same
+		 * level, at least `fqi3_min_seconds_per_question` seconds per question ago, and when the attempt is not
+		 * already closed. The score is computed here from the submitted answers (`answers`, a JSON object
+		 * {question id: chosen option index}); the `quiz_score` sent by the browser is ignored.
+		 *
+		 * `fqi3_quiz_completed` and `fqi3_quiz_attempt_completed` fire exactly once per attempt.
 		 *
 		 * @since 3.0.0
+		 * @since 3.4.1 Validated against the served questions; server-side score; hooks fire once.
 		*/
 		public function fqi3_register_quiz_complete_handler(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
@@ -643,26 +679,65 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 				return;
 			}
 
-			$quiz_score = $this->sanitizeQuizScore( $_POST['quiz_score'] ?? 0 );
+			// The attempt must exist and its questions must have been served by this server.
+			$open       = $this->getOpenAttempt( (int) $user_id );
+			$attempt_id = (int) ( $open['attempt_id'] ?? 0 );
+			$served_ids = array_values( array_filter( array_map( 'intval', (array) ( $open['question_ids'] ?? array() ) ) ) );
 
-			// Complete the current attempt if available
-			$this->start_session_if_needed();
-			$attempt_id = $this->getCurrentAttemptId();
-			if ( $attempt_id > 0 ) {
-				$this->completeAttempt( $attempt_id, $quiz_score );
+			if ( $attempt_id <= 0 || empty( $served_ids ) ) {
+				wp_send_json_error( array( 'message' => __( 'No quiz in progress.', 'form-quizz-fqi3' ) ) );
+				return;
 			}
 
-			// Back-compat
-			do_action( 'fqi3_quiz_completed', $user_id, $quiz_level );
-			// New detailed action
-			do_action( 'fqi3_quiz_attempt_completed', (int) $attempt_id, (int) $user_id, (string) $quiz_level, (float) $quiz_score );
+			if ( ( $open['level'] ?? '' ) !== $quiz_level ) {
+				wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			if ( time() - (int) ( $open['served_at'] ?? 0 ) < $this->minimumQuizSeconds( $quiz_level, count( $served_ids ) ) ) {
+				wp_send_json_error( array( 'message' => __( 'The quiz was completed too quickly.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			// The score is recomputed from the answers: what the browser claims is not used.
+			$answers = $this->parseSubmittedAnswers( wp_unslash( $_POST['answers'] ?? '' ), $served_ids );
+			$score   = null === $answers ? null : $this->computeServerScore( $served_ids, $answers );
+
+			if ( null === $score ) {
+				wp_send_json_error( array( 'message' => __( 'The quiz answers could not be verified.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			// Atomic gate: only one request closes the attempt, a replay or a parallel request gets false.
+			if ( ! $this->completeAttempt( $attempt_id, (int) $user_id, $score ) ) {
+				$this->forgetOpenAttempt( (int) $user_id );
+				wp_send_json_error( array( 'message' => __( 'This quiz is already completed.', 'form-quizz-fqi3' ) ) );
+				return;
+			}
+
+			$this->forgetOpenAttempt( (int) $user_id );
+			update_user_meta(
+				(int) $user_id,
+				self::META_LAST_RESULT,
+				array(
+					'attempt_id' => $attempt_id,
+					'level'      => $quiz_level,
+					'score'      => $score,
+					'at'         => time(),
+				)
+			);
+
+			// Back-compat action (the attempt id is an extra argument: callbacks declared with 2 are unaffected).
+			do_action( 'fqi3_quiz_completed', $user_id, $quiz_level, $attempt_id );
+			// Detailed action
+			do_action( 'fqi3_quiz_attempt_completed', $attempt_id, (int) $user_id, $quiz_level, $score );
 
 			wp_send_json_success(
 				array(
 					'message'    => 'Quiz terminé avec succès.',
 					'level'      => $quiz_level,
-					'score'      => $quiz_score,
-					'attempt_id' => (int) $attempt_id,
+					'score'      => $score,
+					'attempt_id' => $attempt_id,
 				)
 			);
 		}
@@ -670,25 +745,45 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * Process quiz hooks
 		 *
-		 * This method is triggered via AJAX and handles processing the quiz hooks.
-		 * It checks the nonce for security and triggers the 'fqi3_before_results_quiz_form' action hook.
+		 * This method is triggered via AJAX and fires the `fqi3_before_results_quiz_form` action.
+		 *
+		 * For a logged-in user the level and the score are the ones recorded by the server when the attempt was
+		 * completed (the browser values are ignored) and the result can be consumed only once; `$verified` is true.
+		 * A visitor has no server-side attempt: the values come from the browser, are NOT trustworthy and
+		 * `$verified` is false. Never grant points, badges or data on an unverified call.
 		 *
 		 * @since 3.0.0
+		 * @since 3.4.1 Verified result for logged-in users, `$verified` argument.
 		*/
 		public function process_quiz_hooks_handler(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
 
-			$user_id    = get_current_user_id();
-			$quiz_level = sanitize_text_field( wp_unslash( $_POST['quiz_level'] ?? '' ) );
+			$user_id = get_current_user_id();
 
-			if ( ! $this->isKnownLevel( $quiz_level ) ) {
-				wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
-				return;
+			if ( $user_id > 0 ) {
+				$result = get_user_meta( $user_id, self::META_LAST_RESULT, true );
+				if ( ! is_array( $result ) || empty( $result['attempt_id'] ) ) {
+					wp_send_json_error( array( 'message' => __( 'No completed quiz to process.', 'form-quizz-fqi3' ) ) );
+					return;
+				}
+				delete_user_meta( $user_id, self::META_LAST_RESULT );
+
+				$quiz_level = (string) ( $result['level'] ?? '' );
+				$quiz_score = (float) ( $result['score'] ?? 0 );
+				$verified   = true;
+			} else {
+				$quiz_level = sanitize_text_field( wp_unslash( $_POST['quiz_level'] ?? '' ) );
+
+				if ( ! $this->isKnownLevel( $quiz_level ) ) {
+					wp_send_json_error( array( 'message' => __( 'Invalid quiz level.', 'form-quizz-fqi3' ) ) );
+					return;
+				}
+
+				$quiz_score = $this->sanitizeQuizScore( $_POST['quiz_score'] ?? 0 );
+				$verified   = false;
 			}
 
-			$quiz_score = $this->sanitizeQuizScore( $_POST['quiz_score'] ?? 0 );
-
-			do_action( 'fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score );
+			do_action( 'fqi3_before_results_quiz_form', $user_id, $quiz_level, $quiz_score, $verified );
 
 			wp_send_json_success(
 				array(
@@ -846,40 +941,243 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		}
 
 		/**
-		 * Get current attempt id from session
+		 * The attempt in progress of a user (empty array when there is none).
+		 *
+		 * @return array{attempt_id?:int,level?:string,question_ids?:int[],started_at?:int,served_at?:int}
+		 * @since 3.4.1
 		 */
-		private function getCurrentAttemptId(): int {
-			return isset( $_SESSION[ self::ATTEMPT_SESSION_KEY ] ) ? (int) $_SESSION[ self::ATTEMPT_SESSION_KEY ] : 0;
+		private function getOpenAttempt( int $user_id ): array {
+			if ( $user_id <= 0 ) {
+				return array();
+			}
+
+			$data = get_user_meta( $user_id, self::META_OPEN_ATTEMPT, true );
+
+			return is_array( $data ) && ! empty( $data['attempt_id'] ) ? $data : array();
 		}
 
 		/**
-		 * Complete an attempt
+		 * Forget the attempt in progress of a user (server state and session).
+		 *
+		 * @since 3.4.1
 		 */
-		private function completeAttempt( int $attempt_id, float $score ): void {
-			if ( $attempt_id <= 0 ) {
-				return; }
+		private function forgetOpenAttempt( int $user_id ): void {
+			delete_user_meta( $user_id, self::META_OPEN_ATTEMPT );
+			unset( $_SESSION[ self::ATTEMPT_SESSION_KEY ] );
+		}
+
+		/**
+		 * Return the attempt a user is about to play: the recent one that has not served any question yet
+		 * (its level is aligned on the requested one), otherwise a new attempt.
+		 *
+		 * @return array{attempt_id:int,is_new:bool} `is_new` is true only when a row has just been created.
+		 * @since 3.4.1
+		 */
+		private function acquireAttempt( int $user_id, string $level ): array {
+			$open = $this->getOpenAttempt( $user_id );
+
+			if (
+				! empty( $open )
+				&& empty( $open['question_ids'] )
+				&& ( time() - (int) ( $open['started_at'] ?? 0 ) ) < self::OPEN_ATTEMPT_REUSE_TTL
+			) {
+				$attempt_id = (int) $open['attempt_id'];
+
+				if ( ( $open['level'] ?? '' ) !== $level ) {
+					if ( ! $this->updateAttemptLevel( $attempt_id, $user_id, $level ) ) {
+						// The row is gone or closed: do not keep a ghost attempt.
+						$this->forgetOpenAttempt( $user_id );
+						return $this->acquireAttempt( $user_id, $level );
+					}
+					$open['level'] = $level;
+					update_user_meta( $user_id, self::META_OPEN_ATTEMPT, $open );
+				}
+
+				$_SESSION[ self::ATTEMPT_SESSION_KEY ] = $attempt_id;
+
+				return array(
+					'attempt_id' => $attempt_id,
+					'is_new'     => false,
+				);
+			}
+
+			$attempt_id = $this->createAttempt( $user_id, $level );
+			if ( $attempt_id > 0 ) {
+				update_user_meta(
+					$user_id,
+					self::META_OPEN_ATTEMPT,
+					array(
+						'attempt_id'   => $attempt_id,
+						'level'        => $level,
+						'question_ids' => array(),
+						'started_at'   => time(),
+						'served_at'    => 0,
+					)
+				);
+			}
+
+			return array(
+				'attempt_id' => $attempt_id,
+				'is_new'     => $attempt_id > 0,
+			);
+		}
+
+		/**
+		 * Record the questions served for an attempt. The completion request is validated against them.
+		 *
+		 * @param int[] $question_ids Ids of the questions sent to the browser.
+		 * @since 3.4.1
+		 */
+		private function rememberServedQuestions( int $attempt_id, int $user_id, string $level, array $question_ids ): void {
+			if ( $attempt_id <= 0 || $user_id <= 0 ) {
+				return;
+			}
+
+			$open = $this->getOpenAttempt( $user_id );
+			if ( (int) ( $open['attempt_id'] ?? 0 ) !== $attempt_id ) {
+				return;
+			}
+
+			$open['level']        = $level;
+			$open['question_ids'] = array_values( array_unique( array_filter( array_map( 'intval', $question_ids ) ) ) );
+			$open['served_at']    = time();
+			update_user_meta( $user_id, self::META_OPEN_ATTEMPT, $open );
+		}
+
+		/**
+		 * Minimum time between the questions being served and the completion request.
+		 *
+		 * @param string $level      Level slug.
+		 * @param int    $nb_questions Number of questions served.
+		 * @since 3.4.1
+		 */
+		private function minimumQuizSeconds( string $level, int $nb_questions ): int {
+			/**
+			 * Filters the minimum number of seconds per question before a quiz can be completed
+			 * (a speed bump against scripted completions). Return 0 to disable the check.
+			 *
+			 * @param int    $seconds Seconds per question (default 1).
+			 * @param string $level   Level slug.
+			 */
+			$per_question = (int) apply_filters( 'fqi3_min_seconds_per_question', 1, $level );
+
+			return max( 0, $per_question ) * max( 0, $nb_questions );
+		}
+
+		/**
+		 * Normalise the answers sent by the browser: {question id: chosen option index}, restricted to the served questions.
+		 *
+		 * @param mixed $raw        JSON string (or already decoded array).
+		 * @param int[] $served_ids Ids of the questions served for the attempt.
+		 * @return array<int,int>|null Null when the payload is missing or not a JSON object.
+		 * @since 3.4.1
+		 */
+		private function parseSubmittedAnswers( $raw, array $served_ids ): ?array {
+			$decoded = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
+			if ( ! is_array( $decoded ) ) {
+				return null;
+			}
+
+			$allowed = array_flip( $served_ids );
+			$answers = array();
+			foreach ( $decoded as $question_id => $choice ) {
+				$question_id = (int) $question_id;
+				if ( isset( $allowed[ $question_id ] ) && is_numeric( $choice ) ) {
+					$answers[ $question_id ] = (int) $choice;
+				}
+			}
+
+			return $answers;
+		}
+
+		/**
+		 * Score (0-100, 2 decimals) of an attempt, from the stored correct answers of the served questions.
+		 * Questions deleted since they were served no longer count. Null if no served question can be found.
+		 *
+		 * @param int[]            $served_ids Ids of the questions served for the attempt.
+		 * @param array<int,int>   $answers    Chosen option index by question id.
+		 * @since 3.4.1
+		 */
+		private function computeServerScore( array $served_ids, array $answers ): ?float {
+			global $wpdb;
+
+			if ( empty( $served_ids ) ) {
+				return null;
+			}
+
+			$placeholders = implode( ',', array_fill( 0, count( $served_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT id, answer FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE id IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$served_ids
+				),
+				ARRAY_A
+			);
+
+			if ( empty( $rows ) || ! is_array( $rows ) ) {
+				return null;
+			}
+
+			$correct = 0;
+			foreach ( $rows as $row ) {
+				$id = (int) ( $row['id'] ?? 0 );
+				if ( isset( $answers[ $id ] ) && $answers[ $id ] === (int) ( $row['answer'] ?? -1 ) ) {
+					++$correct;
+				}
+			}
+
+			return $this->sanitizeQuizScore( ( $correct / count( $rows ) ) * 100 );
+		}
+
+		/**
+		 * Align the level of an attempt that has not served any question yet.
+		 * Returns false when no open attempt of that user was changed (missing, closed or already on that level).
+		 *
+		 * @since 3.4.1
+		 */
+		private function updateAttemptLevel( int $attempt_id, int $user_id, string $level ): bool {
 			global $wpdb;
 			$table = $wpdb->prefix . 'fqi3_quiz_attempts';
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->update(
-				$table,
-				array(
-					'score'        => $score,
-					'completed_at' => current_time( 'mysql', 1 ),
-				),
-				array(
-					'id' => $attempt_id,
-				),
-				array(
-					'%f',
-					'%s',
-				),
-				array(
-					'%d',
+			$updated = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `$table` SET level = %s WHERE id = %d AND user_id = %d AND completed_at IS NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$level,
+					$attempt_id,
+					$user_id
 				)
 			);
-			// Clear session so a new quiz gets a new attempt id
-			unset( $_SESSION[ self::ATTEMPT_SESSION_KEY ] );
+
+			return 1 === (int) $updated;
+		}
+
+		/**
+		 * Close an attempt of a user. Returns true only if THIS call closed it: false when the attempt does not
+		 * exist, belongs to someone else or is already closed (single conditional UPDATE, safe against replays
+		 * and parallel requests).
+		 *
+		 * @since 3.4.1 Returns a bool and only closes an open attempt of the given user.
+		 */
+		private function completeAttempt( int $attempt_id, int $user_id, float $score ): bool {
+			if ( $attempt_id <= 0 || $user_id <= 0 ) {
+				return false;
+			}
+
+			global $wpdb;
+			$table = $wpdb->prefix . 'fqi3_quiz_attempts';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$closed = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE `$table` SET score = %f, completed_at = %s WHERE id = %d AND user_id = %d AND completed_at IS NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$score,
+					current_time( 'mysql', 1 ),
+					$attempt_id,
+					$user_id
+				)
+			);
+
+			return 1 === (int) $closed;
 		}
 
 		/**

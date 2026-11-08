@@ -42,6 +42,41 @@ class Plugin_Updater {
 
 		// Add custom update message
 		add_action( "in_plugin_update_message-{$plugin_file}", array( $this, 'update_message' ), 10, 2 );
+
+		// GitHub zipballs extract to "<owner>-<repo>-<sha>": give the package the plugin folder name
+		add_filter( 'upgrader_source_selection', array( $this, 'fix_source_dir' ), 10, 4 );
+	}
+
+	/**
+	 * Rename the extracted package folder to the plugin slug when this plugin is being updated.
+	 *
+	 * Without it, an update served from the GitHub zipball (no .zip asset on the release) would be installed in
+	 * a folder named after the repository and commit, next to the real plugin, and the plugin would be deactivated.
+	 *
+	 * @param string|\WP_Error $source        Extracted package folder.
+	 * @param string           $remote_source Folder containing the extracted package.
+	 * @param \WP_Upgrader     $upgrader      Upgrader instance.
+	 * @param array            $hook_extra    Context of the upgrade (`plugin` is the plugin basename).
+	 * @return string|\WP_Error
+	 * @since 3.4.1
+	 */
+	public function fix_source_dir( $source, $remote_source, $upgrader = null, $hook_extra = array() ) {
+		if ( is_wp_error( $source ) || ! is_array( $hook_extra ) || ( $hook_extra['plugin'] ?? '' ) !== $this->plugin_file ) {
+			return $source;
+		}
+
+		global $wp_filesystem;
+
+		$desired = trailingslashit( $remote_source ) . $this->plugin_slug . '/';
+		if ( trailingslashit( $source ) === $desired ) {
+			return $source;
+		}
+
+		if ( ! $wp_filesystem || ! $wp_filesystem->move( $source, $desired, true ) ) {
+			return new \WP_Error( 'fqi3_rename_failed', __( 'Could not prepare the plugin folder for the update.', 'form-quizz-fqi3' ) );
+		}
+
+		return $desired;
 	}
 
 	/**

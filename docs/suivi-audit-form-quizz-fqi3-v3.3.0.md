@@ -173,11 +173,33 @@ Reporté, avec la raison :
 
 ☐ Schéma (`dbDelta` avec `IF NOT EXISTS`, version de schéma, multisite) : le fonctionnement actuel est correct (testé), mais toute modification demande une matrice de tests de mise à jour sur d'anciennes installations. Multisite ni supporté ni testé.
 
-☐ Validation serveur des scores : les scores restent calculés dans le navigateur. Une vraie validation exige que le serveur mémorise les questions servies et recalcule le score (changement d'architecture).
+◐ Validation serveur des scores : traitée en phase F (voir section 8 bis). Reste hors périmètre : les bonnes réponses sont toujours envoyées au navigateur avec les questions (un utilisateur déterminé peut les lire) et `update_quiz_statistics` / `award_badges` reçoivent encore des valeurs du navigateur.
 
 ☐ Traductions : les nouvelles chaînes ne sont pas dans les `.pot`/`.po` FR et ES, à régénérer avec `wp i18n make-pot`.
 
 ☐ Mises à jour du plugin : pas de vérification d'intégrité (hash ou signature) des paquets téléchargés.
+
+## 8 bis. Phase F – Retours de l'équipe de l'addon Leads CRM
+
+Six points transmis par l'équipe de l'addon FQI3 Leads CRM, tous revérifiés dans le code 3.4.0. Les points 1 à 5 se confirment ; le 6 est exact mais l'explication est à corriger. Correctifs dans `FQI3_Frontend.php`, `class-plugin-updater.php`, `form-quizz-fqi3.php`, le JS front, le gabarit des résultats et `uninstall.php`.
+
+◐ **1 (HIGH) – Début et fin de quiz sans contrôle**. Le serveur mémorise, dans la méta utilisateur `fqi3_open_attempt`, la tentative en cours et les questions servies (`handleGetQuestions`). La complétion est refusée sans tentative, sans questions servies, sur un autre niveau que celui servi, ou plus tôt que `fqi3_min_seconds_per_question` (1 s par question par défaut, filtrable, 0 désactive). La limite quotidienne n'est pas dupliquée : servir les questions la consomme déjà et chaque complétion en exige. `fqi3_register_quiz_start` applique aussi la limite quotidienne.
+
+◐ **4 (MEDIUM) – Score calculé par le navigateur**. Le JS envoie `answers` (`{id de question: index choisi}`) ; le serveur recalcule le score à partir des bonnes réponses stockées et ignore `quiz_score`. Sans `answers` valide, la complétion est refusée. Limite assumée : les bonnes réponses sont toujours envoyées au navigateur (le JS corrige localement), donc un utilisateur déterminé peut les lire. Il doit tout de même faire servir les questions (essai consommé) et attendre la durée minimale.
+
+◐ **2 (HIGH) – Hooks de complétion rejoués**. `completeAttempt` devient un seul `UPDATE … WHERE id = %d AND user_id = %d AND completed_at IS NULL` et renvoie vrai uniquement si cette requête a fermé la tentative (sûr contre le rejeu et les requêtes parallèles). `fqi3_quiz_completed` et `fqi3_quiz_attempt_completed` ne partent qu'alors, avec un `attempt_id` toujours > 0. L'`attempt_id` est ajouté en 3e argument de `fqi3_quiz_completed` et `fqi3_quiz_started` (les callbacks déclarés avec 2 arguments ne sont pas affectés).
+
+◐ **3 (MEDIUM) – `fqi3_process_quiz_hooks` ouvert aux visiteurs**. Pour un utilisateur connecté, niveau et score viennent du résultat enregistré par le serveur (méta `fqi3_last_result`, consommable une fois) et les valeurs du navigateur sont ignorées. Pour un visiteur, le comportement est conservé (l'action reste disponible) mais l'action reçoit un 4e argument `$verified = false`. Le gabarit `quiz-results.php` déclenchait aussi cette action au rendu de la page avec des valeurs factices (niveau « Level not defined », score 0) : elle passe maintenant `$verified = false`. À transmettre à l'équipe Leads CRM : ne rien attribuer sur un appel non vérifié.
+
+◐ **5 (LOW) – `fqi3_register_quiz_start`**. Niveau validé par `isKnownLevel`, `wp_unslash` appliqué, tentative ouverte réutilisée tant qu'aucune question n'a été servie (le niveau est réaligné), donc plus de ligne créée à chaque appel. Les actions de démarrage ne partent qu'à la création d'une tentative.
+
+◐ **6 (LOW) – Intégration des addons**. Deux causes distinctes. (a) Ordre de chargement : WordPress trie les plugins actifs par chemin et `form-quizz-fqi3-xxx/` passe avant `form-quizz-fqi3/` (`-` avant `/`), même avec le bon nom de dossier. Les constantes du parent n'existent donc pas pendant l'inclusion du fichier d'un addon. Nouvelle action `fqi3_loaded` (sur `plugins_loaded`, priorité 5) et documentée dans la page développeur. (b) Nom de dossier : l'archive fournie (`form-quizz-fqi3-3.4.0/`) et le zipball GitHub ne donnent pas `form-quizz-fqi3/`. La mise à jour automatique du core renomme maintenant le dossier extrait (`upgrader_source_selection`, limité au plugin concerné). Pour une installation manuelle, il faut publier une archive de release dont le dossier racine est `form-quizz-fqi3/` : à faire côté processus de release (non couvert par le code).
+
+Tests : `tests/unit/AttemptLifecycleTest.php` (22 tests : démarrage, liaison des questions, score serveur, rejeu, requête parallèle perdante, durée minimale, hook de résultat). Les stubs de `tests/bootstrap.php` ont été étendus. Lancés sous PHPUnit 9.6 : les 3 tests à data provider par attribut (`#[DataProvider]`) échouent sous 9.6 et exigent PHPUnit 10 (préexistant). Non testé : WordPress et MySQL réels, navigateur.
+
+Changements de comportement : la complétion sans `answers` (client JS en cache, front-end tiers) est refusée ; les actions de démarrage ne partent plus à chaque appel ; une tentative ne peut plus être fermée deux fois.
+
+À tester chez toi : ☐ quiz complet connecté (démarrage, questions, résultats, badges, ligne de la table des tentatives avec le bon score) ; ☐ rejouer la requête `fqi3_register_quiz_complete` : refusée, aucun hook ; ☐ requête de complétion sans passer par les questions : refusée ; ☐ abonné avec limite 3 : le 4e démarrage est refusé ; ☐ mise à jour du core depuis une release sans asset `.zip` : le dossier reste `form-quizz-fqi3/` ; ☐ un addon qui s'initialise sur `fqi3_loaded`.
 
 ## 9. Non relu en détail
 
@@ -200,4 +222,5 @@ Reporté, avec la raison :
 
 * 3 nov. 2026 – En-têtes alignés par Jonathan : WordPress 6.8 minimum, testé jusqu'à 7.1.4.
 * 3 nov. 2026 – Environnement réel monté (WordPress 6.8.2, MariaDB 10.11, WP-CLI) : les phases A à C sont vérifiées en conditions réelles. La phase E y a révélé trois bugs préexistants (limitation REST, import des niveaux, statistiques périodiques), corrigés.
+* 8 nov. 2026 – Phase F : retours de l'équipe Leads CRM (6 points) vérifiés et corrigés, 22 tests ajoutés. Pas de bump de version dans ce lot.
 * 3 nov. 2026 – Phase E appliquée (commit 5073731) : 39 tests unitaires et 23 vérifications d'intégration. Patch livré : `fqi3-audit-phase-e.patch`, à appliquer sur l'état A+B+C+D (avec votre en-tête).

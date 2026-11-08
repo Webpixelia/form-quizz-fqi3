@@ -200,6 +200,11 @@ final class FormQuizzFQI3 {
 		// Init hook for loading translations and API
 		add_action( 'init', array( $this, 'init' ), 20 );
 
+		// Stable entry point for add-ons. WordPress loads the plugins in alphabetical order of their path and
+		// "form-quizz-fqi3-xxx/" sorts before "form-quizz-fqi3/": an add-on's main file is therefore included
+		// BEFORE this one, and the core constants and classes do not exist yet at that point.
+		add_action( 'plugins_loaded', array( $this, 'announceLoaded' ), 5 );
+
 		// Admin hooks
 		if ( is_admin() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'adminAssets' ) );
@@ -213,6 +218,23 @@ final class FormQuizzFQI3 {
 
 		// User-related hooks
 		add_filter( 'show_admin_bar', array( $this, 'handleAdminBar' ) );
+	}
+
+	/**
+	 * Tell the add-ons that the core is loaded (constants, classes and helpers are available).
+	 *
+	 * Add-ons should boot from this action (or from `plugins_loaded` at priority 10 or later), never while
+	 * their own main file is being included.
+	 *
+	 * @since 3.4.1
+	 */
+	public function announceLoaded(): void {
+		/**
+		 * Fires once the core plugin is loaded.
+		 *
+		 * @param string $version Core version.
+		 */
+		do_action( 'fqi3_loaded', self::FQI3_VERSION );
 	}
 
 	/**
