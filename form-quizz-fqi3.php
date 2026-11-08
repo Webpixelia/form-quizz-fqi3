@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Form Quizz FQI3
  * Description: A plugin to create and manage free quizzes with premium features.
- * Version: 3.4.1
+ * Version: 3.5.0
  * Author: Jonathan Webpixelia
  * Author URI: https://webpixelia.com
  * Update URI: https://github.com/Webpixelia/form-quizz-fqi3
@@ -76,7 +76,7 @@ final class FormQuizzFQI3 {
 	 *
 	 * @var string
 	 */
-	private const FQI3_VERSION = '3.4.1';
+	private const FQI3_VERSION = '3.5.0';
 
 	/** Shortcodes whose presence in a post means the front-end assets are needed. */
 	private const FRONTEND_SHORTCODES = array(
@@ -226,7 +226,7 @@ final class FormQuizzFQI3 {
 	 * Add-ons should boot from this action (or from `plugins_loaded` at priority 10 or later), never while
 	 * their own main file is being included.
 	 *
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public function announceLoaded(): void {
 		/**

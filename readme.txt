@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 6.8
 Tested up to: 7.1.4
-Stable tag: 3.4.1
+Stable tag: 3.5.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -119,8 +119,12 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 10. Developer page View
 
 == Changelog ==
-= 3.4.1 =
+= 3.5.0 =
+* Feature: Server-side validation of quiz completion for add-on integrations.
+* Feature: Statistics and badges are now recorded server-side from the verified result.
+* Change: The browser-driven update_quiz_statistics endpoint is deprecated (success, no write) and the front-end script no longer calls it or award_badges.
 * Fix: Add-on installation buttons now send the correct add-on slug.
+* Fix: A quiz start now validates the level and reuses the open attempt instead of creating a row on every call.
 * Change: Only Subscription, Notifications, Webhooks & Automations, and Social Login add-ons are available for installation.
 
 = 3.4.0 =

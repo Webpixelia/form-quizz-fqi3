@@ -182,7 +182,7 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
 					throw new \Exception( 'Invalid user ID or level.' );
 				}
 
-				// Since 3.4.1 the server awards the badges itself when a quiz is completed. This endpoint is kept
+				// Since 3.5.0 the server awards the badges itself when a quiz is completed. This endpoint is kept
 				// for older front-ends; it only re-evaluates the thresholds on the stored (server-recorded) statistics.
 
 				$this->award_badges_based_on_criteria( $user_id, $level );

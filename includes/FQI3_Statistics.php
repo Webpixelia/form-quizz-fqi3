@@ -247,7 +247,7 @@ if ( ! class_exists( 'FQI3_Statistics' ) ) :
 		 * the server when the quiz is completed (see FQI3_Frontend::fqi3_register_quiz_complete_handler()),
 		 * from the answers it verified.
 		 *
-		 * @deprecated 3.4.1
+		 * @deprecated 3.5.0
 		 * @return void
 		 */
 		public function handle_statistics_update(): void {

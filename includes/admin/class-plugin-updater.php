@@ -58,7 +58,7 @@ class Plugin_Updater {
 	 * @param \WP_Upgrader     $upgrader      Upgrader instance.
 	 * @param array            $hook_extra    Context of the upgrade (`plugin` is the plugin basename).
 	 * @return string|\WP_Error
-	 * @since 3.4.1
+	 * @since 3.5.0
 	 */
 	public function fix_source_dir( $source, $remote_source, $upgrader = null, $hook_extra = array() ) {
 		if ( is_wp_error( $source ) || ! is_array( $hook_extra ) || ( $hook_extra['plugin'] ?? '' ) !== $this->plugin_file ) {

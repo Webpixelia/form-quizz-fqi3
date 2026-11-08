@@ -585,7 +585,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * (double click, retry) reuses the attempt that has not served any question yet and fires nothing.
 		 *
 		 * @since 3.0.0
-		 * @since 3.4.1 Validates the level, applies the daily limit and reuses the open attempt.
+		 * @since 3.5.0 Validates the level, applies the daily limit and reuses the open attempt.
 		*/
 		public function fqi3_register_quiz_start(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
@@ -650,7 +650,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * `fqi3_quiz_completed` and `fqi3_quiz_attempt_completed` fire exactly once per attempt.
 		 *
 		 * @since 3.0.0
-		 * @since 3.4.1 Validated against the served questions; server-side score; hooks fire once.
+		 * @since 3.5.0 Validated against the served questions; server-side score; hooks fire once.
 		*/
 		public function fqi3_register_quiz_complete_handler(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
@@ -758,7 +758,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * `$verified` is false. Never grant points, badges or data on an unverified call.
 		 *
 		 * @since 3.0.0
-		 * @since 3.4.1 Verified result for logged-in users, `$verified` argument.
+		 * @since 3.5.0 Verified result for logged-in users, `$verified` argument.
 		*/
 		public function process_quiz_hooks_handler(): void {
 			check_ajax_referer( 'fqi3_session_nonce', 'nonce' );
@@ -949,7 +949,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * The attempt in progress of a user (empty array when there is none).
 		 *
 		 * @return array{attempt_id?:int,level?:string,question_ids?:int[],started_at?:int,served_at?:int}
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function getOpenAttempt( int $user_id ): array {
 			if ( $user_id <= 0 ) {
@@ -964,7 +964,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * Forget the attempt in progress of a user (server state and session).
 		 *
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function forgetOpenAttempt( int $user_id ): void {
 			delete_user_meta( $user_id, self::META_OPEN_ATTEMPT );
@@ -976,7 +976,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * (its level is aligned on the requested one), otherwise a new attempt.
 		 *
 		 * @return array{attempt_id:int,is_new:bool} `is_new` is true only when a row has just been created.
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function acquireAttempt( int $user_id, string $level ): array {
 			$open = $this->getOpenAttempt( $user_id );
@@ -1031,7 +1031,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * Record the questions served for an attempt. The completion request is validated against them.
 		 *
 		 * @param int[] $question_ids Ids of the questions sent to the browser.
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function rememberServedQuestions( int $attempt_id, int $user_id, string $level, array $question_ids ): void {
 			if ( $attempt_id <= 0 || $user_id <= 0 ) {
@@ -1054,7 +1054,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 *
 		 * @param string $level      Level slug.
 		 * @param int    $nb_questions Number of questions served.
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function minimumQuizSeconds( string $level, int $nb_questions ): int {
 			/**
@@ -1075,7 +1075,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * @param mixed $raw        JSON string (or already decoded array).
 		 * @param int[] $served_ids Ids of the questions served for the attempt.
 		 * @return array<int,int>|null Null when the payload is missing or not a JSON object.
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function parseSubmittedAnswers( $raw, array $served_ids ): ?array {
 			$decoded = is_string( $raw ) ? json_decode( $raw, true ) : $raw;
@@ -1102,7 +1102,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * @param int[]          $served_ids Ids of the questions served for the attempt.
 		 * @param array<int,int> $answers    Chosen option index by question id.
 		 * @return array{score:float,correct:int,total:int}|null Score is 0-100 with 2 decimals.
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function computeServerResult( array $served_ids, array $answers ): ?array {
 			global $wpdb;
@@ -1143,7 +1143,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * The statistics manager (a seam for the unit tests).
 		 *
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		protected function statisticsService(): ?object {
 			return class_exists( __NAMESPACE__ . '\FQI3_Statistics' ) ? FQI3_Statistics::getInstance() : null;
@@ -1155,7 +1155,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * Same conditions as the former browser-driven calls: statistics not disabled and a premium user.
 		 * A failure here never prevents the quiz from being completed.
 		 *
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function recordVerifiedStatistics( int $user_id, string $level, int $correct, int $total ): void {
 			if ( ! empty( $this->options['fqi3_disable_statistics'] ) ) {
@@ -1182,7 +1182,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * Align the level of an attempt that has not served any question yet.
 		 * Returns false when no open attempt of that user was changed (missing, closed or already on that level).
 		 *
-		 * @since 3.4.1
+		 * @since 3.5.0
 		 */
 		private function updateAttemptLevel( int $attempt_id, int $user_id, string $level ): bool {
 			global $wpdb;
@@ -1205,7 +1205,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * exist, belongs to someone else or is already closed (single conditional UPDATE, safe against replays
 		 * and parallel requests).
 		 *
-		 * @since 3.4.1 Returns a bool and only closes an open attempt of the given user.
+		 * @since 3.5.0 Returns a bool and only closes an open attempt of the given user.
 		 */
 		private function completeAttempt( int $attempt_id, int $user_id, float $score ): bool {
 			if ( $attempt_id <= 0 || $user_id <= 0 ) {
