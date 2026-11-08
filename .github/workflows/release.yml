@@ -1,0 +1,46 @@
+name: Build release zip
+
+# Builds form-quizz-fqi3.zip (root folder "form-quizz-fqi3/", production vendor/ included)
+# and attaches it to the GitHub release. The plugin updater prefers a .zip asset over the zipball.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer:v2
+
+      # vendor/ is git-ignored but form-quizz-fqi3.php requires vendor/autoload.php
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction
+
+      - name: Check the tag matches the plugin version
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION=$(grep -m1 -E '^ \* Version:' form-quizz-fqi3.php | sed -E 's/.*Version:[[:space:]]*//')
+          test "$TAG" = "$VERSION" || { echo "Tag $TAG != plugin version $VERSION"; exit 1; }
+
+      - name: Build the zip
+        run: |
+          mkdir -p build/form-quizz-fqi3
+          rsync -a ./ build/form-quizz-fqi3/ \
+            --exclude='.git' --exclude='.github' --exclude='build' --exclude='tests' \
+            --exclude='node_modules' --exclude='imagewp' \
+            --exclude='phpunit.xml.dist' --exclude='.phpcs.xml.dist' --exclude='.phpunit.result.cache' \
+            --exclude='composer.lock' --exclude='suivi-audit-*.md' --exclude='.gitignore'
+          cd build && zip -qr ../form-quizz-fqi3.zip form-quizz-fqi3
+
+      - name: Attach the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" form-quizz-fqi3.zip --clobber
