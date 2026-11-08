@@ -11,6 +11,8 @@ define('FQI3_ASSETS', 'http://example.test/assets');
 define('FQI3_TABLE_PERFORMANCE', 'fqi3_performance');
 define('OBJECT', 'OBJECT');
 define('ARRAY_A', 'ARRAY_A');
+define('ROLE_PREMIUM', 'premium_member');
+foreach (['MINUTE_IN_SECONDS' => 60, 'HOUR_IN_SECONDS' => 3600, 'DAY_IN_SECONDS' => 86400, 'WEEK_IN_SECONDS' => 604800] as $c => $v) { if (!defined($c)) { define($c, $v); } }
 define('FQI3_TABLE_QUIZZES', 'fqi3_quizzes');
 
 /** In-memory state shared by the stubs (reset it in setUp). */
@@ -119,6 +121,8 @@ function delete_user_meta($u, $k) { unset(WpState::$userMeta[$u][$k]); return tr
 function wp_list_pluck($list, $field) { return array_map(static fn($i) => is_array($i) ? $i[$field] : $i->$field, $list); }
 function wp_cache_get(...$a) { return false; }
 function wp_cache_set(...$a) { return true; }
+function get_user_by($f, $id) { return $id > 0 ? (object) ['ID' => $id] : false; }
+function user_can($user, $cap) { return in_array($cap, WpState::$roles, true); }
 function wp_get_current_user() { return (object) ['roles' => WpState::$roles]; }
 function check_ajax_referer(...$a) { return true; }
 function is_ssl() { return true; }

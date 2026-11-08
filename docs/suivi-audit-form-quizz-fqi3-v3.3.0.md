@@ -173,7 +173,7 @@ Reporté, avec la raison :
 
 ☐ Schéma (`dbDelta` avec `IF NOT EXISTS`, version de schéma, multisite) : le fonctionnement actuel est correct (testé), mais toute modification demande une matrice de tests de mise à jour sur d'anciennes installations. Multisite ni supporté ni testé.
 
-◐ Validation serveur des scores : traitée en phase F (voir section 8 bis). Reste hors périmètre : les bonnes réponses sont toujours envoyées au navigateur avec les questions (un utilisateur déterminé peut les lire) et `update_quiz_statistics` / `award_badges` reçoivent encore des valeurs du navigateur.
+◐ Validation serveur des scores : traitée en phase F (voir section 8 bis). Statistiques et badges : traités en phase G (section 8 ter). Reste hors périmètre : les bonnes réponses sont toujours envoyées au navigateur avec les questions (un utilisateur déterminé peut les lire).
 
 ☐ Traductions : les nouvelles chaînes ne sont pas dans les `.pot`/`.po` FR et ES, à régénérer avec `wp i18n make-pot`.
 
@@ -201,6 +201,16 @@ Changements de comportement : la complétion sans `answers` (client JS en cache,
 
 À tester chez toi : ☐ quiz complet connecté (démarrage, questions, résultats, badges, ligne de la table des tentatives avec le bon score) ; ☐ rejouer la requête `fqi3_register_quiz_complete` : refusée, aucun hook ; ☐ requête de complétion sans passer par les questions : refusée ; ☐ abonné avec limite 3 : le 4e démarrage est refusé ; ☐ mise à jour du core depuis une release sans asset `.zip` : le dossier reste `form-quizz-fqi3/` ; ☐ un addon qui s'initialise sur `fqi3_loaded`.
 
+## 8 ter. Phase G – Statistiques et badges alimentés par le serveur
+
+◐ **`update_quiz_statistics` (HIGH)**. Le navigateur envoyait `correct_answers` et `total_questions` (bornés seulement à 0–100 questions) : un utilisateur Premium pouvait gonfler ses statistiques à volonté, un appel = un quiz de plus. Maintenant `fqi3_register_quiz_complete` enregistre lui-même les statistiques (`FQI3_Statistics::save_user_performance`) avec le nombre de bonnes réponses et de questions vérifiés par le serveur, une seule fois par tentative, aux mêmes conditions qu'avant (statistiques non désactivées, rôle Premium). Une erreur d'enregistrement n'empêche pas la complétion. L'endpoint `update_quiz_statistics` est conservé (anciens front-ends en cache) mais déprécié : il répond succès sans rien écrire. Code mort supprimé (`validate_update_request`, `process_statistics_update`, `get_sanitized_post_data`, `calculate_score`).
+
+◐ **`award_badges` (MEDIUM)**. Les badges sont calculés à partir des statistiques stockées : seule la fiabilité de celles-ci était en cause. Le serveur attribue maintenant les badges juste après l'enregistrement des statistiques (si l'enregistrement a réussi). L'endpoint reste pour compatibilité, avec validation du niveau ; il ne fait que réévaluer les seuils sur les statistiques enregistrées par le serveur. Le JS n'appelle plus ni l'un ni l'autre (`sendQuizStatistics` et `awardBadges` supprimées).
+
+Tests : 6 tests ajoutés à `AttemptLifecycleTest` (valeurs du navigateur ignorées, une seule fois par tentative, rôle, réglage, échec d'enregistrement, panne de la base) et `StatisticsEndpointTest`. Changement de comportement : les statistiques sont enregistrées à la complétion, donc seulement si la complétion est acceptée (questions servies, durée minimale). Les statistiques déjà enregistrées avant la mise à jour ne sont pas corrigées.
+
+À tester chez toi : ☐ quiz Premium complet : une ligne de statistiques en plus, valeurs cohérentes avec le score, badges attribués ; ☐ le même quiz rejoué (requête de complétion) : aucune statistique en plus ; ☐ utilisateur non Premium et statistiques désactivées : rien d'enregistré ; ☐ appel manuel de `update_quiz_statistics` : réponse succès, aucune ligne modifiée.
+
 ## 9. Non relu en détail
 
 ◐ Relus depuis l'audit initial : `FQI3_Emails` (planification, destinataires), `class-plugin-updater` (requête de release GitHub), `class-api-logger` (IP), `FQI3_PeriodicStatistics` (bug corrigé), sorties des templates et des pages d'admin (échappement contrôlé par WPCS puis lecture des cas à données variables : aucun XSS trouvé). Non relus en détail : `FQI3_Blocks` (rendu), classes de réglages hors niveaux (sanitisation), pages `dashboard`, `developper` et `infos`, CSS, éditeur de blocs, réponses de chaque endpoint REST (contrôle d'accès et limitation testés, pas chaque réponse).
@@ -223,4 +233,5 @@ Changements de comportement : la complétion sans `answers` (client JS en cache,
 * 3 nov. 2026 – En-têtes alignés par Jonathan : WordPress 6.8 minimum, testé jusqu'à 7.1.4.
 * 3 nov. 2026 – Environnement réel monté (WordPress 6.8.2, MariaDB 10.11, WP-CLI) : les phases A à C sont vérifiées en conditions réelles. La phase E y a révélé trois bugs préexistants (limitation REST, import des niveaux, statistiques périodiques), corrigés.
 * 8 nov. 2026 – Phase F : retours de l'équipe Leads CRM (6 points) vérifiés et corrigés, 22 tests ajoutés. Pas de bump de version dans ce lot.
+* 8 nov. 2026 – Phase G : statistiques et badges enregistrés par le serveur, endpoint `update_quiz_statistics` déprécié. Pas de bump de version.
 * 3 nov. 2026 – Phase E appliquée (commit 5073731) : 39 tests unitaires et 23 vérifications d'intégration. Patch livré : `fqi3-audit-phase-e.patch`, à appliquer sur l'état A+B+C+D (avec votre en-tête).

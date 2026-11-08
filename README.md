@@ -176,6 +176,7 @@ Unit tests (`phpunit`) and a smoke test against a real WordPress site are availa
 - A quiz is now completed against the questions the server served: a completion request without served questions, on another level, too fast (see the `fqi3_min_seconds_per_question` filter) or for an attempt that is already closed is refused, and the score is computed by the server from the submitted `answers`. Custom front-ends that call `fqi3_register_quiz_complete` must send `answers` (JSON `{question id: chosen option index}`) instead of `quiz_score`.
 - `fqi3_quiz_started`, `fqi3_quiz_attempt_started`, `fqi3_quiz_completed` and `fqi3_quiz_attempt_completed` fire once per attempt.
 - `fqi3_before_results_quiz_form` has a fourth `$verified` argument.
+- User statistics and badges are recorded by the server when the quiz is completed, from the verified result. The `update_quiz_statistics` AJAX action is deprecated: it still answers success but no longer writes anything, and the front-end script no longer calls `update_quiz_statistics` or `award_badges`.
 
 ## Support
 

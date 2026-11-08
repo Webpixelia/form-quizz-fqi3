@@ -178,9 +178,12 @@ if ( ! class_exists( 'FQI3_Awards' ) ) :
 				$user_id = get_current_user_id();
 				$level   = isset( $_POST['level'] ) ? sanitize_text_field( wp_unslash( $_POST['level'] ) ) : '';
 
-				if ( ! $user_id || ! $level ) {
+				if ( ! $user_id || ! $level || ! isset( fqi3_get_free_quiz_levels()[ $level ] ) ) {
 					throw new \Exception( 'Invalid user ID or level.' );
 				}
+
+				// Since 3.4.1 the server awards the badges itself when a quiz is completed. This endpoint is kept
+				// for older front-ends; it only re-evaluates the thresholds on the stored (server-recorded) statistics.
 
 				$this->award_badges_based_on_criteria( $user_id, $level );
 				wp_send_json_success( 'Badges awarded successfully.' );

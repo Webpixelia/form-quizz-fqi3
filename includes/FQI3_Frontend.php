@@ -701,12 +701,14 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 
 			// The score is recomputed from the answers: what the browser claims is not used.
 			$answers = $this->parseSubmittedAnswers( wp_unslash( $_POST['answers'] ?? '' ), $served_ids );
-			$score   = null === $answers ? null : $this->computeServerScore( $served_ids, $answers );
+			$result  = null === $answers ? null : $this->computeServerResult( $served_ids, $answers );
 
-			if ( null === $score ) {
+			if ( null === $result ) {
 				wp_send_json_error( array( 'message' => __( 'The quiz answers could not be verified.', 'form-quizz-fqi3' ) ) );
 				return;
 			}
+
+			$score = $result['score'];
 
 			// Atomic gate: only one request closes the attempt, a replay or a parallel request gets false.
 			if ( ! $this->completeAttempt( $attempt_id, (int) $user_id, $score ) ) {
@@ -726,6 +728,9 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 					'at'         => time(),
 				)
 			);
+
+			// Statistics and badges are fed from the verified result, never from values sent by the browser.
+			$this->recordVerifiedStatistics( (int) $user_id, $quiz_level, $result['correct'], $result['total'] );
 
 			// Back-compat action (the attempt id is an extra argument: callbacks declared with 2 are unaffected).
 			do_action( 'fqi3_quiz_completed', $user_id, $quiz_level, $attempt_id );
@@ -1091,14 +1096,15 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		}
 
 		/**
-		 * Score (0-100, 2 decimals) of an attempt, from the stored correct answers of the served questions.
+		 * Verified result of an attempt, from the stored correct answers of the served questions.
 		 * Questions deleted since they were served no longer count. Null if no served question can be found.
 		 *
-		 * @param int[]            $served_ids Ids of the questions served for the attempt.
-		 * @param array<int,int>   $answers    Chosen option index by question id.
+		 * @param int[]          $served_ids Ids of the questions served for the attempt.
+		 * @param array<int,int> $answers    Chosen option index by question id.
+		 * @return array{score:float,correct:int,total:int}|null Score is 0-100 with 2 decimals.
 		 * @since 3.4.1
 		 */
-		private function computeServerScore( array $served_ids, array $answers ): ?float {
+		private function computeServerResult( array $served_ids, array $answers ): ?array {
 			global $wpdb;
 
 			if ( empty( $served_ids ) ) {
@@ -1106,7 +1112,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 			}
 
 			$placeholders = implode( ',', array_fill( 0, count( $served_ids ), '%d' ) );
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$rows = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT id, answer FROM {$wpdb->prefix}" . FQI3_TABLE_QUIZZES . " WHERE id IN ($placeholders)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -1127,7 +1133,49 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 				}
 			}
 
-			return $this->sanitizeQuizScore( ( $correct / count( $rows ) ) * 100 );
+			return array(
+				'score'   => $this->sanitizeQuizScore( ( $correct / count( $rows ) ) * 100 ),
+				'correct' => $correct,
+				'total'   => count( $rows ),
+			);
+		}
+
+		/**
+		 * The statistics manager (a seam for the unit tests).
+		 *
+		 * @since 3.4.1
+		 */
+		protected function statisticsService(): ?object {
+			return class_exists( __NAMESPACE__ . '\FQI3_Statistics' ) ? FQI3_Statistics::getInstance() : null;
+		}
+
+		/**
+		 * Record the verified result in the user statistics and award the badges.
+		 *
+		 * Same conditions as the former browser-driven calls: statistics not disabled and a premium user.
+		 * A failure here never prevents the quiz from being completed.
+		 *
+		 * @since 3.4.1
+		 */
+		private function recordVerifiedStatistics( int $user_id, string $level, int $correct, int $total ): void {
+			if ( ! empty( $this->options['fqi3_disable_statistics'] ) ) {
+				return;
+			}
+
+			if ( ! fqi3_userHasAnyRole( $user_id, fqi3_getUserPremiumRoles() ) ) {
+				return;
+			}
+
+			try {
+				$statistics = $this->statisticsService();
+				if ( $statistics && $statistics->save_user_performance( $user_id, $level, $correct, $total ) ) {
+					$statistics->get_awards_instance()->award_badges_based_on_criteria( $user_id, $level );
+				}
+			} catch ( \Throwable $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( '[FQI3] Could not record the quiz statistics: ' . $e->getMessage() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				}
+			}
 		}
 
 		/**

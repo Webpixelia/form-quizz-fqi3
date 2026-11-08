@@ -241,45 +241,19 @@ if ( ! class_exists( 'FQI3_Statistics' ) ) :
 		}
 
 		/**
-		 * Handles statistics update via AJAX request.
+		 * Former browser-driven statistics endpoint, kept so that cached or third-party front-ends do not break.
 		 *
-		 * Process:
-		 * 1. Validates the update request
-		 * 2. Processes statistics update
-		 * 3. Returns a JSON success or error response
+		 * It no longer writes anything: the numbers came from the browser. The statistics are now recorded by
+		 * the server when the quiz is completed (see FQI3_Frontend::fqi3_register_quiz_complete_handler()),
+		 * from the answers it verified.
 		 *
+		 * @deprecated 3.4.1
 		 * @return void
 		 */
 		public function handle_statistics_update(): void {
-			try {
-				$this->validate_update_request();
-
-				$stats = $this->process_statistics_update();
-
-				wp_send_json_success( __( 'Statistics updated successfully', 'form-quizz-fqi3' ) );
-			} catch ( \Exception $e ) {
-				wp_send_json_error( $e->getMessage() );
-			}
-		}
-
-		/**
-		 * Validates the statistics update request.
-		 *
-		 * Checks:
-		 * - Security nonce validity
-		 * - User permissions
-		 *
-		 * @throws \Exception If validation fails
-		 * @return void
-		 */
-		private function validate_update_request(): void {
 			check_ajax_referer( 'fqi3_cookies_nonce', 'security' );
 
-			if ( ! fqi3_userHasAnyRole( get_current_user_id(), fqi3_getUserPremiumRoles() ) ) {
-				throw new \Exception(
-					esc_html__( 'User not logged in or does not have the required role', 'form-quizz-fqi3' )
-				);
-			}
+			wp_send_json_success( __( 'Statistics updated successfully', 'form-quizz-fqi3' ) );
 		}
 
 		/**
@@ -296,7 +270,7 @@ if ( ! class_exists( 'FQI3_Statistics' ) ) :
 		public function save_user_performance( int $user_id, string $level, int $correct_answers, int $total_questions ): bool {
 			global $wpdb;
 
-			// Values come from the browser: keep them coherent (0 <= correct <= total <= 100 questions).
+			// Keep the values coherent (0 <= correct <= total <= 100 questions).
 			$total_questions = max( 0, min( $total_questions, 100 ) );
 			$correct_answers = max( 0, min( $correct_answers, $total_questions ) );
 
@@ -352,61 +326,6 @@ if ( ! class_exists( 'FQI3_Statistics' ) ) :
 				error_log( 'FQI3: Failed to save user performance: ' . $e->getMessage() );
 				return false;
 			}
-		}
-
-		/**
-		 * Processes statistics update for the current user.
-		 *
-		 * @return array Updated statistics data
-		 */
-		private function process_statistics_update(): array {
-			$user_id = get_current_user_id();
-			$data    = $this->get_sanitized_post_data();
-
-			$success = $this->save_user_performance(
-				$user_id,
-				$data['level'],
-				$data['correct_answers'],
-				$data['total_questions']
-			);
-
-			if ( ! $success ) {
-				throw new \Exception( 'Failed to save user performance' );
-			}
-
-			return $data;
-		}
-
-		/**
-		 * Retrieves and sanitizes data from the POST request.
-		 *
-		 * @return array Sanitized POST data including level, correct answers, total questions, and calculated score.
-		 *
-		 * @since 2.0.0
-		 */
-		private function get_sanitized_post_data(): array {
-			return array(
-				'level'           => sanitize_text_field( $_POST['level'] ?? '' ),
-				'correct_answers' => intval( $_POST['correct_answers'] ?? 0 ),
-				'total_questions' => intval( $_POST['total_questions'] ?? 0 ),
-				'score'           => $this->calculate_score(
-					intval( $_POST['correct_answers'] ?? 0 ),
-					intval( $_POST['total_questions'] ?? 0 )
-				),
-			);
-		}
-
-		/**
-		 * Calculates the score percentage based on correct answers and total questions.
-		 *
-		 * @param int $correct_answers Number of correct answers.
-		 * @param int $total_questions Total number of questions.
-		 * @return float The calculated score as a percentage.
-		 *
-		 * @since 2.0.0
-		 */
-		private function calculate_score( int $correct_answers, int $total_questions ): float {
-			return ( $total_questions > 0 ) ? ( $correct_answers / $total_questions ) * 100 : 0;
 		}
 
 		/**

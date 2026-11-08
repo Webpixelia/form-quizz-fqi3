@@ -712,15 +712,7 @@ async function showResults() {
         .replace('%2$s', questions.length)
         .replace('%3$s', percentage.toFixed(2))
         .replace('%4$s', userLevelLabel);
-        if (fqi3Data.isUserLoggedIn && !fqi3Data.config.disable_statistics) {
-            sendQuizStatistics(userLevelValue, correctAnswers, questions.length)
-                .then(() => {
-                    awardBadges(userLevelValue);
-                })
-                .catch((error) => {
-                    console.error('Error in sending quiz statistics:', error);
-                });
-        }
+    // Statistics and badges are recorded by the server when the quiz is completed (see below).
 
     if (percentage >= PERCENTAGE_THRESHOLD) {
         launchConfetti();
@@ -1049,58 +1041,4 @@ function shareOnLinkedIn() {
     const postText = getPostText(correctAnswers, totalQuestions);
     const shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(siteUrl)}&text=${encodeURIComponent(postText)}`;
     window.open(shareUrl, '_blank');
-}
-
-// Statistics management
-/**
- * Sends quiz statistics to the server for storage or processing.
- * 
- * @param {string} level - The quiz level selected by the user.
- * @param {number} correctAnswers - Number of correct answers given by the user.
- * @param {number} totalQuestions - Total number of questions in the quiz.
- * @returns {Promise} - Resolves with the server response if successful; rejects with an error message or error object if unsuccessful.
- */
-function sendQuizStatistics(level, correctAnswers, totalQuestions) {
-    return new Promise((resolve, reject) => {
-        const data = {
-            action: 'update_quiz_statistics',
-            security: fqi3Data.cookies.nonce,
-            level: level,
-            correct_answers: correctAnswers,
-            total_questions: totalQuestions
-        };
-
-        jQuery.post(fqi3Data.cookies.ajax_url, data)
-            .done((response) => {
-                if (response.success) {
-                    resolve(response);
-                } else {
-                    reject(response.data); // En cas d'échec, rejetez avec le message d'erreur
-                }
-            })
-            .fail((error) => {
-                reject(error); // En cas d'erreur AJAX, rejetez avec l'erreur
-            });
-    });
-}
-
-// Badge management
-/**
- * Sends a request to the server to award badges based on the quiz level.
- * 
- * @param {string} level
- */
-function awardBadges(level) {
-    const data = {
-        action: 'award_badges',
-        security: fqi3Data.cookies.nonce,
-        level: level,
-        user_id: fqi3Data.user_id
-    };
-
-    jQuery.post(fqi3Data.cookies.ajax_url, data, function(response) {
-        if (!response.success) {
-            console.error('Failed to award badges:', response.data);
-        }
-    });
 }

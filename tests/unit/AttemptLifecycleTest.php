@@ -1,12 +1,28 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
+/** Records what the frontend asks the statistics manager to do. */
+final class FakeStatistics {
+    public array $saved = [];
+    public array $awarded = [];
+    public bool $saveResult = true;
+    public bool $throw = false;
+    public function save_user_performance(int $user, string $level, int $correct, int $total): bool {
+        if ($this->throw) { throw new RuntimeException('db down'); }
+        $this->saved[] = [$user, $level, $correct, $total];
+        return $this->saveResult;
+    }
+    public function get_awards_instance(): self { return $this; }
+    public function award_badges_based_on_criteria(int $user, string $level): void { $this->awarded[] = [$user, $level]; }
+}
+
 /**
  * Lifecycle of a quiz attempt: start -> questions served -> completion, and what the server refuses.
  * Handlers are driven through their AJAX entry points; wp_send_json*() is replaced by an exception (tests/bootstrap.php).
  */
 final class AttemptLifecycleTest extends TestCase {
     private object $fe;
+    private FakeStatistics $stats;
     private const USER = 7;
 
     protected function setUp(): void {
@@ -18,8 +34,16 @@ final class AttemptLifecycleTest extends TestCase {
         $_GET = [];
 
         fqi3_test_load('includes/FQI3_Frontend.php');
-        $this->fe = fqi3_instance('Form_Quizz_FQI3\FQI3_Frontend');
-        $opts = (new ReflectionClass($this->fe))->getProperty('options');
+        if (!class_exists('TestableFrontend')) {
+            // Same class, with the statistics manager replaced by a recorder
+            eval('class TestableFrontend extends Form_Quizz_FQI3\FQI3_Frontend {
+                public static $stats;
+                protected function statisticsService(): ?object { return self::$stats; }
+            }');
+        }
+        $this->stats = TestableFrontend::$stats = new FakeStatistics();
+        $this->fe = fqi3_instance('TestableFrontend');
+        $opts = (new ReflectionClass('Form_Quizz_FQI3\FQI3_Frontend'))->getProperty('options');
         $opts->setAccessible(true);
         $opts->setValue($this->fe, ['fqi3_free_trials_per_day' => 3, 'fqi3_number_questions_per_quiz' => 2]);
         WpState::$options['fqi3_quiz_levels'] = [
@@ -29,6 +53,7 @@ final class AttemptLifecycleTest extends TestCase {
         ];
         WpState::$loggedIn = true;
         WpState::$userId   = self::USER;
+        WpState::$roles    = ['premium_member'];
         // Two questions: the right options are 1 and 0.
         $GLOBALS['wpdb']->rows = [
             ['id' => 11, 'answer' => '1', 'options' => '["a","b"]', 'niveau' => 'free_lvl'],
@@ -222,6 +247,54 @@ final class AttemptLifecycleTest extends TestCase {
     public function testVisitorsCannotComplete(): void {
         WpState::$loggedIn = false; WpState::$userId = 0;
         $this->assertFalse($this->complete([11 => 1])->ok);
+    }
+
+    // --- statistics and badges -----------------------------------------------------------------
+
+    private function playOneRightOneWrong(array $extra = []): WpJsonResponse {
+        $this->start(); $this->serve();
+        // The browser claims 2/2 correct and a perfect score
+        return $this->complete([11 => 1, 12 => 1], 'free_lvl', $extra + ['correct_answers' => '2', 'total_questions' => '2', 'quiz_score' => '100']);
+    }
+
+    public function testStatisticsAndBadgesUseTheVerifiedResultNotTheBrowserValues(): void {
+        $this->assertTrue($this->playOneRightOneWrong()->ok);
+        $this->assertSame([[self::USER, 'free_lvl', 1, 2]], $this->stats->saved);
+        $this->assertSame([[self::USER, 'free_lvl']], $this->stats->awarded);
+    }
+
+    public function testStatisticsAreRecordedOnlyOncePerAttempt(): void {
+        $this->playOneRightOneWrong();
+        $this->complete([11 => 1, 12 => 1]); // replay
+        $this->assertCount(1, $this->stats->saved);
+    }
+
+    public function testNoStatisticsForUsersWithoutAPremiumRole(): void {
+        WpState::$roles = ['subscriber'];
+        $this->assertTrue($this->playOneRightOneWrong()->ok);
+        $this->assertSame([], $this->stats->saved);
+        $this->assertSame([], $this->stats->awarded);
+    }
+
+    public function testNoStatisticsWhenTheyAreDisabledInTheSettings(): void {
+        $opts = (new ReflectionClass('Form_Quizz_FQI3\FQI3_Frontend'))->getProperty('options');
+        $opts->setAccessible(true);
+        $opts->setValue($this->fe, ['fqi3_number_questions_per_quiz' => 2, 'fqi3_disable_statistics' => 1]);
+        $this->assertTrue($this->playOneRightOneWrong()->ok);
+        $this->assertSame([], $this->stats->saved);
+    }
+
+    public function testBadgesAreNotAwardedWhenTheStatisticsCouldNotBeSaved(): void {
+        $this->stats->saveResult = false;
+        $this->assertTrue($this->playOneRightOneWrong()->ok);
+        $this->assertSame([], $this->stats->awarded);
+    }
+
+    public function testAStatisticsFailureNeverBlocksTheCompletion(): void {
+        $this->stats->throw = true;
+        $r = $this->playOneRightOneWrong();
+        $this->assertTrue($r->ok);
+        $this->assertSame(1, WpState::fired('fqi3_quiz_attempt_completed'));
     }
 
     // --- fqi3_before_results_quiz_form ---------------------------------------------------------
