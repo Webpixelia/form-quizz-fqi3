@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Form Quizz FQI3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
-"POT-Creation-Date: 2026-11-08T16:27:24+00:00\n"
-"PO-Revision-Date: 2026-11-08 16:30+0000\n"
+"POT-Creation-Date: 2026-11-10T15:57:08+00:00\n"
+"PO-Revision-Date: 2026-11-10 16:05+0000\n"
 "Last-Translator: \n"
 "Language-Team: Jonathan Webpixelia <contact@webpixelia.com>\n"
 "Language: fr\n"
@@ -83,7 +83,7 @@ msgstr "Supprimer l’option de réponse"
 msgid "You must have at least 4 answer options."
 msgstr "Vous devez avoir au moins 4 options de réponse."
 
-#: form-quizz-fqi3.php:572 includes/admin/class-add-ons.php:440
+#: form-quizz-fqi3.php:572 includes/admin/class-add-ons.php:477
 msgid "No add-ons found."
 msgstr "Aucun module complémentaire trouvé."
 
@@ -107,8 +107,8 @@ msgstr "Activation du module complémentaire..."
 msgid "Deactivating add-on..."
 msgstr "Désactivation du module complémentaire..."
 
-#: form-quizz-fqi3.php:578 includes/admin/class-add-ons.php:1350
-#: includes/admin/class-add-ons.php:1719
+#: form-quizz-fqi3.php:578 includes/admin/class-add-ons.php:1387
+#: includes/admin/class-add-ons.php:1756
 #: includes/admin/class-add-questions.php:92
 #: includes/admin/class-add-questions.php:133
 #: includes/admin/class-edit-questions.php:119
@@ -232,332 +232,587 @@ msgstr ""
 "administrateurs"
 
 #: includes/admin/class-add-ons.php:96
-msgid "The solution to create and manage a member area and subscriptions"
-msgstr "La solution pour créer et gérer un espace membre et des abonnements"
+msgid ""
+"Create and manage membership plans with one-time or recurring payments, "
+"secure payment processing, and controlled access to premium quiz content."
+msgstr ""
 
 #: includes/admin/class-add-ons.php:98
 msgid ""
-"Create and manage customizable subscription plans: recurring, one time, "
-"customizable duration"
+"Flexible subscription plans with configurable names, descriptions, prices, "
+"durations, and recurring or one-time billing."
 msgstr ""
-"Créer et gérer des plans d'abonnement personnalisables : récurrents, "
-"ponctuels, durée personnalisable"
 
 #: includes/admin/class-add-ons.php:99
 msgid ""
-"Seamless integration with Stripe for secure payments (PayPal coming Soon)"
+"Stripe and PayPal payment integrations with secure webhook handling and "
+"server-side payment verification."
 msgstr ""
-"Intégration transparente avec Stripe pour les paiements sécurisés (PayPal "
-"bientôt)"
 
 #: includes/admin/class-add-ons.php:100
-msgid "Intuitive user interface to manage subscriptions and profil"
+msgid ""
+"Automatic subscription management, including payment confirmation, "
+"cancellation, refunds, and payment status tracking."
 msgstr ""
-"Interface utilisateur intuitive pour gérer les abonnements et les profils"
 
 #: includes/admin/class-add-ons.php:101
-msgid "Easy integration via shortcodes or by configuring pages"
-msgstr "Intégration facile via des shortcodes ou en configurant les pages"
-
-#: includes/admin/class-add-ons.php:116
 msgid ""
-"Allow users to promote your quizzes and earn commissions on subscriptions or "
-"paid quizzes."
+"Stripe 3D Secure support, with membership access granted only after payment "
+"confirmation."
 msgstr ""
-"Permettez aux utilisateurs de promouvoir vos quiz et de percevoir des "
-"commissions sur les abonnements ou les quiz payants."
 
-#: includes/admin/class-add-ons.php:118
-msgid "Referral system with unique tracking links (last-click attribution)."
+#: includes/admin/class-add-ons.php:102
+msgid "Premium content access control based on subscription status and plan."
 msgstr ""
-"Système de référencement avec des liens de suivi uniques (attribution au "
-"dernier clic)."
 
-#: includes/admin/class-add-ons.php:119
-msgid "Affiliate dashboard with commission tracking."
-msgstr "Tableau de bord d’affiliation avec suivi des commissions."
-
-#: includes/admin/class-add-ons.php:120
+#: includes/admin/class-add-ons.php:103
 msgid ""
-"Payouts management: approve eligible conversions, schedule payouts, mark as "
-"paid."
+"User registration, login, profile management, and subscription dashboard "
+"with billing information and history."
 msgstr ""
-"Gestion des paiements : approuver les conversions éligibles, planifier les "
-"paiements, marquer comme payés."
 
-#: includes/admin/class-add-ons.php:121
+#: includes/admin/class-add-ons.php:104
 msgid ""
-"Reports and analytics: KPIs, Top Affiliates, Click Anomalies with CSV export."
+"Customizable email notification templates for subscription-related events."
 msgstr ""
-"Rapports et analyses : KPI, principaux affiliés, anomalies de clic avec "
-"exportation CSV."
+
+#: includes/admin/class-add-ons.php:105
+msgid ""
+"Shortcodes and Gutenberg blocks for displaying subscription plans, login and "
+"registration forms, account dashboards, and payment success pages."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:106
+msgid ""
+"Admin management of plans and subscriptions, with CSV export capabilities."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:107
+msgid ""
+"REST API endpoints and developer hooks for integrating and extending "
+"subscription functionality."
+msgstr ""
 
 #: includes/admin/class-add-ons.php:122
 msgid ""
-"Integration with third-party affiliate platforms (Refersion, Tapfiliate) "
-"with Test Connection."
+"Run an affiliate program for your quizzes: track referrals, attribute "
+"subscription conversions, calculate commissions, and manage affiliate "
+"payouts."
 msgstr ""
-"Intégration avec des plateformes d'affiliation tierces (Refersion, "
-"Tapfiliate) avec Test Connection."
 
-#: includes/admin/class-add-ons.php:139
+#: includes/admin/class-add-ons.php:124
 msgid ""
-"Allow users to quickly and securely log in using their favorite social media "
-"accounts."
+"Affiliate referral links with unique tokens, click tracking, last-click "
+"attribution, and a configurable attribution window."
 msgstr ""
-"Permettez aux utilisateurs de se connecter rapidement et en toute sécurité "
-"en utilisant leurs comptes de réseaux sociaux préférés."
 
-#: includes/admin/class-add-ons.php:141
-msgid "Support for Facebook, Google, LinkedIn."
-msgstr "Prise en charge de Facebook, Google, LinkedIn."
-
-#: includes/admin/class-add-ons.php:142
-msgid "Synchronization of profile data with user dashboard."
-msgstr ""
-"Synchronisation des données de profil avec le tableau de bord de "
-"l’utilisateur."
-
-#: includes/admin/class-add-ons.php:143
-msgid "Simplify the registration process for new users."
-msgstr "Simplifiez le processus d’inscription pour les nouveaux utilisateurs."
-
-#: includes/admin/class-add-ons.php:144
+#: includes/admin/class-add-ons.php:125
 msgid ""
-"Increase user retention and engagement with simplified login and "
-"registration options."
+"Automatic conversion tracking and percentage-based commission calculation, "
+"with support for subscription lifecycle events, refunds, and commission "
+"tiers."
 msgstr ""
-"Augmentez la rétention et l’engagement des utilisateurs avec des options de "
-"connexion et d’inscription simplifiées."
 
-#: includes/admin/class-add-ons.php:145
-msgid "Leverage the security of social media platforms for authentication."
-msgstr ""
-"Tirez parti de la sécurité des plateformes de médias sociaux pour "
-"l’authentification."
-
-#: includes/admin/class-add-ons.php:162
+#: includes/admin/class-add-ons.php:126
 msgid ""
-"Boost User Engagement with Automated Email Marketing! Seamlessly integrate "
-"your quizzes with leading email marketing services to nurture leads and keep "
-"users engaged."
+"Affiliate dashboard and signup form, available through Gutenberg blocks and "
+"shortcodes."
 msgstr ""
-"Stimulez l'engagement des utilisateurs grâce à l'email marketing "
-"automatisé ! Intégrez en toute transparence vos jeux-concours aux principaux "
-"services de marketing par e-mail pour entretenir les contacts et maintenir "
-"l'engagement des utilisateurs."
 
-#: includes/admin/class-add-ons.php:164
+#: includes/admin/class-add-ons.php:127
 msgid ""
-"Automatic Quiz Follow-Ups: Send emails based on quiz completion, scores, or "
-"inactivity."
+"Payout management: generate and schedule payouts, approve eligible "
+"conversions, mark payouts as paid, and export filtered payout data to CSV."
 msgstr ""
-"Suivis automatiques des quiz : envoyez des e-mails en fonction de "
-"l'achèvement du quiz, des scores ou de l'inactivité."
+"Gestion des paiements : générez et planifiez des paiements, approuvez les "
+"conversions éligibles, marquez les paiements comme effectués et exportez des "
+"données de paiement filtrées au format CSV."
 
-#: includes/admin/class-add-ons.php:165
+#: includes/admin/class-add-ons.php:128
 msgid ""
-"Personalized Campaigns: Use dynamic variables (e.g., user name, quiz "
-"results) for tailored messaging."
+"Optional PayPal automatic payouts with scheduled processing, configurable "
+"payout limits, and batch history."
 msgstr ""
-"Campagnes personnalisées : utilisez des variables dynamiques (par exemple, "
-"nom d'utilisateur, résultats de quiz) pour des messages personnalisés."
 
-#: includes/admin/class-add-ons.php:166
+#: includes/admin/class-add-ons.php:129
 msgid ""
-"Seamless Integrations: Connect with Mailchimp, Brevo (ex-Sendinblue), and "
-"ActiveCampaign effortlessly."
+"Admin reports and analytics: Overview, Top Affiliates, and Click Anomalies, "
+"with filters and CSV export."
 msgstr ""
-"Intégrations transparentes : connectez-vous sans effort à Mailchimp, Brevo "
-"(ex-Sendinblue) et ActiveCampaign."
+"Rapports et analyses pour les administrateurs : vue d’ensemble, meilleurs "
+"affiliés et anomalies de clics, avec filtres et exportation au format CSV."
 
-#: includes/admin/class-add-ons.php:167
+#: includes/admin/class-add-ons.php:130
 msgid ""
-"Grow Your Audience: Capture leads and automate email sequences for better "
-"retention."
+"Optional integrations with Refersion and Tapfiliate, including API "
+"configuration and connection testing."
 msgstr ""
-"Développez votre audience : capturez des prospects et automatisez les "
-"séquences d'e-mails pour une meilleure rétention."
 
-#: includes/admin/class-add-ons.php:181
+#: includes/admin/class-add-ons.php:131
 msgid ""
-"Send automated notifications for Form Quizz FQI3 events via Email, WhatsApp "
-"(Cloud API) and SMS (Twilio). Respect per-user preferences (channels per "
-"event) and integrate seamlessly with the Subscription addon's user "
-"dashboard, or expose a front-end preferences form via shortcode."
+"Privacy and GDPR tools: audit logs, configurable data retention, IP "
+"anonymization, and WordPress data export and erasure support."
 msgstr ""
-"Envoyez des notifications automatiques pour les événements Form Quizz FQI3 "
-"par e-mail, WhatsApp (API Cloud) et SMS (Twilio). Respectez les préférences "
-"de chaque utilisateur (canaux par événement) et intégrez-les parfaitement au "
-"tableau de bord utilisateur du module complémentaire d'abonnement, ou "
-"affichez un formulaire de préférences en front-end via un shortcode."
 
-#: includes/admin/class-add-ons.php:183
+#: includes/admin/class-add-ons.php:148
 msgid ""
-"Notifications per user preferences across Email, WhatsApp and SMS (Twilio)."
+"Allow users to register and log in to Form Quizz FQI3 using their Google, "
+"Facebook, or LinkedIn accounts, with secure OAuth authentication."
 msgstr ""
-"Notifications selon les préférences de l'utilisateur par e-mail, WhatsApp et "
-"SMS (Twilio)."
 
-#: includes/admin/class-add-ons.php:184
-msgid "Reminders for incomplete quizzes (scheduled follow-ups)."
-msgstr "Rappels pour les quiz incomplets (suivis programmés)."
-
-#: includes/admin/class-add-ons.php:185
-msgid "Alerts for badges and certificates earned."
-msgstr "Alertes pour les badges et certificats gagnés."
-
-#: includes/admin/class-add-ons.php:186
+#: includes/admin/class-add-ons.php:150
 msgid ""
-"Front-end preferences page via shortcode [fqi3_notification_preferences]."
+"Social authentication through Google, Facebook, and LinkedIn using OAuth "
+"2.0 / OpenID Connect."
 msgstr ""
-"Page de préférences frontales via le shortcode "
-"[fqi3_notification_preferences]."
 
-#: includes/admin/class-add-ons.php:187
-msgid "Optional integration with the Subscription addon (user dashboard)."
+#: includes/admin/class-add-ons.php:151
+msgid ""
+"Simplified registration with automatic WordPress account creation and "
+"profile information synchronization."
 msgstr ""
-"Intégration facultative avec le module complémentaire d'abonnement (tableau "
-"de bord utilisateur)."
 
-#: includes/admin/class-add-ons.php:188
-msgid "SMTP support for reliable email deliverability."
-msgstr "Prise en charge SMTP pour une délivrabilité fiable des e-mails."
+#: includes/admin/class-add-ons.php:152
+msgid ""
+"Secure account linking with provider identity storage and email confirmation "
+"when required."
+msgstr ""
 
-#: includes/admin/class-add-ons.php:189
-msgid "Integration with APIs: WhatsApp Cloud API and Twilio (SMS)."
-msgstr "Intégration avec les API : WhatsApp Cloud API et Twilio (SMS)."
+#: includes/admin/class-add-ons.php:153
+msgid ""
+"Configurable login buttons with customizable styles, text, and CSS classes."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:154
+msgid "Configurable landing pages after login and registration."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:155
+msgid ""
+"Individual provider activation and API credentials management through "
+"dedicated settings."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:156
+msgid ""
+"OAuth security features including state validation, IP-based rate limiting, "
+"and protection against unauthorized account access."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:157
+msgid ""
+"Developer hooks and actions to customize provider configuration, redirects, "
+"user data, login buttons, and account events."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:158
+msgid ""
+"Optional data cleanup on uninstall, including social identities and plugin "
+"transients, without deleting WordPress accounts."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:175
+msgid ""
+"Grow your email list with every quiz! Connect your quizzes to your email "
+"marketing platform: collect consent, send each person's results, and let "
+"your provider handle the campaigns."
+msgstr ""
+"Développez votre liste d’e-mails à chaque quiz ! Connectez vos quiz à votre "
+"plateforme d’e-mailing : collectez le consentement, envoyez les résultats de "
+"chaque participant et laissez votre fournisseur gérer les campagnes."
+
+#: includes/admin/class-add-ons.php:177
+msgid ""
+"Quiz Results in Your Provider: Send each contact's score and level to custom "
+"fields, and add tags (quiz completed, score thresholds for logged-in users, "
+"user role) to segment your audience."
+msgstr ""
+"Résultats du quiz chez votre fournisseur : envoyez le score et le niveau de "
+"chaque contact vers des champs personnalisés, et ajoutez des tags (quiz "
+"terminé, seuils de score, rôle) pour segmenter votre audience."
+
+#: includes/admin/class-add-ons.php:178
+msgid ""
+"Consent Done Right: GDPR consent checkbox with proof of consent, double opt-"
+"in (Mailchimp, MailerLite, Brevo) and real unsubscription when consent is "
+"withdrawn."
+msgstr ""
+"Consentement maîtrisé : case de consentement RGPD avec preuve, double opt-in "
+"(Mailchimp, MailerLite, Brevo) et désinscription réelle lorsque le "
+"consentement est retiré."
+
+#: includes/admin/class-add-ons.php:179
+msgid ""
+"Seamless Integrations: Connect with Mailchimp, Brevo (ex-Sendinblue), "
+"ActiveCampaign, and MailerLite effortlessly."
+msgstr ""
+"Intégrations simples : connectez Mailchimp, Brevo (ex-Sendinblue), "
+"ActiveCampaign et MailerLite sans effort."
+
+#: includes/admin/class-add-ons.php:180
+msgid ""
+"Always in Sync: Unsubscribes and bounces made in your provider are applied "
+"on your site through a secure webhook, and temporary API failures are "
+"retried automatically."
+msgstr ""
+"Toujours synchronisé : les désinscriptions et rebonds faits chez votre "
+"fournisseur sont appliqués sur votre site via un webhook sécurisé, et les "
+"pannes temporaires de l’API sont rejouées automatiquement."
+
+#: includes/admin/class-add-ons.php:194
+msgid ""
+"Keep users informed and engaged with automated email, WhatsApp, and SMS "
+"notifications triggered by their quiz activity."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:196
+msgid ""
+"Email notifications with bundled HTML templates, SMTP configuration with SSL/"
+"TLS, and test email functionality."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:197
+msgid ""
+"WhatsApp Business API integration with configurable sender settings and test "
+"messages."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:198
+msgid ""
+"SMS notifications through Twilio, with configurable settings and test "
+"messages."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:199
+msgid ""
+"Automated quiz reminders, badge notifications, and certificate notifications."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:200
+msgid ""
+"Opt-in notification preferences allowing premium members to choose their "
+"preferred channels for each notification type."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:201
+msgid ""
+"Notification preferences management through a dedicated shortcode, Gutenberg "
+"block, and WordPress profile screen."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:202
+msgid ""
+"Background delivery of badge and certificate notifications through WP-Cron."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:203
+msgid ""
+"Optional integration with the Subscription Add-on to display notification "
+"preferences in the member dashboard."
+msgstr ""
+"Intégration facultative avec le module complémentaire d’abonnement pour "
+"afficher les préférences de notification dans le tableau de bord des membres."
 
 #: includes/admin/class-add-ons.php:204
 msgid ""
-"Issue verifiable PDF certificates after quiz completion with templates and "
-"public verification."
+"WordPress privacy tools integration for personal data export and erasure, "
+"including notification preferences and phone numbers."
 msgstr ""
-"Émettez des certificats PDF vérifiables après avoir terminé le quiz avec des "
-"modèles et une vérification publique."
 
-#: includes/admin/class-add-ons.php:206
-msgid "Certificate templates with variables and backgrounds."
-msgstr "Modèles de certificats avec variables et arrière-plans."
-
-#: includes/admin/class-add-ons.php:207
-msgid "Automatic issuance on passing criteria with unique serials."
+#: includes/admin/class-add-ons.php:218
+msgid ""
+"Issue and manage certificates for passed quizzes, with customizable "
+"templates, public verification, and optional PDF downloads."
 msgstr ""
-"Émission automatique sur critères de réussite avec numéros de série uniques."
 
-#: includes/admin/class-add-ons.php:208
-msgid "Public verification page and QR support."
-msgstr "Page de vérification publique et prise en charge QR."
+#: includes/admin/class-add-ons.php:220
+msgid ""
+"Automatic certificate issuance when users pass a quiz, with configurable "
+"passing score thresholds."
+msgstr ""
 
-#: includes/admin/class-add-ons.php:209
-msgid "Admin listings, revoke, and CSV export."
-msgstr "Listes d'administration, révocation et exportation CSV."
+#: includes/admin/class-add-ons.php:221
+msgid ""
+"Customizable certificate templates with Gutenberg editing, block patterns, "
+"preview, and per-quiz or per-level template mapping."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:222
+msgid ""
+"Personalized certificates with dynamic variables for user details, quiz "
+"information, scores, instructors, and issuance dates."
+msgstr ""
 
 #: includes/admin/class-add-ons.php:223
 msgid ""
-"Advanced question banks with Pools/Sections, weighted randomization, per-"
-"attempt snapshots, and optional AI assistance for tagging and curation."
+"Public certificate verification and token-protected HTML viewing and PDF "
+"downloads."
 msgstr ""
-"Banques de questions avancées avec pools/sections, randomisation pondérée, "
-"instantanés par tentative et assistance IA facultative pour le marquage et "
-"la conservation."
+
+#: includes/admin/class-add-ons.php:224
+msgid ""
+"My Certificates page with filtering, scores, and certificate actions, "
+"available via shortcode or Gutenberg block."
+msgstr ""
 
 #: includes/admin/class-add-ons.php:225
-msgid "Banks and sections with tags/difficulty weighting."
-msgstr "Banques et sections avec pondération des balises/difficultés."
+msgid ""
+"Optional integration with the Subscription Add-on to display certificates in "
+"the user dashboard."
+msgstr ""
+"Intégration facultative avec le module complémentaire d’abonnement pour "
+"afficher les certificats dans le tableau de bord de l’utilisateur."
 
 #: includes/admin/class-add-ons.php:226
-msgid "Randomized draws per attempt with snapshot for consistency."
+msgid ""
+"PDF generation with Dompdf, configurable paper size and orientation, and "
+"optional remote image loading."
 msgstr ""
-"Tirages aléatoires par tentative avec instantané pour plus de cohérence."
 
 #: includes/admin/class-add-ons.php:227
-msgid "Admin UI for Pools/Sections, import/export CSV/JSON."
+msgid ""
+"Admin certificate management: search, status filtering, revoke, restore, "
+"manual issuance, and CSV export."
 msgstr ""
-"Interface utilisateur d'administration pour les pools/sections, importation/"
-"exportation CSV/JSON."
 
-#: includes/admin/class-add-ons.php:228
-msgid "Integration in quiz builder panel."
-msgstr "Intégration dans le panneau de création de quiz."
-
-#: includes/admin/class-add-ons.php:229
-msgid "AI-assisted tagging, difficulty suggestions, and pool curation."
+#: includes/admin/class-add-ons.php:241
+msgid ""
+"Create and organize question pools, manage sections, and generate randomized "
+"quiz draws with configurable rules and draw snapshots."
 msgstr ""
-"Balisage assisté par l'IA, suggestions de difficulté et conservation de pool."
 
 #: includes/admin/class-add-ons.php:243
+msgid "Question pools with search, sorting, bulk actions, and CSV export."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:244
+msgid ""
+"Question sections with configurable weights to control their share of "
+"randomized quiz draws."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:245
+msgid ""
+"Create and edit quiz questions, assigning them to specific pools and "
+"sections."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:246
+msgid ""
+"Randomized draws with balanced, strict, and no-randomization modes, "
+"configurable question limits, and optional per-level overrides."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:247
+msgid ""
+"Draw snapshots recording each randomized selection, with filtering, CSV "
+"export, and configurable automatic retention."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:248
+msgid ""
+"Optional AI assistant to generate draft questions using OpenAI, Mistral, or "
+"Anthropic, with your own API keys."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:249
+msgid ""
+"Configurable access control for administrators and editors, with separate "
+"administrator-only settings."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:250
+msgid ""
+"Optional clean uninstall that removes only the add-on data, without "
+"affecting the parent plugin."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:264
 msgid ""
 "Sell quizzes, certificates or bundles via WooCommerce and map access rules."
 msgstr ""
 "Vendez des quiz, des certificats ou des packs via WooCommerce et "
 "cartographiez les règles d'accès."
 
-#: includes/admin/class-add-ons.php:245
-msgid "Product mapping to quizzes/certificates."
-msgstr "Cartographie des produits vers les quiz/certificats."
-
-#: includes/admin/class-add-ons.php:246
-msgid "Score-based access and post-quiz upsells."
-msgstr "Accès basé sur les scores et ventes incitatives après le quiz."
-
-#: includes/admin/class-add-ons.php:247
-msgid "Order webhooks and rule-based access."
-msgstr "Webhooks de commande et accès basé sur des règles."
-
-#: includes/admin/class-add-ons.php:261
-msgid ""
-"No-code triggers for quiz, subscriptions, and certificates with outbound "
-"webhooks, custom headers, JSON payloads, and HMAC signatures."
-msgstr ""
-"Déclencheurs sans code pour les quiz, abonnements et certificats avec "
-"webhooks sortants, en-têtes personnalisés, charges JSON et signatures HMAC."
-
-#: includes/admin/class-add-ons.php:263
-msgid "Trigger flows on quiz/subscription events."
-msgstr "Déclencher des flux sur les événements de quiz/abonnement."
-
-#: includes/admin/class-add-ons.php:264
-msgid "HTTP actions with custom headers, JSON body, and HMAC signatures."
-msgstr ""
-"Actions HTTP avec en-têtes personnalisés, corps JSON et signatures HMAC."
-
-#: includes/admin/class-add-ons.php:265
-msgid "Replay, rate limits, and logs."
-msgstr "Relecture, limites de débit et journaux."
-
 #: includes/admin/class-add-ons.php:266
-msgid "Also supports badges and certificate issuance events."
-msgstr ""
-"Prend également en charge les événements d’attribution de badges et "
-"d’émission de certificats."
-
-#: includes/admin/class-add-ons.php:280
 msgid ""
-"Score leads based on answers and engagement, then sync to your CRM: HubSpot, "
-"Salesforce (OAuth), Pipedrive, or via Webhook."
+"Sell quiz levels, level packs or full access as WooCommerce products, with "
+"lifetime or time-limited access."
 msgstr ""
-"Scorez les prospects selon les réponses et l’engagement, puis synchronisez "
-"avec votre CRM : HubSpot, Salesforce (OAuth), Pipedrive ou via Webhook."
 
-#: includes/admin/class-add-ons.php:282
-msgid "Scoring rules and segments."
-msgstr "Règles et segments de notation."
-
-#: includes/admin/class-add-ons.php:283
-msgid "Connectors: HubSpot, Salesforce (OAuth), Pipedrive, Webhook."
-msgstr "Connecteurs : HubSpot, Salesforce (OAuth), Pipedrive, Webhook."
-
-#: includes/admin/class-add-ons.php:284
-msgid "Quick tools: Test connection and Manual upsert from settings."
+#: includes/admin/class-add-ons.php:267
+msgid ""
+"Automatic access grant on paid orders and automatic removal on refunds, "
+"cancellations and failed payments, safe to replay."
 msgstr ""
-"Outils rapides : Tester la connexion et Upsert manuel depuis les réglages."
 
-#: includes/admin/class-add-ons.php:285
-msgid "Dashboards and logs."
-msgstr "Tableaux de bord et journaux."
+#: includes/admin/class-add-ons.php:268
+msgid ""
+"Guest checkout support with secure account creation, and a My Account page "
+"listing purchased levels and expiry dates."
+msgstr ""
 
-#: includes/admin/class-add-ons.php:299
+#: includes/admin/class-add-ons.php:269
+msgid ""
+"Score-based rules using verified results only: prerequisites to unlock a "
+"level or product, and auto-generated single-use coupons."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:270
+msgid "Post-quiz upsells on the results screen, with conversion tracking."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:271
+msgid ""
+"Admin tools: entitlements list, order meta box, manual grant and revoke, "
+"event log with retention, CSV export."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:272
+msgid ""
+"Built on the Subscription Add-on access registry; compatible with "
+"WooCommerce HPOS and Cart/Checkout blocks."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:273
+msgid ""
+"Developer hooks and filters, and optional clean uninstall that removes only "
+"the add-on data."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:287
+msgid ""
+"Connect Form Quizz FQI3 to external services and automation platforms by "
+"sending quiz, badge, certificate, and subscription events through "
+"configurable outgoing webhooks."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:289
+msgid ""
+"Multiple webhook endpoints with configurable HTTP methods, URLs, custom "
+"headers, and JSON payload templates."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:290
+msgid ""
+"Event triggers for quiz attempts, drawn questions, badges, certificates, and "
+"Subscription Add-on events."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:291
+msgid ""
+"Asynchronous delivery through WP-Cron, with configurable timeouts, automatic "
+"retries, exponential backoff, and per-endpoint rate limits."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:292
+msgid ""
+"HMAC request signing with SHA256 or SHA1, optional timestamp signatures, and "
+"replay protection support."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:293
+msgid ""
+"SSRF protection against private and local network destinations, with an "
+"optional setting to allow trusted private endpoints."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:294
+msgid ""
+"Delivery logs with configurable retention, privacy controls, failed delivery "
+"retries, replay, and CSV export."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:295
+msgid ""
+"Dedicated administration pages for settings, endpoint management, and "
+"delivery monitoring."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:296
+msgid "Fine-grained access control through a dedicated WordPress capability."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:297
+msgid ""
+"Developer hooks and filters to customize endpoints, event payloads, headers, "
+"delivery behavior, retry policies, and access permissions."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:298
+msgid ""
+"WordPress privacy tools integration for personal data export and erasure, "
+"with automatic cleanup of plugin data on uninstall."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:312
+msgid ""
+"Score leads based on quiz activity and engagement events, build dynamic "
+"segments, and synchronize contacts with HubSpot, Salesforce, Pipedrive, or "
+"custom webhook endpoints."
+msgstr ""
+"Attribuez des scores aux prospects en fonction de leur activité dans les "
+"quiz et de leurs événements d’engagement, créez des segments dynamiques et "
+"synchronisez vos contacts avec HubSpot, Salesforce, Pipedrive ou des points "
+"de terminaison webhook personnalisés."
+
+#: includes/admin/class-add-ons.php:314
+msgid ""
+"Configurable scoring rules based on quiz answers and events, with automatic "
+"score updates and detailed scoring history."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:315
+msgid ""
+"Configurable score decay for inactive leads, with automatic periodic "
+"recalculation."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:316
+msgid ""
+"Dynamic segments defined through JSON rules, with conditions based on lead "
+"scores, tags, dates, and events."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:317
+msgid ""
+"CRM integrations with HubSpot, Salesforce (OAuth 2.0), and Pipedrive, plus "
+"support for custom webhook endpoints."
+msgstr ""
+"Intégrations CRM avec HubSpot, Salesforce (OAuth 2.0) et Pipedrive, ainsi "
+"que la prise en charge de points de terminaison webhook personnalisés."
+
+#: includes/admin/class-add-ons.php:318
+msgid ""
+"Configurable field mapping for CRM synchronization, including lead scores "
+"and segment membership."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:319
+msgid ""
+"Manual, event-based, and scheduled synchronization with queued processing, "
+"automatic retries, and backoff."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:320
+msgid ""
+"Admin dashboard with lead scoring metrics, segment insights, and "
+"synchronization status."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:321
+msgid ""
+"Synchronization and event logs with filtering, CSV/JSON export, and "
+"configurable data retention."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:322
+msgid ""
+"Developer hooks and filters to customize score adjustments, segment "
+"handling, and administrative capabilities."
+msgstr ""
+
+#: includes/admin/class-add-ons.php:336
 msgid ""
 "Add multilingual capabilities focused on Form Quizz FQI3: define default/"
 "available/fallback languages (auto-detected from site locale), display a "
@@ -570,7 +825,7 @@ msgstr ""
 "bonnes pratiques SEO (mode d’URL + hreflang) sans la complexité d’un "
 "framework global."
 
-#: includes/admin/class-add-ons.php:301
+#: includes/admin/class-add-ons.php:338
 msgid ""
 "Language settings: default, available and fallback languages (defaults from "
 "site locale)."
@@ -578,7 +833,7 @@ msgstr ""
 "Paramètres de langue : langues par défaut, disponibles et de secours "
 "(valeurs par défaut depuis la langue du site)."
 
-#: includes/admin/class-add-ons.php:302
+#: includes/admin/class-add-ons.php:339
 msgid ""
 "Language switcher: header/menu/footer or manual via shortcode/PHP, with "
 "optional flags."
@@ -586,21 +841,21 @@ msgstr ""
 "Sélecteur de langue : en-tête/menu/pied de page ou manuel via shortcode/PHP, "
 "avec drapeaux en option."
 
-#: includes/admin/class-add-ons.php:303
+#: includes/admin/class-add-ons.php:340
 msgid ""
 "SEO helpers: language in URL (subdirectory or query param) and hreflang tags."
 msgstr ""
 "Aides SEO : langue dans l’URL (sous-répertoire ou paramètre de requête) et "
 "balises hreflang."
 
-#: includes/admin/class-add-ons.php:304
+#: includes/admin/class-add-ons.php:341
 msgid ""
 "Integrations: auto-create translation placeholders, optional ACF fields sync."
 msgstr ""
 "Intégrations : création automatique d’espaces réservés de traduction, "
 "synchronisation facultative des champs ACF."
 
-#: includes/admin/class-add-ons.php:305
+#: includes/admin/class-add-ons.php:342
 msgid ""
 "Developer hooks: filter languages, positions, and URL modes to extend "
 "behavior."
@@ -608,11 +863,11 @@ msgstr ""
 "Hooks développeur : filtrer les langues, positions et modes d’URL pour "
 "étendre le comportement."
 
-#: includes/admin/class-add-ons.php:483 includes/admin/class-add-ons.php:1233
+#: includes/admin/class-add-ons.php:520 includes/admin/class-add-ons.php:1270
 msgid "Installed"
 msgstr "Installé"
 
-#: includes/admin/class-add-ons.php:506 includes/admin/class-dashboard.php:108
+#: includes/admin/class-add-ons.php:543 includes/admin/class-dashboard.php:108
 #: includes/admin/class-view-questions.php:397
 #: includes/admin/class-view-questions.php:517
 #: includes/admin/class-view-questions.php:750 templates/question-form.php:70
@@ -620,168 +875,168 @@ msgid "Free"
 msgstr "Gratuit"
 
 #. translators: %s name of the plugin/addon
-#: includes/admin/class-add-ons.php:523
+#: includes/admin/class-add-ons.php:560
 #, php-format
 msgid "Requires: %s"
 msgstr "Nécessite : %s"
 
-#: includes/admin/class-add-ons.php:536
+#: includes/admin/class-add-ons.php:573
 msgid "Required by:"
 msgstr "Requis par :"
 
-#: includes/admin/class-add-ons.php:553
+#: includes/admin/class-add-ons.php:590
 msgid "Show features"
 msgstr "Afficher les fonctionnalités"
 
-#: includes/admin/class-add-ons.php:569
+#: includes/admin/class-add-ons.php:606
 msgid "Not yet available"
 msgstr "Pas encore disponible"
 
-#: includes/admin/class-add-ons.php:578
+#: includes/admin/class-add-ons.php:615
 msgid "Coming Soon"
 msgstr "Bientôt disponible"
 
-#: includes/admin/class-add-ons.php:586
+#: includes/admin/class-add-ons.php:623
 msgid "Install"
 msgstr "Installer"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:596
+#: includes/admin/class-add-ons.php:633
 #, php-format
 msgid "Requires %s to be installed and activated first"
 msgstr "Nécessite que %s soit d'abord installé et activé"
 
 #. translators: %s is the name of the required add-on
-#: includes/admin/class-add-ons.php:601
+#: includes/admin/class-add-ons.php:638
 #, php-format
 msgid "Requires %s"
 msgstr "Nécessite %s"
 
-#: includes/admin/class-add-ons.php:612
+#: includes/admin/class-add-ons.php:649
 msgid "Cannot deactivate because a required dependency is active"
 msgstr "Impossible de désactiver parce qu'une dépendance requise est active"
 
-#: includes/admin/class-add-ons.php:613
+#: includes/admin/class-add-ons.php:650
 msgid "Cannot deactivate because other active add-ons depend on it"
 msgstr ""
 "Impossible de le désactiver car d'autres modules complémentaires actifs en "
 "dépendent"
 
-#: includes/admin/class-add-ons.php:616
+#: includes/admin/class-add-ons.php:653
 msgid "Cannot deactivate"
 msgstr "Impossible de désactiver"
 
 #. translators: %s is the name of the dependency
-#: includes/admin/class-add-ons.php:630
+#: includes/admin/class-add-ons.php:667
 #, php-format
 msgid "Depends on: %s"
 msgstr "Dépend de : %s"
 
-#: includes/admin/class-add-ons.php:632
+#: includes/admin/class-add-ons.php:669
 msgid "Has active dependency"
 msgstr "A une dépendance active"
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:637
+#: includes/admin/class-add-ons.php:674
 #, php-format
 msgid "Required by: %s"
 msgstr "Requis par : %s"
 
-#: includes/admin/class-add-ons.php:649
+#: includes/admin/class-add-ons.php:686
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: includes/admin/class-add-ons.php:656
+#: includes/admin/class-add-ons.php:693
 msgid "Activate"
 msgstr "Activer"
 
-#: includes/admin/class-add-ons.php:663
+#: includes/admin/class-add-ons.php:700
 msgid "Learn more"
 msgstr "En savoir plus"
 
-#: includes/admin/class-add-ons.php:699 includes/admin/class-add-ons.php:830
-#: includes/admin/class-add-ons.php:843
+#: includes/admin/class-add-ons.php:736 includes/admin/class-add-ons.php:867
+#: includes/admin/class-add-ons.php:880
 msgid "General"
 msgstr "Général"
 
-#: includes/admin/class-add-ons.php:780 includes/admin/class-add-ons.php:905
+#: includes/admin/class-add-ons.php:817 includes/admin/class-add-ons.php:942
 #: includes/admin/class-edit-questions.php:126
 #: includes/admin/class-emails-settings.php:273
 msgid "Security check failed."
 msgstr "Échec du test de sécurité."
 
-#: includes/admin/class-add-ons.php:785
+#: includes/admin/class-add-ons.php:822
 #: includes/admin/class-emails-settings.php:250 includes/FQI3_Api.php:434
 msgid "You do not have permission to perform this action."
 msgstr ""
 "Vous ne disposez pas des autorisations nécessaires pour effectuer cette "
 "action."
 
-#: includes/admin/class-add-ons.php:798
+#: includes/admin/class-add-ons.php:835
 msgid "Please provide a description of the issue."
 msgstr "Veuillez fournir une description du problème."
 
 #. translators: %1$s: Site name, %2$s: Add-on name, %3$s: Issue type
-#: includes/admin/class-add-ons.php:828
+#: includes/admin/class-add-ons.php:865
 #, php-format
 msgid "[%1$s] New Issue Report - %2$s - %3$s"
 msgstr "[%1$s] Nouveau rapport de problème - %2$s - %3$s"
 
-#: includes/admin/class-add-ons.php:837
+#: includes/admin/class-add-ons.php:874
 msgid "New Issue Report"
 msgstr "Signalement d’un nouveau problème"
 
-#: includes/admin/class-add-ons.php:842
+#: includes/admin/class-add-ons.php:879
 msgid "Type of issue"
 msgstr "Type de problème"
 
-#: includes/admin/class-add-ons.php:843
+#: includes/admin/class-add-ons.php:880
 msgid "Extension concerned"
 msgstr "Extension concernée"
 
-#: includes/admin/class-add-ons.php:844 includes/admin/class-add-ons.php:912
-#: includes/admin/class-add-ons.php:1027 includes/admin/class-add-ons.php:1274
+#: includes/admin/class-add-ons.php:881 includes/admin/class-add-ons.php:949
+#: includes/admin/class-add-ons.php:1064 includes/admin/class-add-ons.php:1311
 msgid "Description"
 msgstr "Description"
 
-#: includes/admin/class-add-ons.php:847
+#: includes/admin/class-add-ons.php:884
 msgid "Steps to reproduce"
 msgstr "Étapes à suivre pour reproduire"
 
-#: includes/admin/class-add-ons.php:851
+#: includes/admin/class-add-ons.php:888
 msgid "Technical Informations"
 msgstr "Informations techniques"
 
-#: includes/admin/class-add-ons.php:852
+#: includes/admin/class-add-ons.php:889
 msgid "URL"
 msgstr "URL"
 
-#: includes/admin/class-add-ons.php:853 includes/admin/class-attempts.php:212
+#: includes/admin/class-add-ons.php:890 includes/admin/class-attempts.php:212
 msgid "User"
 msgstr "Utilisateur"
 
-#: includes/admin/class-add-ons.php:854
+#: includes/admin/class-add-ons.php:891
 msgid "Site"
 msgstr "Site"
 
-#: includes/admin/class-add-ons.php:855
+#: includes/admin/class-add-ons.php:892
 msgid "Browser"
 msgstr "Navigateur"
 
-#: includes/admin/class-add-ons.php:856
+#: includes/admin/class-add-ons.php:893
 msgid "WordPress Version"
 msgstr "Versions de WordPress"
 
-#: includes/admin/class-add-ons.php:857
+#: includes/admin/class-add-ons.php:894
 msgid "Plugin Version"
 msgstr "Version du plugin"
 
-#: includes/admin/class-add-ons.php:862
+#: includes/admin/class-add-ons.php:899
 msgid "This is an automated message. Please do not reply directly."
 msgstr ""
 "Il s'agit d'un message automatisé. Veuillez ne pas y répondre directement."
 
-#: includes/admin/class-add-ons.php:884
+#: includes/admin/class-add-ons.php:921
 msgid ""
 "Thank you for your report. Our team will investigate the issue as soon as "
 "possible."
@@ -789,7 +1044,7 @@ msgstr ""
 "Nous vous remercions pour votre rapport. Notre équipe examinera le problème "
 "dès que possible."
 
-#: includes/admin/class-add-ons.php:890
+#: includes/admin/class-add-ons.php:927
 msgid ""
 "Your report has been recorded, but an error occurred while sending the "
 "email. Our team has been notified."
@@ -797,156 +1052,156 @@ msgstr ""
 "Votre rapport a été enregistré, mais une erreur s'est produite lors de "
 "l'envoi de l'e-mail. Notre équipe a été informée."
 
-#: includes/admin/class-add-ons.php:911
+#: includes/admin/class-add-ons.php:948
 msgid "Add-on name"
 msgstr "Nom du module complémentaire"
 
-#: includes/admin/class-add-ons.php:913 includes/admin/class-attempts.php:352
+#: includes/admin/class-add-ons.php:950 includes/admin/class-attempts.php:352
 #: includes/admin/class-dashboard.php:250
 msgid "Email"
 msgstr "Email"
 
 #. translators: %s: Field label
-#: includes/admin/class-add-ons.php:923
+#: includes/admin/class-add-ons.php:960
 #, php-format
 msgid "%s is a required field."
 msgstr "Le champ %s est obligatoire."
 
-#: includes/admin/class-add-ons.php:933
+#: includes/admin/class-add-ons.php:970
 msgid "Please enter a valid email address."
 msgstr "Veuillez saisir une adresse email valide."
 
-#: includes/admin/class-add-ons.php:938
+#: includes/admin/class-add-ons.php:975
 msgid "You must agree to the terms to submit a suggestion."
 msgstr "Vous devez accepter les conditions pour soumettre une suggestion."
 
-#: includes/admin/class-add-ons.php:987
+#: includes/admin/class-add-ons.php:1024
 msgid "Thank you for your suggestion! Our team will review it shortly."
 msgstr ""
 "Nous vous remercions de votre suggestion ! Notre équipe l'examinera sous peu."
 
-#: includes/admin/class-add-ons.php:1002
+#: includes/admin/class-add-ons.php:1039
 msgid "Report an Issue"
 msgstr "Signalement un bug"
 
-#: includes/admin/class-add-ons.php:1003 includes/admin/class-add-ons.php:1259
+#: includes/admin/class-add-ons.php:1040 includes/admin/class-add-ons.php:1296
 msgid "Close"
 msgstr "Fermer"
 
-#: includes/admin/class-add-ons.php:1008
+#: includes/admin/class-add-ons.php:1045
 msgid "Related Add-on"
 msgstr "Module complémentaire associé"
 
-#: includes/admin/class-add-ons.php:1010
+#: includes/admin/class-add-ons.php:1047
 msgid "General Issue"
 msgstr "Problème général"
 
-#: includes/admin/class-add-ons.php:1019
+#: includes/admin/class-add-ons.php:1056
 msgid "Issue Type"
 msgstr "Type de problème"
 
-#: includes/admin/class-add-ons.php:1021
+#: includes/admin/class-add-ons.php:1058
 msgid "Bug"
 msgstr "Bug"
 
-#: includes/admin/class-add-ons.php:1022
+#: includes/admin/class-add-ons.php:1059
 msgid "Suggestion"
 msgstr "Suggestion"
 
-#: includes/admin/class-add-ons.php:1023
+#: includes/admin/class-add-ons.php:1060
 msgid "Other"
 msgstr "Autre"
 
-#: includes/admin/class-add-ons.php:1029
+#: includes/admin/class-add-ons.php:1066
 msgid "Please describe the issue in detail..."
 msgstr "Veuillez décrire le problème en détail..."
 
-#: includes/admin/class-add-ons.php:1032
+#: includes/admin/class-add-ons.php:1069
 msgid "Steps to Reproduce"
 msgstr "Étapes à suivre pour reproduire"
 
-#: includes/admin/class-add-ons.php:1034
+#: includes/admin/class-add-ons.php:1071
 msgid "1. Go to...\\n2. Click on...\\n3. Error occurs when..."
 msgstr ""
 "1. Allez à...\\n2. Cliquez sur...\\n3. Une erreur se produit lorsque..."
 
-#: includes/admin/class-add-ons.php:1041 includes/admin/class-add-ons.php:1321
+#: includes/admin/class-add-ons.php:1078 includes/admin/class-add-ons.php:1358
 #: includes/admin/class-view-questions.php:168
 msgid "Cancel"
 msgstr "Annuler"
 
-#: includes/admin/class-add-ons.php:1044
+#: includes/admin/class-add-ons.php:1081
 msgid "Submit Report"
 msgstr "Soumettre un rapport"
 
-#: includes/admin/class-add-ons.php:1076
+#: includes/admin/class-add-ons.php:1113
 msgid "Failed to save your suggestion. Please try again."
 msgstr "Impossible d'enregistrer votre suggestion. Veuillez réessayer."
 
 #. translators: %1$s: Site name, %2$s: Add-on name
-#: includes/admin/class-add-ons.php:1093
+#: includes/admin/class-add-ons.php:1130
 #, php-format
 msgid "[%1$s] New Add-on Suggestion: %2$s"
 msgstr "[%1$s] Nouvelle suggestion de module complémentaire : %2$s"
 
 #. translators: %s: Site name
-#: includes/admin/class-add-ons.php:1100
+#: includes/admin/class-add-ons.php:1137
 #, php-format
 msgid "A new add-on has been suggested on %s:"
 msgstr "Un nouveau module complémentaire a été suggéré sur %s :"
 
 #. translators: %s: Add-on name
-#: includes/admin/class-add-ons.php:1106
+#: includes/admin/class-add-ons.php:1143
 #, php-format
 msgid "Add-on Name: %s"
 msgstr "Nom du module complémentaire : %s"
 
 #. translators: %s: Add-on description
-#: includes/admin/class-add-ons.php:1111
+#: includes/admin/class-add-ons.php:1148
 #, php-format
 msgid "Description: %s"
 msgstr "Description: %s"
 
 #. translators: %s: Add-on website
-#: includes/admin/class-add-ons.php:1118
+#: includes/admin/class-add-ons.php:1155
 #, php-format
 msgid "Website: %s"
 msgstr "Site Web : %s"
 
-#: includes/admin/class-add-ons.php:1123
+#: includes/admin/class-add-ons.php:1160
 msgid "Submitted by:"
 msgstr "Soumis par :"
 
 #. translators: %s: User name
-#: includes/admin/class-add-ons.php:1126
+#: includes/admin/class-add-ons.php:1163
 #, php-format
 msgid "Name: %s"
 msgstr "Nom: %s"
 
 #. translators: %s: User email
-#: includes/admin/class-add-ons.php:1131
+#: includes/admin/class-add-ons.php:1168
 #, php-format
 msgid "Email: %s"
 msgstr "Email: %s"
 
 #. translators: %s: Site URL
-#: includes/admin/class-add-ons.php:1136
+#: includes/admin/class-add-ons.php:1173
 #, php-format
 msgid "Site: %s"
 msgstr "Site : %s"
 
-#: includes/admin/class-add-ons.php:1171
+#: includes/admin/class-add-ons.php:1208
 msgid "Available Add-Ons"
 msgstr "Modules complémentaires disponibles"
 
-#: includes/admin/class-add-ons.php:1172
+#: includes/admin/class-add-ons.php:1209
 msgid "Add-Ons allow you to extend the functionality of Form Quizz FQI3."
 msgstr ""
 "Les modules complémentaires vous permettent d’étendre les fonctionnalités de "
 "Form Quizz FQI3."
 
 #. translators: 1 = singular, %d = number of add-ons
-#: includes/admin/class-add-ons.php:1186
+#: includes/admin/class-add-ons.php:1223
 #, php-format
 msgid "Actually %1$d add-on is available on %2$d total."
 msgid_plural "Actually %1$d add-ons are available on %2$d total."
@@ -956,69 +1211,69 @@ msgstr[1] ""
 "Actuellement, %1$d modules complémentaires sont disponibles sur %2$d au "
 "total."
 
-#: includes/admin/class-add-ons.php:1203
+#: includes/admin/class-add-ons.php:1240
 msgid "Plugin updater not available"
 msgstr "L'outil de mise à jour des plugins n'est pas disponible"
 
-#: includes/admin/class-add-ons.php:1205
+#: includes/admin/class-add-ons.php:1242
 msgid "Refresh Cache"
 msgstr "Rafraîchir le cache"
 
-#: includes/admin/class-add-ons.php:1213
+#: includes/admin/class-add-ons.php:1250
 msgid "Suggest an Add-on"
 msgstr "Suggérer un module complémentaire"
 
-#: includes/admin/class-add-ons.php:1218
+#: includes/admin/class-add-ons.php:1255
 msgid "Report Issue"
 msgstr "Signaler un bug"
 
-#: includes/admin/class-add-ons.php:1225
+#: includes/admin/class-add-ons.php:1262
 msgid "Search an add-on..."
 msgstr "Recherche d'un module complémentaire…"
 
-#: includes/admin/class-add-ons.php:1229 includes/admin/class-attempts.php:146
+#: includes/admin/class-add-ons.php:1266 includes/admin/class-attempts.php:146
 #: includes/admin/class-view-questions.php:413
 msgid "Filter"
 msgstr "Filtrer"
 
-#: includes/admin/class-add-ons.php:1232 includes/admin/class-dashboard.php:64
+#: includes/admin/class-add-ons.php:1269 includes/admin/class-dashboard.php:64
 #: includes/admin/class-view-questions.php:358
 msgid "All"
 msgstr "Tous"
 
-#: includes/admin/class-add-ons.php:1234
+#: includes/admin/class-add-ons.php:1271
 msgid "Available"
 msgstr "Disponible"
 
-#: includes/admin/class-add-ons.php:1257
+#: includes/admin/class-add-ons.php:1294
 msgid "Suggest a New Add-on"
 msgstr "Suggérer un nouveau module complémentaire"
 
-#: includes/admin/class-add-ons.php:1267
+#: includes/admin/class-add-ons.php:1304
 msgid "Add-on Name"
 msgstr "Nom du module complémentaire"
 
-#: includes/admin/class-add-ons.php:1278
+#: includes/admin/class-add-ons.php:1315
 msgid ""
 "Please describe what this add-on would do and how it would benefit users."
 msgstr ""
 "Veuillez décrire l'utilité de ce module complémentaire et les avantages "
 "qu'il apporterait aux utilisateurs."
 
-#: includes/admin/class-add-ons.php:1286
+#: includes/admin/class-add-ons.php:1323
 msgid "Website (optional)"
 msgstr "Site Web (facultatif)"
 
-#: includes/admin/class-add-ons.php:1294
+#: includes/admin/class-add-ons.php:1331
 msgid "Your Email"
 msgstr "Votre email"
 
-#: includes/admin/class-add-ons.php:1298
+#: includes/admin/class-add-ons.php:1335
 msgid "In case we need to contact you for more information."
 msgstr ""
 "Au cas où nous aurions besoin de vous contacter pour plus d'informations."
 
-#: includes/admin/class-add-ons.php:1308
+#: includes/admin/class-add-ons.php:1345
 msgid ""
 "I understand that this is only a suggestion and there is no guarantee it "
 "will be implemented."
@@ -1026,7 +1281,7 @@ msgstr ""
 "Je comprends qu'il ne s'agit que d'une suggestion et qu'il n'y a aucune "
 "garantie qu'elle sera mise en œuvre."
 
-#: includes/admin/class-add-ons.php:1315
+#: includes/admin/class-add-ons.php:1352
 msgid ""
 "Your suggestion will be sent to our development team for review. We "
 "appreciate your input!"
@@ -1034,108 +1289,108 @@ msgstr ""
 "Votre suggestion sera transmise à notre équipe de développement pour examen. "
 "Nous apprécions votre contribution !"
 
-#: includes/admin/class-add-ons.php:1325
+#: includes/admin/class-add-ons.php:1362
 msgid "Submit Suggestion"
 msgstr "Soumettre une suggestion"
 
-#: includes/admin/class-add-ons.php:1361
+#: includes/admin/class-add-ons.php:1398
 msgid "Missing parameters."
 msgstr "Paramètres manquants."
 
-#: includes/admin/class-add-ons.php:1374
+#: includes/admin/class-add-ons.php:1411
 msgid "Addon not found."
 msgstr "Module complémentaire non trouvé."
 
-#: includes/admin/class-add-ons.php:1391
+#: includes/admin/class-add-ons.php:1428
 msgid "Activated."
 msgstr "Activé."
 
-#: includes/admin/class-add-ons.php:1400
+#: includes/admin/class-add-ons.php:1437
 msgid "Cannot deactivate because a required dependency is active."
 msgstr "Impossible de désactiver car une dépendance obligatoire est active."
 
 #. translators: %s is the list of dependent add-ons
-#: includes/admin/class-add-ons.php:1408
+#: includes/admin/class-add-ons.php:1445
 #, php-format
 msgid "Cannot deactivate because it is required by: %s"
 msgstr "Impossible de le désactiver car il est requis par : %s"
 
-#: includes/admin/class-add-ons.php:1414
+#: includes/admin/class-add-ons.php:1451
 msgid "Cannot deactivate due to dependency constraints."
 msgstr "Impossible de désactiver en raison de contraintes de dépendance."
 
-#: includes/admin/class-add-ons.php:1417
+#: includes/admin/class-add-ons.php:1454
 msgid "Deactivated."
 msgstr "Désactivé."
 
-#: includes/admin/class-add-ons.php:1420
+#: includes/admin/class-add-ons.php:1457
 msgid "Invalid action."
 msgstr "Action invalide."
 
-#: includes/admin/class-add-ons.php:1446
+#: includes/admin/class-add-ons.php:1483
 msgid "GitHub token is not configured."
 msgstr "Le jeton GitHub n'est pas configuré."
 
 #. translators: %s error message
-#: includes/admin/class-add-ons.php:1469
+#: includes/admin/class-add-ons.php:1506
 #, php-format
 msgid "GitHub API error: %s"
 msgstr "Erreur d'API GitHub : %s"
 
 #. translators: %s status response GitHub API
-#: includes/admin/class-add-ons.php:1481
+#: includes/admin/class-add-ons.php:1518
 #, php-format
 msgid "GitHub API responded with status %d."
 msgstr "L'API GitHub a répondu avec le statut %d."
 
-#: includes/admin/class-add-ons.php:1490
+#: includes/admin/class-add-ons.php:1527
 msgid "No release found for this addon."
 msgstr "Aucune version trouvée pour cet addon."
 
 #. translators: %s status response GitHub API
-#: includes/admin/class-add-ons.php:1521
+#: includes/admin/class-add-ons.php:1558
 #, php-format
 msgid "Download failed with status %d."
 msgstr "Le téléchargement a échoué avec le statut %d."
 
-#: includes/admin/class-add-ons.php:1530
+#: includes/admin/class-add-ons.php:1567
 msgid "Downloaded file is too small or empty."
 msgstr "Le fichier téléchargé est trop petit ou vide."
 
-#: includes/admin/class-add-ons.php:1562
+#: includes/admin/class-add-ons.php:1599
 msgid "Plugin installed but folder not found."
 msgstr "Plugin installé mais dossier introuvable."
 
-#: includes/admin/class-add-ons.php:1588
+#: includes/admin/class-add-ons.php:1625
 msgid "Could not prepare the add-on folder."
 msgstr "Impossible de préparer le dossier du module complémentaire."
 
-#: includes/admin/class-add-ons.php:1613
+#: includes/admin/class-add-ons.php:1650
 msgid "Plugin installed but activation failed."
 msgstr "Plugin installé mais l'activation a échoué."
 
-#: includes/admin/class-add-ons.php:1617
+#: includes/admin/class-add-ons.php:1654
 msgid "Plugin installed and activated successfully!"
 msgstr "Plugin installé et activé avec succès !"
 
-#: includes/admin/class-add-ons.php:1623
+#: includes/admin/class-add-ons.php:1660
 msgid "Plugin installed successfully but could not auto-activate."
 msgstr ""
 "Le plugin a été installé avec succès mais n'a pas pu s'activer "
 "automatiquement."
 
-#: includes/admin/class-add-ons.php:1727
+#: includes/admin/class-add-ons.php:1764
 msgid "Plugin updater is not available."
 msgstr "L'outil de mise à jour des plugins n'est pas disponible."
 
 #. translators: 1 = add-on slug, 2 = error message
-#: includes/admin/class-add-ons.php:1745
+#: includes/admin/class-add-ons.php:1782
 #, php-format
 msgid "Error refreshing %1$s: %2$s"
 msgstr "Erreur d'actualisation %1$s : %2$s"
 
 #. translators: %d = number of refreshed add-ons
-#: includes/admin/class-add-ons.php:1761
+#: includes/admin/class-add-ons.php:1798
 #, php-format
 msgid "Successfully refreshed cache for %d add-on."
 msgid_plural "Successfully refreshed cache for %d add-ons."
@@ -1144,22 +1399,22 @@ msgstr[0] ""
 msgstr[1] ""
 "Le cache a été rafraîchi avec succès pour les module complémentaires %d."
 
-#: includes/admin/class-add-ons.php:1842
+#: includes/admin/class-add-ons.php:1879
 msgid "Updates Available"
 msgstr "Mises à jour disponibles"
 
-#: includes/admin/class-add-ons.php:1843
+#: includes/admin/class-add-ons.php:1880
 msgid "The following add-ons have updates available:"
 msgstr ""
 "Les modules complémentaires suivants ont des mises à jour disponibles :"
 
 #. translators: 1 = current version, 2 = latest version
-#: includes/admin/class-add-ons.php:1852
+#: includes/admin/class-add-ons.php:1889
 #, php-format
 msgid "Version %1$s → %2$s"
 msgstr "Version %1$s → %2$s"
 
-#: includes/admin/class-add-ons.php:1858
+#: includes/admin/class-add-ons.php:1895
 msgid "Update Now"
 msgstr "Mettre à jour maintenant"
 
@@ -2244,19 +2499,23 @@ msgstr ""
 
 #: includes/admin/class-developper.php:401
 msgid "quizzes started today (daily limit)."
-msgstr ""
+msgstr "les quiz ont commencé aujourd’hui (limite quotidienne)."
 
 #: includes/admin/class-developper.php:402
 msgid ""
 "attempt in progress: attempt id, level and the questions served for it. "
 "Removed when the attempt is completed."
 msgstr ""
+"tentative en cours : identifiant de la tentative, niveau et questions "
+"proposées dans ce cadre. Supprimé une fois la tentative terminée."
 
 #: includes/admin/class-developper.php:403
 msgid ""
 "server-side result of the last completed attempt, consumed once by "
 "fqi3_before_results_quiz_form."
 msgstr ""
+"résultat côté serveur de la dernière tentative terminée, consommé une fois "
+"par fqi3_before_results_quiz_form."
 
 #: includes/admin/class-developper.php:406
 msgid "Hooks"
@@ -2298,12 +2557,20 @@ msgid ""
 "\"form-quizz-fqi3/\", so the core constants and classes do not exist while "
 "an add-on main file is being included."
 msgstr ""
+"(action) Le noyau est chargé. Chargez les extensions à partir d’ici (ou via "
+"le hook `plugins_loaded` avec une priorité de 10 ou plus) : WordPress charge "
+"les extensions du type « form-quizz-fqi3-xxx/ » avant « form-quizz-fqi3/ » ; "
+"par conséquent, les constantes et les classes du noyau ne sont pas encore "
+"définies au moment où le fichier principal d’une extension est inclus."
 
 #: includes/admin/class-developper.php:426
 msgid ""
 "(action) A server-side attempt was created. Fired once per attempt, for "
 "logged-in users only. attempt_id is always greater than 0."
 msgstr ""
+"(action) Une tentative côté serveur a été créée. Déclenché une fois par "
+"tentative, uniquement pour les utilisateurs connectés. L’identifiant "
+"`attempt_id` est toujours supérieur à 0."
 
 #: includes/admin/class-developper.php:430
 msgid ""
@@ -2313,6 +2580,12 @@ msgid ""
 "(the score sent by the browser is ignored). attempt_id is always greater "
 "than 0."
 msgstr ""
+"(action) Une tentative a été effectuée. Cet événement est déclenché "
+"exactement une fois par tentative, uniquement pour les utilisateurs "
+"connectés, une fois que le serveur a vérifié que les questions ont bien été "
+"transmises ; il inclut un score calculé par le serveur à partir des réponses "
+"soumises (le score envoyé par le navigateur est ignoré). L'identifiant "
+"`attempt_id` est toujours supérieur à 0."
 
 #: includes/admin/class-developper.php:434
 msgid ""
@@ -2322,12 +2595,22 @@ msgid ""
 "visitors with browser-supplied values: never use an unverified call to grant "
 "points, badges or data."
 msgstr ""
+"(action) Avant l'affichage des résultats. Ne vous y fiez que lorsque "
+"`$verified` est vrai (utilisateur connecté : niveau et score enregistrés par "
+"le serveur). Cet événement est également déclenché lors du rendu de la page "
+"avec des valeurs par défaut (placeholders) et `$verified = false`, ainsi que "
+"pour les visiteurs dont les valeurs sont fournies par le navigateur : "
+"n'utilisez jamais un appel non vérifié pour attribuer des points, des badges "
+"ou des données."
 
 #: includes/admin/class-developper.php:438
 msgid ""
 "(filter) Minimum seconds per question between the questions being served and "
 "the completion of the quiz (default 1, 0 disables the check)."
 msgstr ""
+"(filtre) Nombre minimal de secondes par question, entre le moment où les "
+"questions sont présentées et celui où le quiz est terminé (valeur par "
+"défaut : 1 ; 0 désactive cette vérification)."
 
 #: includes/admin/class-developper.php:442
 msgid "(action) Inject a top panel into the core questions screen."
@@ -2927,90 +3210,92 @@ msgstr "Taille maximale du fichier : 10 Mo. Format JSON uniquement."
 msgid "Import"
 msgstr "Importer"
 
-#: includes/admin/class-import-export.php:341
+#. translators: %s: JSON error message
+#: includes/admin/class-import-export.php:342
 #, php-format
 msgid "Export failed: JSON encoding error (%s)."
-msgstr ""
+msgstr "Échec de l’exportation : erreur d’encodage JSON (%s)."
 
-#: includes/admin/class-import-export.php:374
+#. translators: %s: Database error message
+#: includes/admin/class-import-export.php:376
 #, php-format
 msgid "Export failed: database error (%s)."
-msgstr ""
+msgstr "Échec de l'exportation : erreur de base de données (%s)."
 
-#: includes/admin/class-import-export.php:389
+#: includes/admin/class-import-export.php:391
 msgid "Insufficient permissions for data export."
 msgstr "Autorisations insuffisantes pour l’exportation des données."
 
-#: includes/admin/class-import-export.php:393
-#: includes/admin/class-import-export.php:428
+#: includes/admin/class-import-export.php:395
+#: includes/admin/class-import-export.php:430
 #: includes/FQI3_PeriodicStatistics.php:346
 msgid "Security verification failed."
 msgstr "La vérification de sécurité a échoué."
 
-#: includes/admin/class-import-export.php:424
+#: includes/admin/class-import-export.php:426
 msgid "Insufficient permissions for data import."
 msgstr "Autorisations insuffisantes pour l’importation de données."
 
-#: includes/admin/class-import-export.php:440
+#: includes/admin/class-import-export.php:442
 msgid "File upload failed."
 msgstr "Le téléchargement du fichier a échoué."
 
 #. Translators: %d indicates the maximum upload limit.
-#: includes/admin/class-import-export.php:448
+#: includes/admin/class-import-export.php:450
 #, php-format
 msgid "File size exceeds maximum limit of %d MB."
 msgstr "La taille du fichier dépasse la limite maximale de %d Mo."
 
-#: includes/admin/class-import-export.php:452
+#: includes/admin/class-import-export.php:454
 msgid "Invalid file type. JSON files only."
 msgstr "Type de fichier non valide. Fichiers JSON uniquement."
 
-#: includes/admin/class-import-export.php:469
+#: includes/admin/class-import-export.php:471
 msgid "Invalid JSON file."
 msgstr "Fichier JSON non valide."
 
-#: includes/admin/class-import-export.php:497
+#: includes/admin/class-import-export.php:499
 msgid "Invalid import data: No valid data sections found."
 msgstr ""
 "Données d’importation non valides : aucune section de données valide trouvée."
 
 #. Translators: %s is the error message.
-#: includes/admin/class-import-export.php:594
+#: includes/admin/class-import-export.php:596
 #, php-format
 msgid "Import failed: %s"
 msgstr "Échec de l’importation : %s"
 
-#: includes/admin/class-import-export.php:761
+#: includes/admin/class-import-export.php:763
 msgid ""
 "Unable to write the pre-import backup. Import aborted, no data was changed."
 msgstr ""
 "Impossible de créer la sauvegarde préalable à l'importation. Importation "
 "interrompue, aucune donnée n'a été modifiée."
 
-#: includes/admin/class-import-export.php:831
+#: includes/admin/class-import-export.php:833
 msgid "Invalid import data: a question has missing or invalid answer options."
 msgstr ""
 "Données d’importation non valides : une question comporte des options de "
 "réponse manquantes ou non valides."
 
-#: includes/admin/class-import-export.php:881
+#: includes/admin/class-import-export.php:883
 msgid "Invalid import data: \"questions\" must be a list."
 msgstr "Données d'importation non valides : « questions » doit être une liste."
 
-#: includes/admin/class-import-export.php:886
+#: includes/admin/class-import-export.php:888
 msgid "Invalid import data: malformed question entry."
 msgstr ""
 "Données d'importation non valides : format de saisie de la question "
 "incorrect."
 
-#: includes/admin/class-import-export.php:891
+#: includes/admin/class-import-export.php:893
 msgid ""
 "Invalid import data: a question has an answer index outside its options."
 msgstr ""
 "Données d’importation non valides : une question comporte un indice de "
 "réponse situé en dehors de ses options."
 
-#: includes/admin/class-import-export.php:1020
+#: includes/admin/class-import-export.php:1022
 msgid "Invalid import data: \"options\" must be an object."
 msgstr "Données d'importation non valides : « options » doit être un objet."
 
@@ -3361,7 +3646,7 @@ msgstr "Enregistrer les paramètres"
 
 #: includes/admin/class-plugin-updater.php:76
 msgid "Could not prepare the plugin folder for the update."
-msgstr ""
+msgstr "Impossible de préparer le dossier du plugin pour la mise à jour."
 
 #: includes/admin/class-plugin-updater.php:185
 #: includes/admin/class-plugin-updater.php:317
@@ -3898,23 +4183,23 @@ msgstr "Niveau de quiz invalide."
 
 #: includes/FQI3_Frontend.php:688
 msgid "No quiz in progress."
-msgstr ""
+msgstr "Aucun quiz en cours."
 
 #: includes/FQI3_Frontend.php:698
 msgid "The quiz was completed too quickly."
-msgstr ""
+msgstr "Le quiz a été terminé trop rapidement."
 
 #: includes/FQI3_Frontend.php:707
 msgid "The quiz answers could not be verified."
-msgstr ""
+msgstr "Les réponses au quiz n’ont pas pu être vérifiées."
 
 #: includes/FQI3_Frontend.php:716
 msgid "This quiz is already completed."
-msgstr ""
+msgstr "Ce quiz est déjà terminé."
 
 #: includes/FQI3_Frontend.php:771
 msgid "No completed quiz to process."
-msgstr ""
+msgstr "Aucun quiz terminé à traiter."
 
 #: includes/FQI3_PeriodicStatistics.php:122
 msgid "Once Weekly"
@@ -4396,3 +4681,241 @@ msgstr "Afficher les statistiques périodiques."
 #: assets/js/fqi3-blocks-editor.js:174
 msgid "Periodic Statistics Preview"
 msgstr "Aperçu des statistiques périodiques"
+
+#~ msgid "The solution to create and manage a member area and subscriptions"
+#~ msgstr "La solution pour créer et gérer un espace membre et des abonnements"
+
+#~ msgid ""
+#~ "Create and manage customizable subscription plans: recurring, one time, "
+#~ "customizable duration"
+#~ msgstr ""
+#~ "Créer et gérer des plans d'abonnement personnalisables : récurrents, "
+#~ "ponctuels, durée personnalisable"
+
+#~ msgid ""
+#~ "Seamless integration with Stripe for secure payments (PayPal coming Soon)"
+#~ msgstr ""
+#~ "Intégration transparente avec Stripe pour les paiements sécurisés (PayPal "
+#~ "bientôt)"
+
+#~ msgid "Intuitive user interface to manage subscriptions and profil"
+#~ msgstr ""
+#~ "Interface utilisateur intuitive pour gérer les abonnements et les profils"
+
+#~ msgid "Easy integration via shortcodes or by configuring pages"
+#~ msgstr "Intégration facile via des shortcodes ou en configurant les pages"
+
+#~ msgid ""
+#~ "Allow users to promote your quizzes and earn commissions on subscriptions "
+#~ "or paid quizzes."
+#~ msgstr ""
+#~ "Permettez aux utilisateurs de promouvoir vos quiz et de percevoir des "
+#~ "commissions sur les abonnements ou les quiz payants."
+
+#~ msgid "Referral system with unique tracking links (last-click attribution)."
+#~ msgstr ""
+#~ "Système de référencement avec des liens de suivi uniques (attribution au "
+#~ "dernier clic)."
+
+#~ msgid "Affiliate dashboard with commission tracking."
+#~ msgstr "Tableau de bord d’affiliation avec suivi des commissions."
+
+#~ msgid ""
+#~ "Integration with third-party affiliate platforms (Refersion, Tapfiliate) "
+#~ "with Test Connection."
+#~ msgstr ""
+#~ "Intégration avec des plateformes d'affiliation tierces (Refersion, "
+#~ "Tapfiliate) avec Test Connection."
+
+#~ msgid ""
+#~ "Allow users to quickly and securely log in using their favorite social "
+#~ "media accounts."
+#~ msgstr ""
+#~ "Permettez aux utilisateurs de se connecter rapidement et en toute "
+#~ "sécurité en utilisant leurs comptes de réseaux sociaux préférés."
+
+#~ msgid "Support for Facebook, Google, LinkedIn."
+#~ msgstr "Prise en charge de Facebook, Google, LinkedIn."
+
+#~ msgid "Synchronization of profile data with user dashboard."
+#~ msgstr ""
+#~ "Synchronisation des données de profil avec le tableau de bord de "
+#~ "l’utilisateur."
+
+#~ msgid "Simplify the registration process for new users."
+#~ msgstr ""
+#~ "Simplifiez le processus d’inscription pour les nouveaux utilisateurs."
+
+#~ msgid ""
+#~ "Increase user retention and engagement with simplified login and "
+#~ "registration options."
+#~ msgstr ""
+#~ "Augmentez la rétention et l’engagement des utilisateurs avec des options "
+#~ "de connexion et d’inscription simplifiées."
+
+#~ msgid "Leverage the security of social media platforms for authentication."
+#~ msgstr ""
+#~ "Tirez parti de la sécurité des plateformes de médias sociaux pour "
+#~ "l’authentification."
+
+#~ msgid ""
+#~ "Boost User Engagement with Automated Email Marketing! Seamlessly "
+#~ "integrate your quizzes with leading email marketing services to nurture "
+#~ "leads and keep users engaged."
+#~ msgstr ""
+#~ "Stimulez l'engagement des utilisateurs grâce à l'email marketing "
+#~ "automatisé ! Intégrez en toute transparence vos jeux-concours aux "
+#~ "principaux services de marketing par e-mail pour entretenir les contacts "
+#~ "et maintenir l'engagement des utilisateurs."
+
+#~ msgid ""
+#~ "Automatic Quiz Follow-Ups: Send emails based on quiz completion, scores, "
+#~ "or inactivity."
+#~ msgstr ""
+#~ "Suivis automatiques des quiz : envoyez des e-mails en fonction de "
+#~ "l'achèvement du quiz, des scores ou de l'inactivité."
+
+#~ msgid ""
+#~ "Personalized Campaigns: Use dynamic variables (e.g., user name, quiz "
+#~ "results) for tailored messaging."
+#~ msgstr ""
+#~ "Campagnes personnalisées : utilisez des variables dynamiques (par "
+#~ "exemple, nom d'utilisateur, résultats de quiz) pour des messages "
+#~ "personnalisés."
+
+#~ msgid ""
+#~ "Grow Your Audience: Capture leads and automate email sequences for better "
+#~ "retention."
+#~ msgstr ""
+#~ "Développez votre audience : capturez des prospects et automatisez les "
+#~ "séquences d'e-mails pour une meilleure rétention."
+
+#~ msgid ""
+#~ "Send automated notifications for Form Quizz FQI3 events via Email, "
+#~ "WhatsApp (Cloud API) and SMS (Twilio). Respect per-user preferences "
+#~ "(channels per event) and integrate seamlessly with the Subscription "
+#~ "addon's user dashboard, or expose a front-end preferences form via "
+#~ "shortcode."
+#~ msgstr ""
+#~ "Envoyez des notifications automatiques pour les événements Form Quizz "
+#~ "FQI3 par e-mail, WhatsApp (API Cloud) et SMS (Twilio). Respectez les "
+#~ "préférences de chaque utilisateur (canaux par événement) et intégrez-les "
+#~ "parfaitement au tableau de bord utilisateur du module complémentaire "
+#~ "d'abonnement, ou affichez un formulaire de préférences en front-end via "
+#~ "un shortcode."
+
+#~ msgid ""
+#~ "Notifications per user preferences across Email, WhatsApp and SMS "
+#~ "(Twilio)."
+#~ msgstr ""
+#~ "Notifications selon les préférences de l'utilisateur par e-mail, WhatsApp "
+#~ "et SMS (Twilio)."
+
+#~ msgid "Reminders for incomplete quizzes (scheduled follow-ups)."
+#~ msgstr "Rappels pour les quiz incomplets (suivis programmés)."
+
+#~ msgid "Alerts for badges and certificates earned."
+#~ msgstr "Alertes pour les badges et certificats gagnés."
+
+#~ msgid ""
+#~ "Front-end preferences page via shortcode [fqi3_notification_preferences]."
+#~ msgstr ""
+#~ "Page de préférences frontales via le shortcode "
+#~ "[fqi3_notification_preferences]."
+
+#~ msgid "SMTP support for reliable email deliverability."
+#~ msgstr "Prise en charge SMTP pour une délivrabilité fiable des e-mails."
+
+#~ msgid "Integration with APIs: WhatsApp Cloud API and Twilio (SMS)."
+#~ msgstr "Intégration avec les API : WhatsApp Cloud API et Twilio (SMS)."
+
+#~ msgid ""
+#~ "Issue verifiable PDF certificates after quiz completion with templates "
+#~ "and public verification."
+#~ msgstr ""
+#~ "Émettez des certificats PDF vérifiables après avoir terminé le quiz avec "
+#~ "des modèles et une vérification publique."
+
+#~ msgid "Certificate templates with variables and backgrounds."
+#~ msgstr "Modèles de certificats avec variables et arrière-plans."
+
+#~ msgid "Automatic issuance on passing criteria with unique serials."
+#~ msgstr ""
+#~ "Émission automatique sur critères de réussite avec numéros de série "
+#~ "uniques."
+
+#~ msgid "Public verification page and QR support."
+#~ msgstr "Page de vérification publique et prise en charge QR."
+
+#~ msgid "Admin listings, revoke, and CSV export."
+#~ msgstr "Listes d'administration, révocation et exportation CSV."
+
+#~ msgid ""
+#~ "Advanced question banks with Pools/Sections, weighted randomization, per-"
+#~ "attempt snapshots, and optional AI assistance for tagging and curation."
+#~ msgstr ""
+#~ "Banques de questions avancées avec pools/sections, randomisation "
+#~ "pondérée, instantanés par tentative et assistance IA facultative pour le "
+#~ "marquage et la conservation."
+
+#~ msgid "Banks and sections with tags/difficulty weighting."
+#~ msgstr "Banques et sections avec pondération des balises/difficultés."
+
+#~ msgid "Randomized draws per attempt with snapshot for consistency."
+#~ msgstr ""
+#~ "Tirages aléatoires par tentative avec instantané pour plus de cohérence."
+
+#~ msgid "Admin UI for Pools/Sections, import/export CSV/JSON."
+#~ msgstr ""
+#~ "Interface utilisateur d'administration pour les pools/sections, "
+#~ "importation/exportation CSV/JSON."
+
+#~ msgid "Integration in quiz builder panel."
+#~ msgstr "Intégration dans le panneau de création de quiz."
+
+#~ msgid "AI-assisted tagging, difficulty suggestions, and pool curation."
+#~ msgstr ""
+#~ "Balisage assisté par l'IA, suggestions de difficulté et conservation de "
+#~ "pool."
+
+#~ msgid "Product mapping to quizzes/certificates."
+#~ msgstr "Cartographie des produits vers les quiz/certificats."
+
+#~ msgid "Score-based access and post-quiz upsells."
+#~ msgstr "Accès basé sur les scores et ventes incitatives après le quiz."
+
+#~ msgid "Order webhooks and rule-based access."
+#~ msgstr "Webhooks de commande et accès basé sur des règles."
+
+#~ msgid ""
+#~ "No-code triggers for quiz, subscriptions, and certificates with outbound "
+#~ "webhooks, custom headers, JSON payloads, and HMAC signatures."
+#~ msgstr ""
+#~ "Déclencheurs sans code pour les quiz, abonnements et certificats avec "
+#~ "webhooks sortants, en-têtes personnalisés, charges JSON et signatures "
+#~ "HMAC."
+
+#~ msgid "Trigger flows on quiz/subscription events."
+#~ msgstr "Déclencher des flux sur les événements de quiz/abonnement."
+
+#~ msgid "HTTP actions with custom headers, JSON body, and HMAC signatures."
+#~ msgstr ""
+#~ "Actions HTTP avec en-têtes personnalisés, corps JSON et signatures HMAC."
+
+#~ msgid "Replay, rate limits, and logs."
+#~ msgstr "Relecture, limites de débit et journaux."
+
+#~ msgid "Also supports badges and certificate issuance events."
+#~ msgstr ""
+#~ "Prend également en charge les événements d’attribution de badges et "
+#~ "d’émission de certificats."
+
+#~ msgid "Scoring rules and segments."
+#~ msgstr "Règles et segments de notation."
+
+#~ msgid "Quick tools: Test connection and Manual upsert from settings."
+#~ msgstr ""
+#~ "Outils rapides : Tester la connexion et Upsert manuel depuis les réglages."
+
+#~ msgid "Dashboards and logs."
+#~ msgstr "Tableaux de bord et journaux."
