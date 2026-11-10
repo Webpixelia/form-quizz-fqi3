@@ -419,6 +419,18 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 						<small><code>do_action('fqi3_quiz_questions_drawn', $user_id, $level, $question_ids, ['source'=>'core','attempt_id'=>N])</code></small>
 					</li>
 					<li>
+						<code>fqi3_quiz_questions_response</code> — <?php esc_html_e( '(filter) The questions about to be sent to the browser, after the questions cache. Use it to localize or adjust the content. Never change the ids, their order, the number of options or the "answer" index: scoring is done server-side from the ids and the option indexes.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_quiz_questions_response', $questions, $level, ['source'=>'core','attempt_id'=>N])</code></small>
+					</li>
+					<li>
+						<code>fqi3_question_created</code> / <code>fqi3_question_updated</code> / <code>fqi3_question_deleted</code> — <?php esc_html_e( '(action) A question was added, updated or deleted from the admin screens.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_question_created', $question_id)</code> <code>do_action('fqi3_question_updated', $question_id)</code> <code>do_action('fqi3_question_deleted', $question_id)</code></small>
+					</li>
+					<li>
+						<code>fqi3_questions_truncated</code> / <code>fqi3_questions_imported</code> — <?php esc_html_e( '(action) Import of questions: all questions were deleted first (replace mode; question ids change), then fired once after the questions were inserted (not once per question). Questions inserted by the import do not fire fqi3_question_created.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_questions_truncated')</code> <code>do_action('fqi3_questions_imported')</code></small>
+					</li>
+					<li>
 						<code>fqi3_loaded</code> — <?php esc_html_e( '(action) The core is loaded. Boot add-ons from here (or from plugins_loaded at priority 10+): WordPress loads "form-quizz-fqi3-xxx/" plugins before "form-quizz-fqi3/", so the core constants and classes do not exist while an add-on main file is being included.', 'form-quizz-fqi3' ); ?><br>
 						<small><code>do_action('fqi3_loaded', $version)</code></small>
 					</li>

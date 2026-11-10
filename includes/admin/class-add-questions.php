@@ -344,6 +344,15 @@ if ( ! class_exists( 'FQI3_Add_Questions_Page' ) ) :
 				);
 			}
 
+			/**
+			 * Fires after a question was added.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param int $question_id Id of the new question.
+			 */
+			do_action( 'fqi3_question_created', (int) $wpdb->insert_id );
+
 			return true;
 		}
 

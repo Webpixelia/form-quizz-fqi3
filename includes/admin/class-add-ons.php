@@ -262,10 +262,15 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 				array(
 					'title'       => 'WooCommerce Integration',
 					'description' => __( 'Sell quizzes, certificates or bundles via WooCommerce and map access rules.', 'form-quizz-fqi3' ),
-					'features'    => array(
-						__( 'Product mapping to quizzes/certificates.', 'form-quizz-fqi3' ),
-						__( 'Score-based access and post-quiz upsells.', 'form-quizz-fqi3' ),
-						__( 'Order webhooks and rule-based access.', 'form-quizz-fqi3' ),
+					'features' => array(
+						__( 'Sell quiz levels, level packs or full access as WooCommerce products, with lifetime or time-limited access.', 'form-quizz-fqi3' ),
+						__( 'Automatic access grant on paid orders and automatic removal on refunds, cancellations and failed payments, safe to replay.', 'form-quizz-fqi3' ),
+						__( 'Guest checkout support with secure account creation, and a My Account page listing purchased levels and expiry dates.', 'form-quizz-fqi3' ),
+						__( 'Score-based rules using verified results only: prerequisites to unlock a level or product, and auto-generated single-use coupons.', 'form-quizz-fqi3' ),
+						__( 'Post-quiz upsells on the results screen, with conversion tracking.', 'form-quizz-fqi3' ),
+						__( 'Admin tools: entitlements list, order meta box, manual grant and revoke, event log with retention, CSV export.', 'form-quizz-fqi3' ),
+						__( 'Built on the Subscription Add-on access registry; compatible with WooCommerce HPOS and Cart/Checkout blocks.', 'form-quizz-fqi3' ),
+						__( 'Developer hooks and filters, and optional clean uninstall that removes only the add-on data.', 'form-quizz-fqi3' ),
 					),
 					'image'       => FQI3_ASSETS . '/img/addons/FormQuizzFQI3_WooCommerce_Addon_square.webp',
 					'more_info'   => '',

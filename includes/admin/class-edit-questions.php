@@ -347,6 +347,15 @@ if ( ! class_exists( 'FQI3_Edit_Questions_Page' ) ) :
 				);
 			}
 
+			/**
+			 * Fires after a question was updated.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param int $question_id Id of the updated question.
+			 */
+			do_action( 'fqi3_question_updated', (int) $data['id'] );
+
 			return true;
 		}
 

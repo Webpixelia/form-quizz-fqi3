@@ -321,7 +321,30 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 			);
 
 			$this->incrementQuizCount();
-			wp_send_json( $questions );
+
+			/**
+			 * Filters the questions right before they are sent to the browser.
+			 *
+			 * Runs after the questions cache, so a filter can localize the content without polluting the cache.
+			 * Callbacks must not change the question ids, their order, the number of options or the `answer` index:
+			 * scoring is done server-side from the ids and the option indexes.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param array  $questions Question rows (id, niveau, q, q2, options, answer).
+			 * @param string $level     Quiz level.
+			 * @param array  $context   Request context (source, attempt_id).
+			 */
+			$questions = apply_filters(
+				'fqi3_quiz_questions_response',
+				$questions,
+				$level,
+				array(
+					'source'     => 'core',
+					'attempt_id' => $attempt_id,
+				)
+			);
+			wp_send_json( is_array( $questions ) ? array_values( $questions ) : array() );
 		}
 
 		/**

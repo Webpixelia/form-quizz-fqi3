@@ -338,6 +338,7 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 			$json = wp_json_encode( $export_data, JSON_PRETTY_PRINT );
 			if ( false === $json ) {
 				wp_die(
+					/* translators: %s: JSON error message */
 					esc_html( sprintf( __( 'Export failed: JSON encoding error (%s).', 'form-quizz-fqi3' ), json_last_error_msg() ) ),
 					'',
 					array( 'response' => 500 )
@@ -371,6 +372,7 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 			global $wpdb;
 			if ( ! is_array( $rows ) ) {
 				wp_die(
+					/* translators: %s: Database error message */
 					esc_html( sprintf( __( 'Export failed: database error (%s).', 'form-quizz-fqi3' ), $wpdb->last_error ) ),
 					'',
 					array( 'response' => 500 )
@@ -602,6 +604,13 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 			global $wpdb;
 			$table_name = $this->backend->get_quiz_table_name();
 			$wpdb->query( "DELETE FROM $table_name" );
+
+			/**
+			 * Fires after every question was deleted (import in "replace" mode). Question ids change after this.
+			 *
+			 * @since 3.6.0
+			 */
+			do_action( 'fqi3_questions_truncated' );
 		}
 
 		/**
@@ -631,6 +640,13 @@ if ( ! class_exists( 'FQI3_Import_Export_Page' ) ) :
 					}
 				}
 			}
+
+			/**
+			 * Fires once after a batch import of questions (not once per question).
+			 *
+			 * @since 3.6.0
+			 */
+			do_action( 'fqi3_questions_imported' );
 		}
 
 		/**

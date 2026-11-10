@@ -661,6 +661,14 @@ if ( ! class_exists( 'FQI3_View_Questions_Page' ) ) :
 			$result     = $wpdb->delete( $table_name, array( 'id' => $question_id ), array( '%d' ) );
 
 			if ( $result !== false ) {
+				/**
+				 * Fires after a question was deleted.
+				 *
+				 * @since 3.6.0
+				 *
+				 * @param int $question_id Id of the deleted question.
+				 */
+				do_action( 'fqi3_question_deleted', (int) $question_id );
 				wp_send_json_success( __( 'Question deleted successfully', 'form-quizz-fqi3' ) );
 			} else {
 				wp_send_json_error( __( 'Failed to delete question', 'form-quizz-fqi3' ), 500 );
