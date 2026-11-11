@@ -77,6 +77,8 @@ Notes for add-on developers (quiz lifecycle):
 - `fqi3_quiz_started` / `fqi3_quiz_attempt_started` and `fqi3_quiz_completed` / `fqi3_quiz_attempt_completed` fire once per attempt, for logged-in users only, with an `attempt_id` greater than 0 (the legacy hooks receive it as a third argument).
 - A quiz can only be completed if the server served its questions; the score passed to `fqi3_quiz_attempt_completed` is computed by the server from the submitted answers. It is reliable enough to score leads, with one limit: the correct answers are still sent to the browser with the questions, so a determined user can read them and submit perfect answers (the questions have to be served first, which counts against the daily limit).
 - `fqi3_before_results_quiz_form` has a fourth argument, `$verified`. Only a call with `$verified === true` carries a server-side result.
+- Access control: `fqi3_user_can_access_level` (filter) decides whether the current user may request the questions of a level, and `fqi3_user_bypasses_daily_limit` (filter) exempts a user from the daily limit. The first runs on every request, so keep callbacks cheap (cached lookups, no remote call); the second is only evaluated once the limit is reached. `fqi3_level_lock_state` (filter) only changes how a level is displayed in the level picker (padlock, message, optional link): it never grants or denies access.
+- REST API: `fqi3_api_quizzes_response` (filter) adjusts the question rows of the quiz endpoints after the API cache. A filter that changes the content of a response per request (a language, for example) must also return a matching, stable value from `fqi3_cache_variant`, otherwise one variant can be served from another variant's cache entry. Do not change the ids, the number of options or the `answer` index.
 
 ## Extensions
 
@@ -133,7 +135,7 @@ All user input is sanitized and output is escaped. The plugin follows WordPress 
   location ~* /uploads/fqi3_(backups|reports)/ { deny all; }
   ```
 
-- Quiz scoring happens in the browser: the server only checks that a score is between 0 and 100 and that the level exists. Do not use scores for anything that needs to be tamper-proof (certificates, rewards with a monetary value) without an additional server-side check.
+- Quiz scoring: for logged-in users, the score is computed by the server from the submitted answers, against the questions it served for the attempt (see "Notes for add-on developers"). Visitors have no recorded attempt: their result is supplied by the browser and must never be trusted. Even for logged-in users, the correct answers are still sent to the browser with the questions, so a determined user can submit perfect answers. Do not use scores for anything that needs to be tamper-proof (certificates, rewards with a monetary value) without an additional safeguard.
 - The client IP used for API rate limiting and logs is the direct connection address. `X-Forwarded-For` is ignored unless the connecting address is declared as a trusted proxy:
 
   ```php

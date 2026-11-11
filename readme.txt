@@ -122,6 +122,13 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 = 3.6.0 =
 * Feature: New hooks for add-ons: fqi3_quiz_questions_response (filter), fqi3_question_created, fqi3_question_updated, fqi3_question_deleted, fqi3_questions_truncated and fqi3_questions_imported (actions).
 * Feature: New REST hooks for add-ons: fqi3_api_quizzes_response (filter on the quiz endpoints, after the API cache) and fqi3_cache_variant (filter that partitions the API cache keys).
+* Feature: New access filters for add-ons: fqi3_user_can_access_level (whether a user may request the questions of a level) and fqi3_user_bypasses_daily_limit (exempts a user from the daily limit, only evaluated once the limit is reached).
+* Feature: New fqi3_level_lock_state filter and fqi3_get_level_lock_state() function: the level picker can display a level as locked, with a padlock, a message and an optional link. Display only, access is still enforced on the server.
+* Improvement: The requested level is now read before the daily limit check, so the limit can depend on the level.
+* Improvement: The Add-ons page supports add-ons that depend on several add-ons or on third-party plugins (for example WooCommerce) and lists every requirement.
+* Improvement: The developer page documents the new hooks and fqi3_after_results_quiz_form.
+* Fix: Fatal error "Class Form_Quizz_FQI3\WP_Error not found" when WordPress requested the plugin information. WP_Error and Exception are now resolved correctly in the main file, the Add-ons page and the blocks class.
+* Dev: Unit tests for the level lock state.
 
 = 3.5.0 =
 * Feature: Server-side validation of quiz completion for add-on integrations.
