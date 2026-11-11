@@ -1,6 +1,8 @@
 <?php
 namespace Form_Quizz_FQI3;
 
+use WP_Error;
+
 /**
  * Class FQI3_Addons_Page
  *
@@ -265,11 +267,11 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'features' => array(
 						__( 'Sell quiz levels, level packs or full access as WooCommerce products, with lifetime or time-limited access.', 'form-quizz-fqi3' ),
 						__( 'Automatic access grant on paid orders and automatic removal on refunds, cancellations and failed payments, safe to replay.', 'form-quizz-fqi3' ),
-						__( 'Guest checkout support with secure account creation, and a My Account page listing purchased levels and expiry dates.', 'form-quizz-fqi3' ),
+						__( 'Guest checkout support: buyers link their order to an account through a secure e-mail link, and a My Account page lists purchased levels and expiry dates.', 'form-quizz-fqi3' ),
 						__( 'Score-based rules using verified results only: prerequisites to unlock a level or product, and auto-generated single-use coupons.', 'form-quizz-fqi3' ),
 						__( 'Post-quiz upsells on the results screen, with conversion tracking.', 'form-quizz-fqi3' ),
-						__( 'Admin tools: entitlements list, order meta box, manual grant and revoke, event log with retention, CSV export.', 'form-quizz-fqi3' ),
-						__( 'Built on the Subscription Add-on access registry; compatible with WooCommerce HPOS and Cart/Checkout blocks.', 'form-quizz-fqi3' ),
+						__( 'Admin tools: entitlements list, order meta box, manual revoke and event log with retention.', 'form-quizz-fqi3' ),
+						__( 'Use the full WooCommerce ecosystem (payment gateways, customer accounts) instead of the Subscription Add-on; compatible with HPOS and Cart/Checkout blocks.', 'form-quizz-fqi3' ),
 						__( 'Developer hooks and filters, and optional clean uninstall that removes only the add-on data.', 'form-quizz-fqi3' ),
 					),
 					'image'       => FQI3_ASSETS . '/img/addons/FormQuizzFQI3_WooCommerce_Addon_square.webp',
@@ -280,6 +282,12 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-woocommerce-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-woocommerce-addon' ),
 					'dependance'  => '',
+					'requires_plugins' => array(
+						array(
+							'file' => 'woocommerce/woocommerce.php',
+							'name' => 'WooCommerce',
+						),
+					),
 					'available'   => false,
 				),
 				array(
@@ -376,13 +384,79 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 		private function has_active_dependency( string $addon_slug ): bool {
 			foreach ( $this->available_addons as $addon ) {
 				if ( ( $addon['slug'] ?? '' ) === $addon_slug ) {
-					if ( ! empty( $addon['dependance']['slug'] ) ) {
-						return $this->is_addon_active( $addon['dependance']['slug'] );
+					foreach ( $this->get_addon_dependencies( $addon ) as $dependency ) {
+						if ( $this->is_addon_active( $dependency['slug'] ) ) {
+							return true;
+						}
 					}
 					break;
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * Normalized list of the add-ons another add-on depends on.
+		 *
+		 * `dependance` accepts a single array( 'slug' =>, 'name' => ) (historical format) or a list of them.
+		 *
+		 * @since 3.6.0
+		 * @param array $addon Add-on definition.
+		 * @return array<int,array{slug:string,name:string}>
+		 */
+		private function get_addon_dependencies( array $addon ): array {
+			$raw = $addon['dependance'] ?? array();
+			if ( empty( $raw ) || ! is_array( $raw ) ) {
+				return array();
+			}
+			if ( isset( $raw['slug'] ) ) {
+				$raw = array( $raw );
+			}
+
+			$dependencies = array();
+			foreach ( $raw as $dependency ) {
+				if ( is_array( $dependency ) && ! empty( $dependency['slug'] ) ) {
+					$dependencies[] = array(
+						'slug' => (string) $dependency['slug'],
+						'name' => (string) ( $dependency['name'] ?? $dependency['slug'] ),
+					);
+				}
+			}
+			return $dependencies;
+		}
+
+		/**
+		 * Third-party WordPress plugins an add-on needs (for example WooCommerce).
+		 *
+		 * @since 3.6.0
+		 * @param array $addon Add-on definition.
+		 * @return array<int,array{file:string,name:string}> `file` is the plugin basename (folder/file.php).
+		 */
+		private function get_required_plugins( array $addon ): array {
+			$plugins = array();
+			foreach ( (array) ( $addon['requires_plugins'] ?? array() ) as $plugin ) {
+				if ( is_array( $plugin ) && ! empty( $plugin['file'] ) ) {
+					$plugins[] = array(
+						'file' => (string) $plugin['file'],
+						'name' => (string) ( $plugin['name'] ?? $plugin['file'] ),
+					);
+				}
+			}
+			return $plugins;
+		}
+
+		/**
+		 * Display names of everything an add-on requires (add-ons first, then plugins).
+		 *
+		 * @since 3.6.0
+		 * @param array $addon Add-on definition.
+		 * @return string[]
+		 */
+		private function get_requirement_names( array $addon ): array {
+			return array_merge(
+				array_column( $this->get_addon_dependencies( $addon ), 'name' ),
+				array_column( $this->get_required_plugins( $addon ), 'name' )
+			);
 		}
 
 		/**
@@ -397,14 +471,17 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 
 			foreach ( $this->available_addons as $addon ) {
 				// Check if this add-on depends on the given slug and is active
-				if ( isset( $addon['dependance']['slug'] ) &&
-					$addon['dependance']['slug'] === $addon_slug &&
-					$this->is_addon_active( $addon['slug'] ) ) {
-
-					$dependent_addons[] = array(
-						'slug'  => $addon['slug'],
-						'title' => $addon['title'],
-					);
+				if ( ! $this->is_addon_active( $addon['slug'] ) ) {
+					continue;
+				}
+				foreach ( $this->get_addon_dependencies( $addon ) as $dependency ) {
+					if ( $dependency['slug'] === $addon_slug ) {
+						$dependent_addons[] = array(
+							'slug'  => $addon['slug'],
+							'title' => $addon['title'],
+						);
+						break;
+					}
 				}
 			}
 
@@ -431,13 +508,17 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 		 * @return bool True if all dependencies are satisfied, false otherwise
 		 */
 		private function are_dependencies_satisfied( array $addon ): bool {
-			if ( empty( $addon['dependance'] ) ) {
-				return true;
+			foreach ( $this->get_addon_dependencies( $addon ) as $dependency ) {
+				if ( ! $this->is_addon_active( $dependency['slug'] ) ) {
+					return false;
+				}
 			}
-
-			// Check if the dependency is active
-			$dependency_slug = $addon['dependance']['slug'];
-			return $this->is_addon_active( $dependency_slug );
+			foreach ( $this->get_required_plugins( $addon ) as $plugin ) {
+				if ( ! is_plugin_active( $plugin['file'] ) ) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 		/**
@@ -504,6 +585,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 				$has_active_dependency  = $this->has_active_dependency( $addon['slug'] );
 				$dependencies_satisfied = $this->are_dependencies_satisfied( $addon );
 				$dependent_addons       = $this->get_active_dependent_addons( $addon['slug'] );
+				$requirement_names      = $this->get_requirement_names( $addon );
 				?>
 				<div class="col">
 					<div class="card h-100 shadow-sm" role="article" aria-labelledby="addon-title-<?php echo esc_attr( $addon['slug'] ); ?>">
@@ -550,7 +632,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 							<p class="card-text"><?php echo esc_html( $addon['description'] ); ?></p>
 							
 							<!-- Affichage des dépendances -->
-							<?php if ( ! empty( $addon['dependance'] ) ) : ?>
+							<?php if ( ! empty( $requirement_names ) ) : ?>
 								<div class="alert alert-info alert-sm mb-2">
 									<small>
 										<i class="bi bi-info-circle me-1"></i>
@@ -558,7 +640,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 										printf(
 											/* translators: %s name of the plugin/addon */
 											__( 'Requires: %s', 'form-quizz-fqi3' ),
-											'<strong>' . esc_html( $addon['dependance']['name'] ) . '</strong>'
+											'<strong>' . esc_html( implode( ', ', $requirement_names ) ) . '</strong>'
 										);
 										?>
 									</small>
@@ -630,12 +712,12 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 												title="
 												<?php
 													/* translators: %s is the name of the required add-on */
-													printf( __( 'Requires %s to be installed and activated first', 'form-quizz-fqi3' ), $addon['dependance']['name'] );
+													printf( __( 'Requires %s to be installed and activated first', 'form-quizz-fqi3' ), implode( ', ', $requirement_names ) );
 												?>
 													">
 												<?php
 													/* translators: %s is the name of the required add-on */
-													printf( __( 'Requires %s', 'form-quizz-fqi3' ), $addon['dependance']['name'] );
+													printf( __( 'Requires %s', 'form-quizz-fqi3' ), implode( ', ', $requirement_names ) );
 												?>
 											</button>
 										<?php endif; ?>
@@ -658,10 +740,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 											<?php
 											if ( $has_active_dependency ) {
 												// Find the dependency name for display
-												$dep_name = '';
-												if ( ! empty( $addon['dependance']['name'] ) ) {
-													$dep_name = $addon['dependance']['name'];
-												}
+												$dep_name = implode( ', ', array_column( $this->get_addon_dependencies( $addon ), 'name' ) );
 												if ( $dep_name ) {
 													/* translators: %s is the name of the dependency */
 													printf( __( 'Depends on: %s', 'form-quizz-fqi3' ), esc_html( $dep_name ) );
@@ -1712,7 +1791,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 							$github_repo,
 							'Webpixelia'
 						);
-					} catch ( Exception $e ) {
+					} catch ( \Exception $e ) {
 						error_log( 'FQI3: Failed to initialize updater for ' . $addon['slug'] . ': ' . $e->getMessage() );
 					}
 				}
@@ -1776,7 +1855,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 						$updater->clear_cache();
 						++$refreshed_count;
 					}
-				} catch ( Exception $e ) {
+				} catch ( \Exception $e ) {
 					$errors[] = sprintf(
 						/* translators: 1 = add-on slug, 2 = error message */
 						__( 'Error refreshing %1$s: %2$s', 'form-quizz-fqi3' ),
@@ -1845,7 +1924,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'update_available' => true,
 					'changelog'        => $latest['changelog'] ?? '',
 				);
-			} catch ( Exception $e ) {
+			} catch ( \Exception $e ) {
 				error_log( 'FQI3: Error getting update info for ' . $addon_slug . ': ' . $e->getMessage() );
 				return false;
 			}

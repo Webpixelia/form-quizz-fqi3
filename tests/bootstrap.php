@@ -101,6 +101,7 @@ function delete_option($k) { unset(WpState::$options[$k]); return true; }
 function is_singular() { return WpState::$singular; }
 function get_post() { $p = new WP_Post(); $p->post_content = WpState::$postContent; return $p; }
 function has_shortcode($c, $t) { return (bool) preg_match('/\[' . preg_quote($t, '/') . '[\s\]\/]/', $c); }
+function esc_url_raw($u) { $u = trim((string) $u); return preg_match('#^https?://#i', $u) ? $u : ''; }
 function sanitize_text_field($v) { return trim(strip_tags((string) $v)); }
 function sanitize_textarea_field($v) { return trim(strip_tags((string) $v)); }
 function sanitize_key($k) { return strtolower(preg_replace('/[^a-zA-Z0-9_\-]/', '', (string) $k)); }

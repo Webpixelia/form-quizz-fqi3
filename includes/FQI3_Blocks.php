@@ -324,7 +324,7 @@ if ( ! class_exists( 'FQI3_Blocks' ) ) :
 					);
 
 					register_block_type( $block_name, $block_args );
-				} catch ( Exception $e ) {
+				} catch ( \Exception $e ) {
 					error_log(
 						sprintf(
 							'Failed to register block %s: %s',

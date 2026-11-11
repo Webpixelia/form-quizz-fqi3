@@ -49,7 +49,7 @@ add_filter(
 	'plugins_api',
 	function ( $res, $action, $args ) {
 		if ( isset( $args->slug ) && $args->slug === 'form-quizz-fqi3' ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'plugins_api_disabled',
 				__( 'This plugin is not listed in the WordPress.org directory.', 'form-quizz-fqi3' )
 			);

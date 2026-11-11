@@ -447,6 +447,22 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 						<small><code>do_action('fqi3_before_results_quiz_form', $user_id, $level, $score, $verified)</code></small>
 					</li>
 					<li>
+						<code>fqi3_user_can_access_level</code> — <?php esc_html_e( '(filter) Whether the current user may request the questions of a level. Runs on every request: keep callbacks cheap (cached lookups, no remote call). A level still has to be flagged free for visitors by the core rules.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_user_can_access_level', $can, $level, $user_id)</code></small>
+					</li>
+					<li>
+						<code>fqi3_user_bypasses_daily_limit</code> — <?php esc_html_e( '(filter) Exempts a user from the daily quiz limit of free members for the requested level. Only evaluated once the limit is reached.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_user_bypasses_daily_limit', false, $level, $user_id)</code></small>
+					</li>
+					<li>
+						<code>fqi3_level_lock_state</code> — <?php esc_html_e( '(filter) Lock state of a level in the level picker: a padlock, a message and an optional link instead of a selectable option. Display only, the server-side access check is fqi3_user_can_access_level.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_level_lock_state', ['locked'=>false,'message'=>'','cta_url'=>'','cta_label'=>''], $level, $user_id)</code></small>
+					</li>
+					<li>
+						<code>fqi3_after_results_quiz_form</code> — <?php esc_html_e( '(action) Fired when the results container is rendered, before any quiz is played, with placeholder values: never use its arguments as a result. Use fqi3_quiz_attempt_completed for verified data.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>do_action('fqi3_after_results_quiz_form', $user_id, $level, $score)</code></small>
+					</li>
+					<li>
 						<code>fqi3_min_seconds_per_question</code> — <?php esc_html_e( '(filter) Minimum seconds per question between the questions being served and the completion of the quiz (default 1, 0 disables the check).', 'form-quizz-fqi3' ); ?><br>
 						<small><code>apply_filters('fqi3_min_seconds_per_question', 1, $level)</code></small>
 					</li>
