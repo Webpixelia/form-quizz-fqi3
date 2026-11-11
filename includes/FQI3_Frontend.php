@@ -262,15 +262,16 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * @return void
 		*/
 		public function handleGetQuestions(): void {
-			if ( $this->shouldBlockQuizAccess() ) {
+			// The level is read first: whether the daily limit applies can depend on it (see fqi3_user_bypasses_daily_limit).
+			$level = $this->sanitizeLevel( $_GET['niveau'] ?? 'free' );
+
+			if ( $this->shouldBlockQuizAccess( $level ) ) {
 				wp_send_json_error(
 					array(
 						'message' => __( 'You have reached your quiz limit for today.', 'form-quizz-fqi3' ),
 					)
 				);
 			}
-
-			$level = $this->sanitizeLevel( $_GET['niveau'] ?? 'free' );
 
 			// The level picker only offers visitors the levels flagged "free": enforce it here too,
 			// otherwise changing the `niveau` parameter exposes the levels reserved to members.
@@ -359,16 +360,28 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 * @since 3.4.0
 		 */
 		private function canAccessLevel( string $level ): bool {
-			if ( is_user_logged_in() ) {
-				return true;
+			$can = true;
+
+			if ( ! is_user_logged_in() ) {
+				$levels = fqi3_get_free_quiz_levels();
+				if ( isset( $levels[ $level ] ) ) {
+					$can = ! empty( $levels[ $level ]['free'] );
+				}
 			}
 
-			$levels = fqi3_get_free_quiz_levels();
-			if ( ! isset( $levels[ $level ] ) ) {
-				return true;
-			}
-
-			return ! empty( $levels[ $level ]['free'] );
+			/**
+			 * Filters whether the current user may request the questions of a level.
+			 *
+			 * Lets add-ons restrict a level (for example to buyers) or open it. Called for every request,
+			 * so callbacks must be cheap (no remote call, cached lookups only).
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param bool   $can     Whether access is allowed by the core rules.
+			 * @param string $level   Level slug.
+			 * @param int    $user_id Current user ID, 0 for a visitor.
+			 */
+			return (bool) apply_filters( 'fqi3_user_can_access_level', $can, $level, get_current_user_id() );
 		}
 
 		/**
@@ -496,7 +509,7 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		/**
 		 * Check if quiz access should be blocked
 		*/
-		private function shouldBlockQuizAccess(): bool {
+		private function shouldBlockQuizAccess( string $level = '' ): bool {
 			if ( ! is_user_logged_in() ) {
 				return false;
 			}
@@ -506,7 +519,22 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 				return false;
 			}
 
-			return ! $this->canTakeQuiz();
+			if ( $this->canTakeQuiz() ) {
+				return false;
+			}
+
+			/**
+			 * Filters whether the user is exempt from the daily quiz limit.
+			 *
+			 * Only evaluated once the limit is reached. Lets add-ons exempt users who bought access to the level.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param bool   $bypass  Whether the limit is bypassed (false by default).
+			 * @param string $level   Requested level slug ('' when unknown).
+			 * @param int    $user_id Current user ID.
+			 */
+			return ! (bool) apply_filters( 'fqi3_user_bypasses_daily_limit', false, $level, get_current_user_id() );
 		}
 
 		/**
