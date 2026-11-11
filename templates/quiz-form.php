@@ -31,11 +31,25 @@
 				if ( ( ! $is_user_logged_in && $levelData['free'] ) ||
 							( $is_user_logged_in && ! $levelData['free'] ) ) :
 					?>
-					<label class="btn" onclick="startQuizWithLevel('<?php echo esc_attr( $valueLevel ); ?>')">
-						<input type="radio" name="niveau" value="<?php echo esc_attr( $valueLevel ); ?>" required>
-						<?php echo esc_html( $levelData['label'] ); ?>
-						<span class="question-count" id="question-count-<?php echo esc_attr( $valueLevel ); ?>"></span>
-					</label>
+					<?php $lockState = fqi3_get_level_lock_state( (string) $valueLevel, get_current_user_id() ); ?>
+					<?php if ( $lockState['locked'] ) : ?>
+						<div class="btn level-locked" aria-disabled="true">
+							<span class="level-lock-icon" aria-hidden="true">&#128274;</span>
+							<?php echo esc_html( $levelData['label'] ); ?>
+							<?php if ( '' !== $lockState['message'] ) : ?>
+								<span class="level-lock-message"><?php echo esc_html( $lockState['message'] ); ?></span>
+							<?php endif; ?>
+							<?php if ( '' !== $lockState['cta_url'] && '' !== $lockState['cta_label'] ) : ?>
+								<a class="level-lock-cta" href="<?php echo esc_url( $lockState['cta_url'] ); ?>"><?php echo esc_html( $lockState['cta_label'] ); ?></a>
+							<?php endif; ?>
+						</div>
+					<?php else : ?>
+						<label class="btn" onclick="startQuizWithLevel('<?php echo esc_attr( $valueLevel ); ?>')">
+							<input type="radio" name="niveau" value="<?php echo esc_attr( $valueLevel ); ?>" required>
+							<?php echo esc_html( $levelData['label'] ); ?>
+							<span class="question-count" id="question-count-<?php echo esc_attr( $valueLevel ); ?>"></span>
+						</label>
+					<?php endif; ?>
 				<?php endif; ?>
 			<?php endforeach; ?>
 		</div>

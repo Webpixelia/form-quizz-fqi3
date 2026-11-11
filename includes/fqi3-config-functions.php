@@ -41,6 +41,47 @@ function fqi3_get_free_quiz_levels() {
 }
 
 /**
+ * Returns the lock state of a level for a user, as shown in the level picker.
+ *
+ * A locked level is displayed with a padlock, an explanation and an optional call to action instead of being
+ * selectable. This is a display aid only: access is always enforced on the server (see fqi3_user_can_access_level).
+ *
+ * @param string $level   Level slug.
+ * @param int    $user_id User ID, 0 for a visitor.
+ * @return array{locked:bool,message:string,cta_url:string,cta_label:string}
+ *
+ * @since 3.6.0
+ */
+function fqi3_get_level_lock_state( $level, $user_id = 0 ) {
+	$default = array(
+		'locked'    => false,
+		'message'   => '',
+		'cta_url'   => '',
+		'cta_label' => '',
+	);
+
+	/**
+	 * Filters the lock state of a level in the level picker.
+	 *
+	 * @since 3.6.0
+	 *
+	 * @param array  $state   Keys: locked (bool), message (string), cta_url (string), cta_label (string).
+	 * @param string $level   Level slug.
+	 * @param int    $user_id User ID, 0 for a visitor.
+	 */
+	$state = apply_filters( 'fqi3_level_lock_state', $default, (string) $level, (int) $user_id );
+	$state = is_array( $state ) ? $state : array();
+
+	// Whatever an add-on returns, only these four keys survive, as plain text and a safe URL.
+	return array(
+		'locked'    => ! empty( $state['locked'] ),
+		'message'   => isset( $state['message'] ) ? sanitize_text_field( (string) $state['message'] ) : '',
+		'cta_url'   => isset( $state['cta_url'] ) ? esc_url_raw( (string) $state['cta_url'] ) : '',
+		'cta_label' => isset( $state['cta_label'] ) ? sanitize_text_field( (string) $state['cta_label'] ) : '',
+	);
+}
+
+/**
  * Get admin pages configuration without translations (for addons).
  *
  * @return array Admin pages configuration.

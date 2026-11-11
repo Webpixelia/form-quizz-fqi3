@@ -204,6 +204,30 @@ button {font-family: inherit;}
     display: none;
 }
 
+/* Level locked by an add-on (fqi3_level_lock_state): not selectable, explains why, may offer a link. */
+.level-locked {
+    opacity: .85;
+    cursor: default;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+}
+
+.level-locked:hover {
+    background: inherit;
+}
+
+.level-lock-message {
+    font-size: .8em;
+}
+
+.level-lock-cta {
+    font-size: .85em;
+    text-decoration: underline;
+    color: inherit;
+}
+
 .quiz-box .question-number,
 .quiz-box .question-text,
 .quiz-box .option-container,
