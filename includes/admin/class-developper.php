@@ -431,6 +431,14 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 						<small><code>do_action('fqi3_questions_truncated')</code> <code>do_action('fqi3_questions_imported')</code></small>
 					</li>
 					<li>
+						<code>fqi3_api_quizzes_response</code> — <?php esc_html_e( '(filter) The question rows returned by the REST endpoints /quizzes, /quizzes/{id} and /quizzes/level/{name}, after the API cache. Do not change the ids, the number of options or the "answer" index.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_api_quizzes_response', $data, $request, 'list'|'single')</code></small>
+					</li>
+					<li>
+						<code>fqi3_cache_variant</code> — <?php esc_html_e( '(filter) Suffix added to the REST API cache keys. Return a stable value (for example a language slug) when an add-on changes the content of a response per request, so one variant is never served from another variant\'s cache entry.', 'form-quizz-fqi3' ); ?><br>
+						<small><code>apply_filters('fqi3_cache_variant', '')</code></small>
+					</li>
+					<li>
 						<code>fqi3_loaded</code> — <?php esc_html_e( '(action) The core is loaded. Boot add-ons from here (or from plugins_loaded at priority 10+): WordPress loads "form-quizz-fqi3-xxx/" plugins before "form-quizz-fqi3/", so the core constants and classes do not exist while an add-on main file is being included.', 'form-quizz-fqi3' ); ?><br>
 						<small><code>do_action('fqi3_loaded', $version)</code></small>
 					</li>

@@ -121,6 +121,7 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 == Changelog ==
 = 3.6.0 =
 * Feature: New hooks for add-ons: fqi3_quiz_questions_response (filter), fqi3_question_created, fqi3_question_updated, fqi3_question_deleted, fqi3_questions_truncated and fqi3_questions_imported (actions).
+* Feature: New REST hooks for add-ons: fqi3_api_quizzes_response (filter on the quiz endpoints, after the API cache) and fqi3_cache_variant (filter that partitions the API cache keys).
 
 = 3.5.0 =
 * Feature: Server-side validation of quiz completion for add-on integrations.

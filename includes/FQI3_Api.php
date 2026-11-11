@@ -132,7 +132,21 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
 		 * @since 3.0.0
 		 */
 		private function generate_cache_key( string $prefix, ...$params ): string {
-			return 'fqi3_' . $prefix . '_' . md5( serialize( $params ) ) . '_' . self::CACHE_VERSION;
+			/**
+			 * Filters a suffix that partitions the API cache (e.g. one entry per language).
+			 *
+			 * Return an empty string (default) to keep a single cache entry. Add-ons that change the content of a
+			 * response per request (language...) must return a stable, short, [a-z0-9_-] value, so a variant is never
+			 * served from another variant's cache entry.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param string $variant Cache key suffix.
+			 */
+			$variant = (string) apply_filters( 'fqi3_cache_variant', '' );
+			$variant = $variant !== '' ? '_' . preg_replace( '/[^a-z0-9_-]/i', '', $variant ) : '';
+
+			return 'fqi3_' . $prefix . '_' . md5( serialize( $params ) ) . '_' . self::CACHE_VERSION . $variant;
 		}
 
 		/**
@@ -752,7 +766,37 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
 				);
 			}
 
-			return $this->create_cached_response( $result['data'], $result['cache_hit'], 'quizzes' );
+			$data = $this->filter_quizzes_response( $result['data'], $request, 'list' );
+
+			return $this->create_cached_response( $data, $result['cache_hit'], 'quizzes' );
+		}
+
+		/**
+		 * Lets add-ons adjust the question rows of a quiz endpoint, after the API cache (the cache keeps the source rows).
+		 *
+		 * @since 3.6.0
+		 *
+		 * @param array            $data    Question rows (a list), or one row for the "single" shape.
+		 * @param \WP_REST_Request $request The request.
+		 * @param string           $shape   "list" or "single".
+		 * @return array
+		 */
+		private function filter_quizzes_response( $data, \WP_REST_Request $request, string $shape ) {
+			/**
+			 * Filters the question rows returned by the quiz endpoints (/quizzes, /quizzes/{id}, /quizzes/level/{name}).
+			 *
+			 * Runs after the API cache. Callbacks must not change the ids, the number of options or the `answer` index.
+			 * A filter that changes the content per request must also return a matching value from `fqi3_cache_variant`.
+			 *
+			 * @since 3.6.0
+			 *
+			 * @param array            $data    Question rows (a list), or one row for the "single" shape.
+			 * @param \WP_REST_Request $request The request.
+			 * @param string           $shape   "list" or "single".
+			 */
+			$filtered = apply_filters( 'fqi3_api_quizzes_response', $data, $request, $shape );
+
+			return is_array( $filtered ) ? $filtered : $data;
 		}
 
 		/**
@@ -799,7 +843,9 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
 				);
 			}
 
-			return $this->create_cached_response( $result['data'], $result['cache_hit'], 'quiz' );
+			$data = $this->filter_quizzes_response( $result['data'], $request, 'single' );
+
+			return $this->create_cached_response( $data, $result['cache_hit'], 'quiz' );
 		}
 
 
@@ -846,7 +892,9 @@ if ( ! class_exists( 'FQI3_Quiz_API' ) ) :
 				);
 			}
 
-			return $this->create_cached_response( $result['data'], $result['cache_hit'], 'quizzes' );
+			$data = $this->filter_quizzes_response( $result['data'], $request, 'list' );
+
+			return $this->create_cached_response( $data, $result['cache_hit'], 'quizzes' );
 		}
 
 		/**
