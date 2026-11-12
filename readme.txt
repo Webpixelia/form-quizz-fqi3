@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 6.8
 Tested up to: 7.1.4
-Stable tag: 3.6.0
+Stable tag: 3.6.1
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -119,6 +119,10 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 10. Developer page View
 
 == Changelog ==
+= 3.6.1 =
+* Fix: Updating an add-on hosted in a private GitHub repository failed with "Not Found". The update package is now downloaded with the GitHub token (only for the updated plugin and only from its own repository), and the API URL of a release asset is used when a token is set.
+* Improvement: A failed package download now reports the HTTP status returned by GitHub and reminds that the token must be able to read the repository.
+
 = 3.6.0 =
 * Feature: New hooks for add-ons: fqi3_quiz_questions_response (filter), fqi3_question_created, fqi3_question_updated, fqi3_question_deleted, fqi3_questions_truncated and fqi3_questions_imported (actions).
 * Feature: New REST hooks for add-ons: fqi3_api_quizzes_response (filter on the quiz endpoints, after the API cache) and fqi3_cache_variant (filter that partitions the API cache keys).

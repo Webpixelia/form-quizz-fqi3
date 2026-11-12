@@ -45,6 +45,78 @@ class Plugin_Updater {
 
 		// GitHub zipballs extract to "<owner>-<repo>-<sha>": give the package the plugin folder name
 		add_filter( 'upgrader_source_selection', array( $this, 'fix_source_dir' ), 10, 4 );
+
+		// Private repositories: the package must be downloaded with the token (WordPress sends none).
+		add_filter( 'upgrader_pre_download', array( $this, 'download_private_package' ), 10, 4 );
+	}
+
+	/**
+	 * Download the update package of this plugin with the GitHub token.
+	 *
+	 * The release check sends the token, but WordPress downloads the package itself without any header: on a
+	 * private repository GitHub answers 404 ("Not Found"). The package is downloaded here instead, only for the
+	 * plugin being updated and only for a URL of its own repository, so the token is never sent anywhere else.
+	 *
+	 * @param bool|string|\WP_Error $reply      Short-circuit value (false = let WordPress download it).
+	 * @param string                $package    Package URL.
+	 * @param \WP_Upgrader          $upgrader   Upgrader instance.
+	 * @param array                 $hook_extra Context of the upgrade (`plugin` is the plugin basename).
+	 * @return bool|string|\WP_Error Path of the downloaded file, an error, or $reply unchanged.
+	 * @since 3.6.1
+	 */
+	public function download_private_package( $reply, $package, $upgrader = null, $hook_extra = array() ) {
+		if ( false !== $reply || ! is_array( $hook_extra ) || ( $hook_extra['plugin'] ?? '' ) !== $this->plugin_file ) {
+			return $reply;
+		}
+
+		$repo_prefix = sprintf( 'https://api.github.com/repos/%s/%s/', $this->github_username, $this->github_repo );
+		if ( empty( $this->github_token ) || ! is_string( $package ) || 0 !== strpos( $package, $repo_prefix ) ) {
+			return $reply;
+		}
+
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$tmp_file = wp_tempnam( $package );
+		if ( ! $tmp_file ) {
+			return new \WP_Error( 'fqi3_download_tmp', __( 'Could not create a temporary file for the update.', 'form-quizz-fqi3' ) );
+		}
+
+		$response = wp_safe_remote_get(
+			$package,
+			array(
+				'headers'  => array(
+					'Authorization' => 'token ' . $this->github_token,
+					// A release asset needs the binary media type; the zipball ignores it.
+					'Accept'        => false !== strpos( $package, '/releases/assets/' ) ? 'application/octet-stream' : 'application/vnd.github+json',
+					'User-Agent'    => 'WordPress-Form-Quizz-Plugin',
+				),
+				'timeout'  => 300,
+				'stream'   => true,
+				'filename' => $tmp_file,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return $response;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $code ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return new \WP_Error(
+				'fqi3_download_failed',
+				sprintf(
+					/* translators: %d: HTTP status code returned by GitHub */
+					__( 'The update package could not be downloaded (GitHub answered %d). Check that the GitHub token can read this repository.', 'form-quizz-fqi3' ),
+					$code
+				)
+			);
+		}
+
+		return $tmp_file;
 	}
 
 	/**
@@ -297,6 +369,10 @@ class Plugin_Updater {
 		if ( ! empty( $release['assets'] ) ) {
 			foreach ( $release['assets'] as $asset ) {
 				if ( strpos( $asset['name'], '.zip' ) !== false ) {
+					// With a token (private repository) the API URL of the asset is used: the browser URL needs a web session.
+					if ( ! empty( $this->github_token ) && ! empty( $asset['url'] ) ) {
+						return $asset['url'];
+					}
 					return $asset['browser_download_url'];
 				}
 			}
