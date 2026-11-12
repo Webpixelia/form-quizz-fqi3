@@ -128,6 +128,8 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 * Improvement: The Add-ons page supports add-ons that depend on several add-ons or on third-party plugins (for example WooCommerce) and lists every requirement.
 * Improvement: The developer page documents the new hooks and fqi3_after_results_quiz_form.
 * Fix: Fatal error "Class Form_Quizz_FQI3\WP_Error not found" when WordPress requested the plugin information. WP_Error and Exception are now resolved correctly in the main file, the Add-ons page and the blocks class.
+* Docs: Updated developer documentation, including the new hooks and fqi3_after_results_quiz_form, and refreshed outdated documentation.
+* i18n: Updated POT, PO and MO translation files.
 * Dev: Unit tests for the level lock state.
 
 = 3.5.0 =

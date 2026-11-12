@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Form Quizz FQI3\n"
+"Project-Id-Version: Form Quizz FQI3 3.6.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/form-quizz-fqi3\n"
 "POT-Creation-Date: 2026-11-11T19:09:06+00:00\n"
-"PO-Revision-Date: 2026-11-11 19:10+0000\n"
+"PO-Revision-Date: 2026-11-12 10:43+0000\n"
 "Last-Translator: \n"
 "Language-Team: Jonathan Webpixelia <contact@webpixelia.com>\n"
 "Language: fr\n"
@@ -236,30 +236,43 @@ msgid ""
 "Create and manage membership plans with one-time or recurring payments, "
 "secure payment processing, and controlled access to premium quiz content."
 msgstr ""
+"Créez et gérez des formules d'abonnement avec des paiements ponctuels ou "
+"récurrents, un traitement sécurisé des paiements et un accès contrôlé à du "
+"contenu premium sous forme de quiz."
 
 #: includes/admin/class-add-ons.php:100
 msgid ""
 "Flexible subscription plans with configurable names, descriptions, prices, "
 "durations, and recurring or one-time billing."
 msgstr ""
+"Formules d'abonnement flexibles permettant de personnaliser les noms, les "
+"descriptions, les prix, les durées, ainsi que la facturation récurrente ou "
+"ponctuelle."
 
 #: includes/admin/class-add-ons.php:101
 msgid ""
 "Stripe and PayPal payment integrations with secure webhook handling and "
 "server-side payment verification."
 msgstr ""
+"Intégrations de paiement Stripe et PayPal avec gestion sécurisée des "
+"webhooks et vérification des paiements côté serveur."
 
 #: includes/admin/class-add-ons.php:102
 msgid ""
 "Automatic subscription management, including payment confirmation, "
 "cancellation, refunds, and payment status tracking."
 msgstr ""
+"Gestion automatique des abonnements, notamment la confirmation des "
+"paiements, les résiliations, les remboursements et le suivi de l'état des "
+"paiements."
 
 #: includes/admin/class-add-ons.php:103
 msgid ""
 "Stripe 3D Secure support, with membership access granted only after payment "
 "confirmation."
 msgstr ""
+"Prise en charge de Stripe 3D Secure, l'accès à l'abonnement n'étant accordé "
+"qu'après confirmation du paiement."
 
 #: includes/admin/class-add-ons.php:104
 msgid "Premium content access control based on subscription status and plan."
