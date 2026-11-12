@@ -738,9 +738,68 @@ async function showResults() {
 
         // Déclencher le hook avec les données
         triggerQuizResultsHook(quizLevel, quizScore);
+
+        // Offers returned by the server (filter fqi3_quiz_result_offers), shown under the result.
+        renderResultOffers(response.data.data.offers);
     } else {
         console.error('Error submitting quiz results:', response ? response.data : 'No response');
     }
+}
+
+/**
+ * Shows the offers sent by the server under the result text.
+ * Everything is inserted as text (never as HTML) and only http(s) links are accepted.
+ *
+ * @param {Array} offers List of { title, message, button, url }.
+ */
+function renderResultOffers(offers) {
+    const resultText = document.getElementById('result-text');
+    if (!resultText || !Array.isArray(offers) || offers.length === 0) {
+        return;
+    }
+
+    let box = document.getElementById('fqi3-result-offers');
+    if (!box) {
+        box = document.createElement('div');
+        box.id = 'fqi3-result-offers';
+        box.className = 'fqi3-result-offers';
+        resultText.insertAdjacentElement('afterend', box);
+    }
+    box.textContent = '';
+
+    offers.forEach((offer) => {
+        let url;
+        try {
+            url = new URL(String(offer.url), window.location.href);
+        } catch (e) {
+            return;
+        }
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+            return;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'fqi3-result-offer';
+
+        const title = document.createElement('strong');
+        title.textContent = String(offer.title || '');
+        card.appendChild(title);
+
+        if (offer.message) {
+            const message = document.createElement('p');
+            message.textContent = String(offer.message);
+            card.appendChild(message);
+        }
+
+        const link = document.createElement('a');
+        link.className = 'btn';
+        link.href = url.href;
+        link.rel = 'noopener';
+        link.textContent = String(offer.button || '');
+        card.appendChild(link);
+
+        box.appendChild(card);
+    });
 }
 
 function triggerQuizResultsHook(quizLevel, quizScore) {

@@ -227,6 +227,58 @@ final class AttemptLifecycleTest extends TestCase {
         $this->assertSame([], $this->openAttempt());
     }
 
+    public function testNoOfferByDefault(): void {
+        $this->start(); $this->serve();
+        $r = $this->complete([11 => 1, 12 => 0]);
+        $this->assertTrue($r->ok);
+        $this->assertArrayNotHasKey('offers', $r->payload);
+    }
+
+    public function testOffersAreFilteredWithTheServerScoreAndSanitized(): void {
+        $seen = [];
+        WpState::$filters['fqi3_quiz_result_offers'] = [static function ($offers, $user, $level, $score, $attempt) use (&$seen) {
+            $seen = [$user, $level, $score, $attempt];
+            return [
+                ['title' => '<b>Pro pack</b>', 'message' => 'Go <script>x</script>further', 'button' => '', 'url' => 'https://shop.test/p'],
+                ['title' => 'Bad link', 'url' => 'javascript:alert(1)'],
+                ['title' => '', 'url' => 'https://shop.test/q'],
+                'not an offer',
+                ['title' => 'Two', 'url' => 'http://shop.test/2'],
+                ['title' => 'Three', 'url' => 'https://shop.test/3'],
+                ['title' => 'Four', 'url' => 'https://shop.test/4'],
+            ];
+        }];
+        $attempt = $this->start()->payload['attempt_id'];
+        $this->serve();
+        // The browser claims 0 %: only the score computed by the server (100 %) is passed to the filter.
+        $r = $this->complete([11 => 1, 12 => 0], 'free_lvl', ['quiz_score' => '0']);
+        $this->assertTrue($r->ok);
+        $this->assertSame([self::USER, 'free_lvl', 100.0, $attempt], $seen);
+        $offers = $r->payload['offers'];
+        $this->assertCount(3, $offers, 'at most three offers, invalid ones dropped');
+        $this->assertSame('Pro pack', $offers[0]['title']);
+        $this->assertSame('Go xfurther', $offers[0]['message']);
+        $this->assertSame('Learn more', $offers[0]['button']);
+        $this->assertSame('http://shop.test/2', $offers[1]['url']);
+    }
+
+    public function testAFailingOfferCallbackNeverBreaksTheCompletion(): void {
+        WpState::$filters['fqi3_quiz_result_offers'] = [static function () { throw new RuntimeException('boom'); }];
+        $this->start(); $this->serve();
+        $r = $this->complete([11 => 1, 12 => 0]);
+        $this->assertTrue($r->ok);
+        $this->assertArrayNotHasKey('offers', $r->payload);
+        $this->assertSame(1, WpState::fired('fqi3_quiz_attempt_completed'));
+    }
+
+    public function testAnInvalidOfferReturnValueIsIgnored(): void {
+        WpState::$filters['fqi3_quiz_result_offers'] = [static fn() => 'oops'];
+        $this->start(); $this->serve();
+        $r = $this->complete([11 => 1, 12 => 0]);
+        $this->assertTrue($r->ok);
+        $this->assertArrayNotHasKey('offers', $r->payload);
+    }
+
     public function testAParallelRequestThatLosesTheRaceFiresNothing(): void {
         global $wpdb;
         $this->start(); $this->serve();

@@ -50,6 +50,9 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 		 */
 		private const META_OPEN_ATTEMPT = 'fqi3_open_attempt';
 
+		/** Maximum number of offers shown under a result. */
+		private const MAX_RESULT_OFFERS = 3;
+
 		/** User meta: result of the last completed attempt, consumed once by `fqi3_process_quiz_hooks`. */
 		private const META_LAST_RESULT = 'fqi3_last_result';
 
@@ -788,14 +791,78 @@ if ( ! class_exists( 'FQI3_Frontend' ) ) :
 			// Detailed action
 			do_action( 'fqi3_quiz_attempt_completed', $attempt_id, (int) $user_id, $quiz_level, $score );
 
-			wp_send_json_success(
-				array(
-					'message'    => 'Quiz terminé avec succès.',
-					'level'      => $quiz_level,
-					'score'      => $score,
-					'attempt_id' => $attempt_id,
-				)
+			$response = array(
+				'message'    => 'Quiz terminé avec succès.',
+				'level'      => $quiz_level,
+				'score'      => $score,
+				'attempt_id' => $attempt_id,
 			);
+
+			$offers = $this->collectResultOffers( (int) $user_id, $quiz_level, (float) $score, $attempt_id );
+			if ( ! empty( $offers ) ) {
+				$response['offers'] = $offers;
+			}
+
+			wp_send_json_success( $response );
+		}
+
+		/**
+		 * Offers (for example a product to buy) shown under the result of a completed quiz.
+		 *
+		 * Runs after the attempt is closed with the server-side score, so an offer can never depend on a value
+		 * sent by the browser. A failing callback must not break the completion: the error is logged and ignored.
+		 * Each offer is sanitized here (plain text, http(s) URL only) and at most MAX_RESULT_OFFERS are returned.
+		 *
+		 * @param int    $user_id    User who completed the attempt.
+		 * @param string $level      Level of the attempt.
+		 * @param float  $score      Verified score (percentage 0-100).
+		 * @param int    $attempt_id Attempt id.
+		 * @return array<int,array{title:string,message:string,button:string,url:string}>
+		 * @since 3.6.0
+		 */
+		private function collectResultOffers( int $user_id, string $level, float $score, int $attempt_id ): array {
+			try {
+				/**
+				 * Filters the offers shown under the result of a completed quiz.
+				 *
+				 * @param array  $offers     List of [ 'title' => string, 'message' => string, 'button' => string, 'url' => string ].
+				 * @param int    $user_id    User id.
+				 * @param string $level      Level slug.
+				 * @param float  $score      Verified score (0-100).
+				 * @param int    $attempt_id Attempt id.
+				 */
+				$raw = apply_filters( 'fqi3_quiz_result_offers', array(), $user_id, $level, $score, $attempt_id );
+			} catch ( \Throwable $e ) {
+				return array();
+			}
+
+			if ( ! is_array( $raw ) ) {
+				return array();
+			}
+
+			$offers = array();
+			foreach ( $raw as $offer ) {
+				if ( ! is_array( $offer ) ) {
+					continue;
+				}
+				$url   = esc_url_raw( (string) ( $offer['url'] ?? '' ), array( 'http', 'https' ) );
+				$title = sanitize_text_field( (string) ( $offer['title'] ?? '' ) );
+				if ( '' === $url || '' === $title ) {
+					continue;
+				}
+				$button   = sanitize_text_field( (string) ( $offer['button'] ?? '' ) );
+				$offers[] = array(
+					'title'   => $title,
+					'message' => sanitize_text_field( (string) ( $offer['message'] ?? '' ) ),
+					'button'  => '' !== $button ? $button : __( 'Learn more', 'form-quizz-fqi3' ),
+					'url'     => $url,
+				);
+				if ( count( $offers ) >= self::MAX_RESULT_OFFERS ) {
+					break;
+				}
+			}
+
+			return $offers;
 		}
 
 		/**

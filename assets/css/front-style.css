@@ -155,6 +155,15 @@ button {font-family: inherit;}
     margin: 1em 0 .5em;
 }
 
+.fqi3-result-offers { margin: .5em 0 1em; }
+.fqi3-result-offer {
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    padding: 1em;
+    margin: 0 0 .75em;
+}
+.fqi3-result-offer p { margin: .5em 0; }
+
 .home-box span{
     font-weight: 500;
 }

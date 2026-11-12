@@ -455,6 +455,10 @@ if ( ! class_exists( 'FQI3_Developper_Page' ) ) :
 						<small><code>do_action('fqi3_before_results_quiz_form', $user_id, $level, $score, $verified)</code></small>
 					</li>
 					<li>
++						<code>fqi3_quiz_result_offers</code> — <?php esc_html_e( '(filter) Offers shown under the result of a completed quiz (for example a product to buy). Runs once per attempt, after the attempt was closed, with the score computed by the server. Return a list of arrays with title, message, button and url (http or https): everything is sanitized by the plugin and at most 3 offers are shown. A callback that fails never breaks the completion.', 'form-quizz-fqi3' ); ?><br>
++						<small><code>apply_filters('fqi3_quiz_result_offers', $offers, $user_id, $level, $score, $attempt_id)</code></small>
++					</li>
+					<li>
 						<code>fqi3_user_can_access_level</code> — <?php esc_html_e( '(filter) Whether the current user may request the questions of a level. Runs on every request: keep callbacks cheap (cached lookups, no remote call). The core rules (levels flagged free for visitors) give the initial value; the filter has the final say, so it can restrict a level or open it.', 'form-quizz-fqi3' ); ?><br>
 						<small><code>apply_filters('fqi3_user_can_access_level', $can, $level, $user_id)</code></small>
 					</li>
