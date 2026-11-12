@@ -2,18 +2,41 @@ name: Build release zip
 
 # Builds form-quizz-fqi3.zip (root folder "form-quizz-fqi3/", production vendor/ included)
 # and attaches it to the GitHub release. The plugin updater prefers a .zip asset over the zipball.
+#
+# - Automatic: runs when a release is published.
+# - Manual: Actions > "Build release zip" > Run workflow, then type an existing release tag
+#   (e.g. v3.6.1). The zip is rebuilt from that tag and replaces the one on the release (--clobber).
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing release tag to build (e.g. v3.6.1)'
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+env:
+  TAG_NAME: ${{ github.event.release.tag_name || inputs.tag }}
+
 jobs:
   package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - name: Check the release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -n "$TAG_NAME" || { echo "No tag given"; exit 1; }
+          gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" > /dev/null \
+            || { echo "No release found for tag $TAG_NAME"; exit 1; }
+
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ env.TAG_NAME }}
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -26,8 +49,9 @@ jobs:
 
       - name: Check the tag matches the plugin version
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          VERSION=$(grep -m1 -E '^ \* Version:' form-quizz-fqi3.php | sed -E 's/.*Version:[[:space:]]*//')
+          TAG="${TAG_NAME#v}"
+          VERSION=$(grep -m1 -E '^[[:space:]]*\*?[[:space:]]*Version:' form-quizz-fqi3.php | sed -E 's/.*Version:[[:space:]]*//' | tr -d '\r[:space:]')
+          echo "tag=$TAG plugin=$VERSION"
           test "$TAG" = "$VERSION" || { echo "Tag $TAG != plugin version $VERSION"; exit 1; }
 
       - name: Build the zip
@@ -39,8 +63,10 @@ jobs:
             --exclude='phpunit.xml.dist' --exclude='.phpcs.xml.dist' --exclude='.phpunit.result.cache' \
             --exclude='composer.lock' --exclude='suivi-audit-*.md' --exclude='.gitignore'
           cd build && zip -qr ../form-quizz-fqi3.zip form-quizz-fqi3
+          test -f form-quizz-fqi3/vendor/autoload.php || unzip -l ../form-quizz-fqi3.zip | grep -q 'form-quizz-fqi3/vendor/autoload.php' \
+            || { echo "vendor/autoload.php is missing from the zip"; exit 1; }
 
       - name: Attach the zip to the release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$GITHUB_REF_NAME" form-quizz-fqi3.zip --clobber
+        run: gh release upload "$TAG_NAME" form-quizz-fqi3.zip --clobber --repo "$GITHUB_REPOSITORY"
