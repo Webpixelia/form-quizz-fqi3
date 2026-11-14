@@ -1,6 +1,10 @@
 <?php
 namespace Form_Quizz_FQI3\LicenseProviders;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 /**
  * Fournisseur GitHub : comportement historique de Plugin_Updater.
  *
@@ -18,9 +22,25 @@ class GitHubLicenseProvider implements LicenseProviderInterface
     /** @var array<string, string> Map slug => repo GitHub */
     private array $repositories;
 
+    /** @var array{code: string, message: string, http: int}|null */
+    private ?array $lastError = null;
+
     public function __construct(array $repositories)
     {
         $this->repositories = $repositories;
+    }
+
+    public function getId(): string
+    {
+        return 'github';
+    }
+
+    /**
+     * Déclare le dépôt d'un add-on (FQI3_Addons_Page::init_updaters / install_addon).
+     */
+    public function addRepository(string $slug, string $repo): void
+    {
+        $this->repositories[$slug] = $repo;
     }
 
     /**
@@ -85,6 +105,8 @@ class GitHubLicenseProvider implements LicenseProviderInterface
             'requires'     => $release['requires'] ?? null,
             'tested'       => $release['tested'] ?? null,
             'requires_php' => $release['requires_php'] ?? null,
+            'last_updated' => $release['last_updated'] ?? null,
+            'download_link' => $release['download_url'] ?? '',
             'sections'     => [
                 'description' => $release['description'] ?? '',
                 'changelog'   => $release['changelog'] ?? '',
@@ -95,14 +117,38 @@ class GitHubLicenseProvider implements LicenseProviderInterface
     /**
      * @inheritDoc
      */
-    public function downloadUrl(string $slug, string $version): ?string
+    public function resolveDownload(string $slug, string $installedVersion = '0.0.0'): ?array
     {
+        $this->lastError = null;
+
         $release = $this->getLatestRelease($slug);
-        if ($release === null || ($release['version'] ?? '') !== $version) {
+        if ($release === null || empty($release['download_url'])) {
+            $this->lastError = ['code' => 'no_release', 'message' => __('No release found for this add-on.', 'form-quizz-fqi3'), 'http' => 0];
             return null;
         }
 
-        return $release['download_url'] ?? null;
+        $token   = defined('GITHUB_PERSONAL_TOKEN') ? (string) GITHUB_PERSONAL_TOKEN : '';
+        $url     = (string) $release['download_url'];
+        $headers = ['User-Agent' => 'WordPress-Form-Quizz-Plugin'];
+        if ($token !== '') {
+            $headers['Authorization'] = 'token ' . $token;
+            // Une release asset demande le type binaire ; le zipball l'ignore.
+            $headers['Accept'] = str_contains($url, '/releases/assets/') ? 'application/octet-stream' : 'application/vnd.github+json';
+        }
+
+        return ['url' => $url, 'sha256' => '', 'version' => (string) $release['version'], 'headers' => $headers];
+    }
+
+    public function getLastError(): ?array
+    {
+        return $this->lastError;
+    }
+
+    public function clearCache(): void
+    {
+        foreach ($this->repositories as $repo) {
+            delete_transient('fqi3_github_release_' . md5($repo));
+        }
     }
 
     /**
@@ -169,6 +215,7 @@ class GitHubLicenseProvider implements LicenseProviderInterface
             'download_url' => $this->getDownloadUrl($release, $token),
             'changelog'    => $this->parseChangelog($release['body'] ?? ''),
             'homepage'     => $release['html_url'] ?? null,
+            'last_updated' => $release['published_at'] ?? null,
             'requires'     => null,
             'tested'       => null,
             'requires_php' => null,
@@ -201,7 +248,7 @@ class GitHubLicenseProvider implements LicenseProviderInterface
     private function parseChangelog(string $content): string
     {
         if ($content === '') {
-            return '';
+            return __('No changelog available.', 'form-quizz-fqi3');
         }
 
         $content = preg_replace('/^### (.+)$/m', '<h4>$1</h4>', $content) ?? $content;

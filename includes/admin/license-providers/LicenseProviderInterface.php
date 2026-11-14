@@ -1,6 +1,10 @@
 <?php
 namespace Form_Quizz_FQI3\LicenseProviders;
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 /**
  * Interface d'un fournisseur de mises à jour pour un plugin WordPress.
  *
@@ -17,10 +21,18 @@ namespace Form_Quizz_FQI3\LicenseProviders;
 interface LicenseProviderInterface
 {
     /**
+     * Identifiant du fournisseur : 'github' ou 'server'.
+     */
+    public function getId(): string;
+
+    /**
      * Vérifie les mises à jour pour une liste de plugins.
      *
+     * IMPORTANT : le champ `package` retourné par ServerLicenseProvider est un
+     * *marqueur* (jamais une URL de téléchargement utilisable). Le vrai paquet
+     * s'obtient avec resolveDownload(), au moment du téléchargement.
+     *
      * @param array<string, string> $plugins Map plugin_basename => version courante.
-     *                                       Ex. ['form-quizz-fqi3/form-quizz-fqi3.php' => '3.6.1']
      * @return array<string, array{
      *   slug: string,
      *   plugin: string,
@@ -32,15 +44,14 @@ interface LicenseProviderInterface
      *   requires_php: ?string,
      *   sha256: string,
      * }>|null
-     *   Map plugin_basename => données de mise à jour WordPress.
-     *   Retourne null si le serveur est injoignable ou la licence invalide.
+     *   Map plugin_basename => données de mise à jour (uniquement les plugins ayant une version plus récente).
+     *   null = échec (serveur injoignable, licence invalide…) : voir getLastError().
      */
     public function checkUpdates(array $plugins): ?array;
 
     /**
-     * Retourne les informations détaillées d'un plugin (pour l'écran "Détails").
+     * Informations détaillées d'un plugin (écran « Détails »).
      *
-     * @param string $slug Slug du plugin (ex. 'form-quizz-fqi3').
      * @return array{
      *   name: string,
      *   slug: string,
@@ -50,17 +61,32 @@ interface LicenseProviderInterface
      *   requires: ?string,
      *   tested: ?string,
      *   requires_php: ?string,
+     *   last_updated: ?string,
+     *   download_link: string,
      *   sections: array{description: string, changelog: string},
      * }|null
      */
     public function getProductInfo(string $slug): ?array;
 
     /**
-     * Retourne l'URL de téléchargement d'un artefact.
+     * Résout, à l'instant T (jamais depuis un cache), le paquet à télécharger.
+     * Remplace l'ancienne méthode downloadUrl().
      *
-     * @param string $slug    Slug du plugin.
-     * @param string $version Version cible.
-     * @return string|null URL de téléchargement, ou null si indisponible.
+     * @param string $slug             Slug du plugin.
+     * @param string $installedVersion Version installée ('0.0.0' pour une première installation).
+     * @return array{url: string, sha256: string, version: string, headers: array<string, string>}|null
      */
-    public function downloadUrl(string $slug, string $version): ?string;
+    public function resolveDownload(string $slug, string $installedVersion = '0.0.0'): ?array;
+
+    /**
+     * Dernière erreur rencontrée (null si la dernière opération a réussi).
+     *
+     * @return array{code: string, message: string, http: int}|null
+     */
+    public function getLastError(): ?array;
+
+    /**
+     * Invalide les caches du fournisseur (bouton « Actualiser », changement de clé).
+     */
+    public function clearCache(): void;
 }
