@@ -1213,3 +1213,56 @@ jQuery(document).ready(function($) {
     // Démarrer toutes les initialisations
     initialize();
 });
+
+/* License settings (L6.3): activate / check / remove the license key through admin-ajax. */
+(function () {
+    'use strict';
+    document.addEventListener('DOMContentLoaded', function () {
+        var box = document.getElementById('fqi3-license');
+        if (!box || typeof fqi3_admin_cookies_ajax_obj === 'undefined') { return; }
+
+        var msg = document.getElementById('fqi3-license-msg');
+        var buttons = box.querySelectorAll('[data-fqi3-license]');
+
+        function setBusy(busy) {
+            buttons.forEach(function (b) { b.disabled = busy; });
+        }
+
+        function show(text, ok) {
+            msg.textContent = text || '';
+            msg.className = 'mt-2 mb-0 ' + (ok ? 'text-success' : 'text-danger');
+        }
+
+        function update(data) {
+            if (!data) { return; }
+            var set = function (id, value) { var el = document.getElementById(id); if (el && value) { el.textContent = value; } };
+            set('fqi3-license-state', data.state);
+            set('fqi3-license-key', data.key);
+        }
+
+        buttons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var action = button.getAttribute('data-fqi3-license');
+                var body = new URLSearchParams();
+                body.append('action', 'fqi3_license_' + action);
+                body.append('nonce', box.getAttribute('data-nonce'));
+                if (action === 'save') {
+                    var input = document.getElementById('fqi3-license-input');
+                    body.append('license_key', input ? input.value : '');
+                }
+                setBusy(true);
+                show('…', true);
+                fetch(fqi3_admin_cookies_ajax_obj.ajax_url, { method: 'POST', credentials: 'same-origin', body: body })
+                    .then(function (r) { return r.json(); })
+                    .then(function (json) {
+                        var data = json && json.data ? json.data : {};
+                        update(data);
+                        show(data.message || '', !!(json && json.success));
+                        if (json && json.success && action !== 'validate') { window.location.reload(); }
+                    })
+                    .catch(function () { show(box.getAttribute('data-network-error'), false); })
+                    .finally(function () { setBusy(false); });
+            });
+        });
+    });
+})();

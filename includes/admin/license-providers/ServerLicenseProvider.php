@@ -237,6 +237,33 @@ class ServerLicenseProvider implements LicenseProviderInterface
     }
 
     /**
+     * Libère l'activation de ce site (POST /v1/licenses/deactivate), au mieux : un échec réseau ne bloque pas la suppression locale.
+     */
+    public function deactivate(): bool
+    {
+        $this->lastError = null;
+
+        $licenseKey = LicenseProviderFactory::getLicenseKey();
+        $instanceId = $this->getInstanceId();
+        if ($licenseKey === '' || $instanceId === '') {
+            $this->lastError = self::err('license_missing');
+            return false;
+        }
+
+        $res = $this->request('POST', '/v1/licenses/deactivate', [
+            'license_key' => $licenseKey,
+            'instance'    => ['type' => 'domain', 'id' => $instanceId],
+        ]);
+
+        if ($res['error'] !== null) {
+            $this->lastError = $res['error'];
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Interroge l'état de la licence (POST /v1/licenses/validate) et met à jour le statut enregistré.
      *
      * @return array<string, mixed>|null Corps de la réponse LUS, ou null (voir getLastError()).

@@ -692,7 +692,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 								<?php else : ?>
 									<?php if ( ! $is_installed ) : ?>
 										<?php if ( $dependencies_satisfied ) : ?>
-											<?php if ( empty( $addon['github_repo'] ) ) : ?>
+											<?php if ( empty( $addon['github_repo'] ) && ! \Form_Quizz_FQI3\LicenseProviders\LicenseProviderFactory::isServerMode() ) : ?>
 												<button 
 													class="btn btn-secondary disabled" 
 													disabled>

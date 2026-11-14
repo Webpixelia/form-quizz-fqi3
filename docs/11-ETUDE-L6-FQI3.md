@@ -258,7 +258,7 @@ Prérequis commun : LUS joignable en HTTPS (ou `FQI3_LUS_ALLOW_INSECURE` + `WP_E
 
 ---
 
-## Questions ouvertes (à trancher avant L6.2)
+## Questions ouvertes (à trancher avant L6.2): docs/12-DECISIONS-L6.md
 
 1. **Activation automatique** quand la clé est en constante : retenue (filtre `fqi3_lus_auto_activate` pour la couper). Elle consomme un quota sans clic : acceptable ?
 2. **sha256 absent côté GitHub** : accepté (dev). Faut-il une constante `FQI3_REQUIRE_SHA256` pour l'imposer en staging ?

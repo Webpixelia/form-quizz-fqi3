@@ -130,6 +130,12 @@ final class FakeLus {
             if (!in_array($inst, self::$activations[$body['license_key']], true)) { self::$activations[$body['license_key']][] = $inst; }
             return self::res(200, ['activated' => true, 'license' => ['status' => 'active', 'expires_at' => null, 'instances' => ['used' => count(self::$activations[$body['license_key']]), 'max' => $lic['max']]]]);
         }
+        if ($path === '/v1/licenses/deactivate') {
+            $k = $body['license_key'] ?? '';
+            $inst = $norm($body['instance']['id'] ?? '');
+            self::$activations[$k] = array_values(array_diff(self::$activations[$k] ?? [], [$inst]));
+            return self::res(200, ['deactivated' => true]);
+        }
         if ($path === '/v1/licenses/validate') {
             $lic = self::$licenses[$body['license_key'] ?? ''] ?? null;
             if (!$lic || $lic['status'] !== 'active') { return self::err('license_invalid', 403); }
