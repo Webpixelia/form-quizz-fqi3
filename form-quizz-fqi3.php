@@ -900,8 +900,10 @@ final class FormQuizzFQI3 {
 // Initialize plugin
 FormQuizzFQI3::getInstance();
 
-// Initialize GitHub updater for the main plugin
-if ( is_admin() ) {
+// Initialize the updater for the main plugin (release source: LUS or GitHub, see FQI3_LICENSE_PROVIDER).
+// Also in WP-Cron and WP-CLI: the `update_plugins` transient is rebuilt there, and without this filter the
+// plugin's update entry would be dropped from it.
+if ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 	require_once __DIR__ . '/includes/admin/class-plugin-updater.php';
 	new \Form_Quizz_FQI3\Plugin_Updater(
 		'form-quizz-fqi3/form-quizz-fqi3.php',

@@ -14,6 +14,23 @@ if ( ! function_exists( 'fqi3_has_github_token' ) ) {
 	}
 }
 
+if ( ! function_exists( 'fqi3_has_distribution_access' ) ) {
+	/**
+	 * Whether add-ons can be installed and updated: a GitHub token (development) or a LUS license key (production).
+	 *
+	 * @return bool
+	 * @since 3.7.0
+	 */
+	function fqi3_has_distribution_access() {
+		if ( function_exists( 'fqi3_has_github_token' ) && fqi3_has_github_token() ) {
+			return true;
+		}
+
+		return class_exists( '\Form_Quizz_FQI3\LicenseProviders\LicenseProviderFactory' )
+			&& \Form_Quizz_FQI3\LicenseProviders\LicenseProviderFactory::isServerMode();
+	}
+}
+
 /**
  * Returns the array of quiz levels with translated labels and free status.
  *
@@ -200,8 +217,8 @@ function fqi3_get_admin_pages_raw() {
 function fqi3_get_admin_pages() {
 	$pages = fqi3_get_admin_pages_raw();
 
-	// Remove Add-ons if GitHub token does not exist
-	if ( ! function_exists( 'fqi3_has_github_token' ) || ! fqi3_has_github_token() ) {
+	// Remove Add-ons when no release source is usable: no GitHub token (development) and no LUS license (production).
+	if ( ! fqi3_has_distribution_access() ) {
 		unset( $pages['add_ons'] );
 	}
 

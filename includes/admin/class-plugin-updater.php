@@ -1,13 +1,18 @@
 <?php
 namespace Form_Quizz_FQI3;
 
+use Form_Quizz_FQI3\LicenseProviders\LicenseProviderFactory;
+use Form_Quizz_FQI3\LicenseProviders\LicenseProviderInterface;
+
 /**
  * Plugin Updater Class
  *
- * This class handles updates for a WordPress plugin hosted on GitHub.
+ * This class handles updates for a WordPress plugin. The release source is a "license provider"
+ * (GitHub for development sites, the LUS server for production), selected by FQI3_LICENSE_PROVIDER.
  * It checks for new releases, retrieves plugin information, and manages update notifications.
  * Usage:
  * $updater = new Plugin_Updater(__FILE__, 'repository-name', 'GitHubUsername');
+ * The 3-argument form is unchanged; a provider can optionally be injected as 4th argument (tests).
  * @package Form_Quizz_FQI3
  * @since 3.2.0
  */
@@ -16,7 +21,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/license-providers/LicenseProviderInterface.php';
+require_once __DIR__ . '/license-providers/GitHubLicenseProvider.php';
+require_once __DIR__ . '/license-providers/ServerLicenseProvider.php';
+require_once __DIR__ . '/license-providers/LicenseProviderFactory.php';
+
 class Plugin_Updater {
+	/** @var array<string, true> Plugin basenames managed by an updater (core + add-ons): checked in ONE grouped request. */
+	private static $registry = array();
+
+	/** @var LicenseProviderInterface|null Injected provider (tests); otherwise LicenseProviderFactory::make(). */
+	private $injected_provider;
+
 	private $github_username;
 	private $github_token;
 	private $plugin_data;
@@ -26,13 +42,17 @@ class Plugin_Updater {
 	private $cache_key;
 	private $cache_expiration = 12 * HOUR_IN_SECONDS;
 
-	public function __construct( $plugin_file, $github_repo, $github_username = 'Webpixelia' ) {
-		$this->plugin_file     = $plugin_file; // ex: 'fqi3-addon/fqi3-addon.php'
-		$this->plugin_slug     = dirname( $plugin_file ); // ex: 'fqi3-addon'
-		$this->github_username = $github_username;
-		$this->github_repo     = $github_repo;
-		$this->github_token    = defined( 'GITHUB_PERSONAL_TOKEN' ) ? GITHUB_PERSONAL_TOKEN : '';
-		$this->cache_key       = 'fqi3_update_' . md5( $plugin_file );
+	public function __construct( $plugin_file, $github_repo = '', $github_username = 'Webpixelia', $provider = null ) {
+		$this->plugin_file       = $plugin_file; // ex: 'fqi3-addon/fqi3-addon.php'
+		$this->plugin_slug       = dirname( $plugin_file ); // ex: 'fqi3-addon'
+		$this->github_username   = $github_username;
+		$this->github_repo       = (string) $github_repo; // empty in server mode (LUS needs no repository)
+		$this->github_token      = defined( 'GITHUB_PERSONAL_TOKEN' ) ? GITHUB_PERSONAL_TOKEN : '';
+		$this->cache_key         = 'fqi3_update_' . md5( $plugin_file );
+		$this->injected_provider = $provider instanceof LicenseProviderInterface ? $provider : null;
+
+		self::$registry[ $plugin_file ] = true;
+		LicenseProviderFactory::registerRepository( $this->plugin_slug, $this->github_repo );
 
 		// Hook into the update check
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'check_for_updates' ) );
@@ -67,6 +87,12 @@ class Plugin_Updater {
 	public function download_private_package( $reply, $package, $upgrader = null, $hook_extra = array() ) {
 		if ( false !== $reply || ! is_array( $hook_extra ) || ( $hook_extra['plugin'] ?? '' ) !== $this->plugin_file ) {
 			return $reply;
+		}
+
+		// LUS: the package in the update transient is only a placeholder. A fresh single-use link is requested now,
+		// then the file is downloaded and its sha256 verified before WordPress installs it.
+		if ( 'server' === $this->provider()->getId() ) {
+			return $this->download_from_provider();
 		}
 
 		$repo_prefix = sprintf( 'https://api.github.com/repos/%s/%s/', $this->github_username, $this->github_repo );
@@ -120,6 +146,101 @@ class Plugin_Updater {
 	}
 
 	/**
+	 * Download the package of this plugin through the license provider (LUS), sha256 verified.
+	 *
+	 * @return string|\WP_Error Path of the downloaded file.
+	 * @since 3.7.0
+	 */
+	private function download_from_provider() {
+		$provider = $this->provider();
+		$package  = $provider->resolveDownload( $this->plugin_slug, $this->get_current_version() );
+
+		if ( null === $package ) {
+			$error = $provider->getLastError();
+			return new \WP_Error(
+				'fqi3_lus_' . ( $error['code'] ?? 'no_package' ),
+				(string) ( $error['message'] ?? __( 'The update package could not be resolved.', 'form-quizz-fqi3' ) )
+			);
+		}
+
+		return self::download_verified( $package['url'], $package['sha256'], $package['headers'], true );
+	}
+
+	/**
+	 * Download a package to a temporary file and verify its sha256.
+	 *
+	 * Shared by the updater and FQI3_Addons_Page::install_addon().
+	 *
+	 * @param string               $url            Package URL.
+	 * @param string               $sha256         Expected hash (hex). Empty = no verification (GitHub provider only).
+	 * @param array<string,string> $headers        Extra request headers (e.g. GitHub Authorization).
+	 * @param bool                 $require_sha256 Refuse the package when no valid sha256 was supplied (server provider).
+	 * @return string|\WP_Error Path of the temporary file (the caller deletes it), or an error.
+	 * @since 3.7.0
+	 */
+	public static function download_verified( string $url, string $sha256 = '', array $headers = array(), bool $require_sha256 = false ) {
+		if ( $require_sha256 && 1 !== preg_match( '/^[a-f0-9]{64}$/i', $sha256 ) ) {
+			return new \WP_Error( 'fqi3_sha256_missing', __( 'The update was refused: the server did not provide a valid checksum.', 'form-quizz-fqi3' ) );
+		}
+
+		if ( ! function_exists( 'wp_tempnam' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
+		$tmp_file = wp_tempnam( basename( (string) wp_parse_url( $url, PHP_URL_PATH ) ) );
+		if ( ! $tmp_file ) {
+			return new \WP_Error( 'fqi3_download_tmp', __( 'Could not create a temporary file for the update.', 'form-quizz-fqi3' ) );
+		}
+
+		$response = wp_safe_remote_get(
+			$url,
+			array(
+				'headers'  => $headers + array( 'User-Agent' => 'WordPress-Form-Quizz-Plugin' ),
+				'timeout'  => 300,
+				'stream'   => true,
+				'filename' => $tmp_file,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return $response;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $code ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return new \WP_Error(
+				'fqi3_download_failed',
+				sprintf(
+					/* translators: %d: HTTP status code returned by the download server */
+					__( 'The update package could not be downloaded (the server answered %d).', 'form-quizz-fqi3' ),
+					$code
+				)
+			);
+		}
+
+		if ( filesize( $tmp_file ) < 100 ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return new \WP_Error( 'fqi3_download_empty', __( 'Downloaded file is too small or empty.', 'form-quizz-fqi3' ) );
+		}
+
+		if ( '' !== $sha256 && ! hash_equals( strtolower( $sha256 ), (string) hash_file( 'sha256', $tmp_file ) ) ) {
+			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+			return new \WP_Error( 'fqi3_sha256_mismatch', __( 'The update package is corrupted (checksum mismatch) and was not installed.', 'form-quizz-fqi3' ) );
+		}
+
+		return $tmp_file;
+	}
+
+	/**
+	 * Provider in use (shared across the core and add-ons updaters unless one was injected).
+	 */
+	private function provider(): LicenseProviderInterface {
+		return $this->injected_provider ?? LicenseProviderFactory::make();
+	}
+
+	/**
 	 * Rename the extracted package folder to the plugin slug when this plugin is being updated.
 	 *
 	 * Without it, an update served from the GitHub zipball (no .zip asset on the release) would be installed in
@@ -170,6 +291,9 @@ class Plugin_Updater {
 	/**
 	 * Check for plugin updates
 	 *
+	 * One grouped request covers every plugin registered by an updater (core + add-ons); the provider caches it.
+	 * When the provider fails (server down, invalid license), the transient is left untouched: no notice, no fatal.
+	 *
 	 * @param object $transient
 	 * @return object
 	 */
@@ -185,28 +309,30 @@ class Plugin_Updater {
 			return $transient;
 		}
 
-		// Get the latest release from GitHub
-		$latest_release = $this->get_latest_release();
+		$current_version = (string) $transient->checked[ $this->plugin_file ];
+		$plugins         = array_intersect_key( $transient->checked, self::$registry );
+		$updates         = $this->provider()->checkUpdates( $plugins );
 
-		$current_version = $this->plugin_data['Version'] ?? '0.0.0';
-		$latest_version  = $latest_release['version'] ?? null;
+		if ( null === $updates ) {
+			return $transient;
+		}
 
-		if ( $latest_version && version_compare( $latest_version, $current_version, '>' ) ) {
-			$plugin_data = array(
+		$update = $updates[ $this->plugin_file ] ?? null;
+
+		if ( is_array( $update ) && ! empty( $update['new_version'] ) && version_compare( $update['new_version'], $current_version, '>' ) ) {
+			$transient->response[ $this->plugin_file ] = (object) array(
 				'slug'          => $this->plugin_slug,
 				'plugin'        => $this->plugin_file,
-				'new_version'   => $latest_version,
-				'url'           => $this->plugin_data['PluginURI'] ?? '',
-				'package'       => $latest_release['download_url'] ?? '',
-				'requires'      => $this->extract_requirement( 'Requires at least' ),
-				'requires_php'  => $this->extract_requirement( 'Requires PHP' ),
-				'tested'        => $this->extract_requirement( 'Tested up to' ),
+				'new_version'   => $update['new_version'],
+				'url'           => $update['url'] ?? ( $this->plugin_data['PluginURI'] ?? '' ),
+				'package'       => $update['package'] ?? '',
+				'requires'      => $update['requires'] ?? $this->extract_requirement( 'Requires at least' ),
+				'requires_php'  => $update['requires_php'] ?? $this->extract_requirement( 'Requires PHP' ),
+				'tested'        => $update['tested'] ?? $this->extract_requirement( 'Tested up to' ),
 				'compatibility' => array(),
 			);
-
-			$transient->response[ $this->plugin_file ] = (object) $plugin_data;
 		} else {
-			// Plugin is up to date or no version available
+			// Plugin is up to date
 			$transient->no_update[ $this->plugin_file ] = (object) array(
 				'slug'        => $this->plugin_slug,
 				'plugin'      => $this->plugin_file,
@@ -229,11 +355,11 @@ class Plugin_Updater {
 	 * @return mixed
 	 */
 	public function plugin_info( $res, $action, $args ) {
-		$this->load_plugin_data();
-
-		if ( 'plugin_information' !== $action || $args->slug !== $this->plugin_slug ) {
+		if ( 'plugin_information' !== $action || ! is_object( $args ) || ( $args->slug ?? '' ) !== $this->plugin_slug ) {
 			return $res;
 		}
+
+		$this->load_plugin_data();
 
 		$remote = $this->get_latest_release();
 		if ( ! $remote || ! isset( $remote['version'] ) ) {
@@ -249,12 +375,12 @@ class Plugin_Updater {
 		$res->author_profile = $this->plugin_data['AuthorURI'] ?? '';
 		$res->last_updated   = $remote['last_updated'] ?? '';
 		$res->homepage       = $this->plugin_data['PluginURI'] ?? '';
-		$res->requires       = $this->extract_requirement( 'Requires at least' ) ?? '';
-		$res->tested         = $this->extract_requirement( 'Tested up to' ) ?? '';
-		$res->requires_php   = $this->extract_requirement( 'Requires PHP' ) ?? '';
+		$res->requires       = $remote['requires'] ?? $this->extract_requirement( 'Requires at least' );
+		$res->tested         = $remote['tested'] ?? $this->extract_requirement( 'Tested up to' );
+		$res->requires_php   = $remote['requires_php'] ?? $this->extract_requirement( 'Requires PHP' );
 		$res->sections       = array(
 			'description' => $this->plugin_data['Description'] ?? '',
-			'changelog'   => $remote['changelog'] ?? __( 'No changelog available.', 'form-quizz-fqi3' ),
+			'changelog'   => '' !== ( $remote['changelog'] ?? '' ) ? $remote['changelog'] : __( 'No changelog available.', 'form-quizz-fqi3' ),
 		);
 		$res->download_link  = $remote['download_url'] ?? '';
 
@@ -286,127 +412,30 @@ class Plugin_Updater {
 	}
 
 	/**
-	 * Get the latest release from GitHub
+	 * Get the latest release known to the provider (display data: version, changelog, requirements).
+	 *
+	 * The download URL is informative only: the real package is resolved at download time.
+	 *
 	 * @return array|false
 	 */
 	private function get_latest_release() {
-		$transient_key = 'fqi3_release_check_' . md5( $this->github_username . '/' . $this->github_repo );
-		$cached        = get_transient( $transient_key );
+		$info = $this->provider()->getProductInfo( $this->plugin_slug );
 
-		// If we have a valid cache and no release, return false
-		if ( $cached === 'no_release' ) {
+		if ( ! $info || empty( $info['version'] ) ) {
 			return false;
 		}
 
-		// If we have a cached *formatted* response, return it
-		if ( is_array( $cached ) && isset( $cached['version'] ) ) {
-			return $cached;
-		}
-
-		$url = sprintf( 'https://api.github.com/repos/%s/%s/releases/latest', $this->github_username, $this->github_repo );
-
-		$args = array(
-			'headers' => array(
-				'Accept'     => 'application/vnd.github.v3+json',
-				'User-Agent' => 'WordPress-Form-Quizz-Plugin',
-			),
-			'timeout' => 15,
+		return array(
+			'version'      => $info['version'],
+			'download_url' => $info['download_link'] ?? '',
+			'last_updated' => $info['last_updated'] ?? '',
+			'changelog'    => $info['sections']['changelog'] ?? '',
+			'requires'     => $info['requires'] ?? null,
+			'tested'       => $info['tested'] ?? null,
+			'requires_php' => $info['requires_php'] ?? null,
 		);
-
-		if ( ! empty( $this->github_token ) ) {
-			$args['headers']['Authorization'] = 'token ' . $this->github_token;
-		}
-
-		$response = wp_remote_get( $url, $args );
-
-		if ( is_wp_error( $response ) ) {
-			set_transient( $transient_key, 'no_release', HOUR_IN_SECONDS );
-			return false;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( $response_code === 404 ) {
-			set_transient( $transient_key, 'no_release', DAY_IN_SECONDS );
-			return false;
-		}
-
-		if ( $response_code !== 200 ) {
-			set_transient( $transient_key, 'no_release', HOUR_IN_SECONDS );
-			return false;
-		}
-
-		$release = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( empty( $release ) || ! isset( $release['tag_name'] ) ) {
-			set_transient( $transient_key, 'no_release', HOUR_IN_SECONDS );
-			return false;
-		}
-
-		// Format the release data
-		$release_data = array(
-			'version'      => ltrim( $release['tag_name'], 'v' ),
-			'download_url' => $this->get_download_url( $release ),
-			'last_updated' => $release['published_at'] ?? '',
-			'changelog'    => $this->parse_changelog( $release['body'] ?? '' ),
-		);
-
-		// Cache the *formatted* result for 12 hours
-		set_transient( $transient_key, $release_data, 12 * HOUR_IN_SECONDS );
-
-		return $release_data;
 	}
 
-
-	/**
-	 * Get the download URL from release data
-	 *
-	 * @param array $release
-	 * @return string
-	 */
-	private function get_download_url( array $release ): string {
-		// First, try to get a .zip asset
-		if ( ! empty( $release['assets'] ) ) {
-			foreach ( $release['assets'] as $asset ) {
-				if ( strpos( $asset['name'], '.zip' ) !== false ) {
-					// With a token (private repository) the API URL of the asset is used: the browser URL needs a web session.
-					if ( ! empty( $this->github_token ) && ! empty( $asset['url'] ) ) {
-						return $asset['url'];
-					}
-					return $asset['browser_download_url'];
-				}
-			}
-		}
-
-		// Fallback to zipball_url (GitHub auto-generated zip)
-		return $release['zipball_url'] ?? '';
-	}
-
-	/**
-	 * Parse changelog from release body
-	 *
-	 * @param string $content
-	 * @return string
-	 */
-	private function parse_changelog( string $content ): string {
-		if ( empty( $content ) ) {
-			return __( 'No changelog available.', 'form-quizz-fqi3' );
-		}
-
-		// Convert Markdown-style headers to HTML
-		$content = preg_replace( '/^### (.+)$/m', '<h4>$1</h4>', $content );
-		$content = preg_replace( '/^## (.+)$/m', '<h3>$1</h3>', $content );
-		$content = preg_replace( '/^# (.+)$/m', '<h2>$1</h2>', $content );
-
-		// Convert bullet points
-		$content = preg_replace( '/^\* (.+)$/m', '<li>$1</li>', $content );
-		$content = preg_replace( '/(<li>.*<\/li>)/s', '<ul>$1</ul>', $content );
-
-		// Convert line breaks
-		$content = wpautop( $content );
-
-		return $content;
-	}
 
 	/**
 	 * Extract requirement from plugin data
@@ -415,8 +444,13 @@ class Plugin_Updater {
 	 * @return string
 	 */
 	private function extract_requirement( string $field ): string {
-		$value = $this->plugin_data[ $field ] ?? '';
-		return ! empty( $value ) ? $value : '';
+		// get_plugin_data() exposes these headers as RequiresWP / RequiresPHP; "Tested up to" is a readme.txt field only.
+		$keys  = array(
+			'Requires at least' => 'RequiresWP',
+			'Requires PHP'      => 'RequiresPHP',
+		);
+		$value = $this->plugin_data[ $keys[ $field ] ?? $field ] ?? '';
+		return ! empty( $value ) ? (string) $value : '';
 	}
 
 	/**
@@ -426,6 +460,7 @@ class Plugin_Updater {
 	 */
 	public function clear_cache(): void {
 		delete_transient( $this->cache_key );
+		$this->provider()->clearCache();
 	}
 
 	/**
@@ -435,12 +470,20 @@ class Plugin_Updater {
 	 */
 	public function force_check(): object {
 		$this->clear_cache();
-		$transient_key = 'fqi3_release_check_' . md5( $this->github_username . '/' . $this->github_repo );
-		delete_transient( $transient_key );
 
 		$release = $this->get_latest_release();
 
-		return is_array( $release ) ? (object) $release : ( $release ?? new \stdClass() );
+		return is_array( $release ) ? (object) $release : new \stdClass();
+	}
+
+	/**
+	 * Latest release known to the provider, as an array (cached by the provider; no forced refresh).
+	 *
+	 * @return array|false Keys: version, download_url, last_updated, changelog, requires, tested, requires_php.
+	 * @since 3.7.0
+	 */
+	public function get_latest() {
+		return $this->get_latest_release();
 	}
 
 	/**
@@ -449,6 +492,7 @@ class Plugin_Updater {
 	 * @return string
 	 */
 	public function get_current_version(): string {
+		$this->load_plugin_data();
 		return $this->plugin_data['Version'] ?? '0.0.0';
 	}
 
@@ -458,16 +502,10 @@ class Plugin_Updater {
 	 * @return bool
 	 */
 	public function is_update_available(): bool {
-		$this->load_plugin_data();
-		$latest = $this->get_latest_release();
-		if ( ! $latest || empty( $latest['version'] ) ) {
-			return false;
-		}
+		$current = $this->get_current_version();
+		$updates = $this->provider()->checkUpdates( array( $this->plugin_file => $current ) );
 
-		$current_version = $this->get_current_version();
-		$is_update       = version_compare( $latest['version'], $current_version, '>' );
-
-		return $is_update;
+		return is_array( $updates ) && isset( $updates[ $this->plugin_file ] );
 	}
 }
 

@@ -2,6 +2,8 @@
 namespace Form_Quizz_FQI3;
 
 use WP_Error;
+use Form_Quizz_FQI3\LicenseProviders\LicenseProviderFactory;
+use Form_Quizz_FQI3\LicenseProviders\ServerLicenseProvider;
 
 /**
  * Class FQI3_Addons_Page
@@ -1554,104 +1556,42 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 
-			$github_username = 'Webpixelia';
-			$repo_parts      = explode( '/', $addon['github_repo'] );
-			$repo_name       = end( $repo_parts );
+			$slug_for_package = (string) $addon['slug'];
+			$provider         = LicenseProviderFactory::make();
+			$is_server        = 'server' === $provider->getId();
 
-			if ( ! defined( 'GITHUB_PERSONAL_TOKEN' ) || empty( GITHUB_PERSONAL_TOKEN ) ) {
-				return new WP_Error( 'github_token_missing', __( 'GitHub token is not configured.', 'form-quizz-fqi3' ) );
+			if ( ! $is_server ) {
+				// Development mode: GitHub release of the add-on, private repositories need the token.
+				$repo_name = $this->extract_github_repo( (string) ( $addon['github_repo'] ?? '' ) );
+				if ( '' === $repo_name ) {
+					return new WP_Error( 'no_release', __( 'No release found for this addon.', 'form-quizz-fqi3' ) );
+				}
+				if ( ! defined( 'GITHUB_PERSONAL_TOKEN' ) || empty( GITHUB_PERSONAL_TOKEN ) ) {
+					return new WP_Error( 'github_token_missing', __( 'GitHub token is not configured.', 'form-quizz-fqi3' ) );
+				}
+				LicenseProviderFactory::registerRepository( $slug_for_package, $repo_name );
 			}
 
-			// Get the latest release
-			$release_url = "https://api.github.com/repos/{$github_username}/{$repo_name}/releases/latest";
-
-			$release_response = wp_remote_get(
-				$release_url,
-				array(
-					'headers' => array(
-						'Authorization' => 'token ' . GITHUB_PERSONAL_TOKEN,
-						'Accept'        => 'application/vnd.github.v3+json',
-						'User-Agent'    => 'WordPress-Form-Quizz-Plugin', // GitHub require User-Agent
-					),
-					'timeout' => 15,
-				)
-			);
-
-			if ( is_wp_error( $release_response ) ) {
+			// Fresh package (LUS: single-use link) + checksum verification; nothing is installed on a mismatch.
+			$package = $provider->resolveDownload( $slug_for_package, '0.0.0' );
+			if ( null === $package ) {
+				$error = $provider->getLastError();
 				return new WP_Error(
-					'github_api_error',
-					sprintf(
-						/* translators: %s error message */
-						__( 'GitHub API error: %s', 'form-quizz-fqi3' ),
-						$release_response->get_error_message()
-					)
+					'fqi3_' . ( $error['code'] ?? 'no_release' ),
+					$is_server
+						? ServerLicenseProvider::messageForCode( (string) ( $error['code'] ?? 'unreachable' ) )
+						: __( 'No release found for this addon.', 'form-quizz-fqi3' )
 				);
 			}
 
-			$response_code = wp_remote_retrieve_response_code( $release_response );
-			if ( $response_code !== 200 ) {
-				return new WP_Error(
-					'github_api_error',
-					sprintf(
-						/* translators: %s status response GitHub API */
-						__( 'GitHub API responded with status %d.', 'form-quizz-fqi3' ),
-						$response_code
-					)
-				);
+			$tmp_file = \Form_Quizz_FQI3\Plugin_Updater::download_verified( $package['url'], $package['sha256'], $package['headers'], $is_server );
+			if ( is_wp_error( $tmp_file ) ) {
+				return $tmp_file;
 			}
-
-			$release_data = json_decode( wp_remote_retrieve_body( $release_response ), true );
-
-			if ( ! isset( $release_data['zipball_url'] ) ) {
-				return new WP_Error( 'no_release', __( 'No release found for this addon.', 'form-quizz-fqi3' ) );
-			}
-
-			$plugin_zip_url = $release_data['zipball_url'];
-
-			// Télécharger le fichier
-			$tmp_file = wp_tempnam( $plugin_zip_url );
-			$response = wp_remote_get(
-				$plugin_zip_url,
-				array(
-					'headers' => array(
-						'Authorization' => 'token ' . GITHUB_PERSONAL_TOKEN,
-						'Accept'        => 'application/vnd.github.v3+json',
-						'User-Agent'    => 'WordPress-Form-Quizz-Plugin',
-					),
-					'timeout' => 30,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				@unlink( $tmp_file );
-				return $response;
-			}
-
-			$response_code = wp_remote_retrieve_response_code( $response );
-			if ( $response_code !== 200 ) {
-				@unlink( $tmp_file );
-				return new WP_Error(
-					'download_error',
-					sprintf(
-						/* translators: %s status response GitHub API */
-						__( 'Download failed with status %d.', 'form-quizz-fqi3' ),
-						$response_code
-					)
-				);
-			}
-
-			$body = wp_remote_retrieve_body( $response );
-			if ( strlen( $body ) < 100 ) {
-				@unlink( $tmp_file );
-				return new WP_Error( 'empty_file', __( 'Downloaded file is too small or empty.', 'form-quizz-fqi3' ) );
-			}
-
-			file_put_contents( $tmp_file, $body );
 
 			// GitHub archives extract to "<owner>-<repo>-<sha>": rename the package folder to the add-on slug
 			// before it is copied to wp-content/plugins (instead of renaming an arbitrary folder afterwards).
-			$slug_for_package = (string) $addon['slug'];
-			$rename_source    = function ( $source, $remote_source ) use ( $slug_for_package ) {
+			$rename_source = function ( $source, $remote_source ) use ( $slug_for_package ) {
 				return $this->rename_package_source( $source, $remote_source, $slug_for_package );
 			};
 
@@ -1773,17 +1713,15 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 				$this->init_available_addons();
 			}
 
+			$use_lus = LicenseProviderFactory::isServerMode();
+
 			foreach ( $this->available_addons as $addon ) {
 				$plugin_file = $addon['slug'] . '/' . $addon['slug'] . '.php';
 
-				// Only initialize updater if plugin is installed and has a github repo
-				if ( $this->get_addon_status( $addon['slug'] ) === 'installed' && ! empty( $addon['github_repo'] ) ) {
-					$github_repo = $this->extract_github_repo( $addon['github_repo'] );
-
-					// Skip if no github repo is set
-					if ( empty( $github_repo ) ) {
-						continue;
-					}
+				// Only initialize updater if the plugin is installed and has a release source:
+				// the LUS server (production) needs no GitHub repository, the GitHub provider does.
+				if ( $this->get_addon_status( $addon['slug'] ) === 'installed' && ( $use_lus || ! empty( $addon['github_repo'] ) ) ) {
+					$github_repo = $this->extract_github_repo( (string) ( $addon['github_repo'] ?? '' ) );
 
 					try {
 						$this->updaters[ $addon['slug'] ] = new \Form_Quizz_FQI3\Plugin_Updater(
@@ -1913,7 +1851,8 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					return false;
 				}
 
-				$latest = $updater->force_check();
+				// Cached by the provider: a forced check here would hit GitHub / LUS on every page view.
+				$latest = $updater->get_latest();
 				if ( ! $latest ) {
 					return false;
 				}
