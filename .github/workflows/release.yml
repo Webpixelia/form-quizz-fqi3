@@ -6,6 +6,12 @@ name: Build release zip
 # - Automatic: runs when a release is published.
 # - Manual: Actions > "Build release zip" > Run workflow, then type an existing release tag
 #   (e.g. v3.6.1). The zip is rebuilt from that tag and replaces the one on the release (--clobber).
+#
+# Second job "publish-lus": publishes that same zip to the LUS update server. It is skipped
+# until the repository variable LUS_SERVER_URL is defined (LUS must be reachable from GitHub).
+# Needs: variable LUS_SERVER_URL; secret LUS_DEPLOY_TOKEN; secret LUS_SIGNING_KEY (+ variable
+# LUS_SIGNING_KEY_ID, default k1) in the "release" environment.
+
 on:
   release:
     types: [published]
@@ -70,3 +76,50 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release upload "$TAG_NAME" form-quizz-fqi3.zip --clobber --repo "$GITHUB_REPOSITORY"
+
+  publish-lus:
+    needs: package
+    if: ${{ vars.LUS_SERVER_URL != '' }}
+    runs-on: ubuntu-24.04
+    environment: release
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ env.TAG_NAME }}
+
+      # Publish exactly the zip attached to the GitHub release (same bytes users could download).
+      - name: Download the release zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG_NAME" --pattern form-quizz-fqi3.zip --repo "$GITHUB_REPOSITORY"
+
+      - name: Generate release.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --json body,isPrerelease > release-meta.json
+          CHANNEL=$(jq -r 'if .isPrerelease then "beta" else "stable" end' release-meta.json)
+          REQUIRES=$(grep -m1 -E '^Requires at least:' readme.txt | sed -E 's/.*:[[:space:]]*//' | tr -d '\r')
+          TESTED=$(grep -m1 -E '^Tested up to:' readme.txt | sed -E 's/.*:[[:space:]]*//' | tr -d '\r')
+          REQUIRES_PHP=$(grep -m1 -E '^Requires PHP:' readme.txt | sed -E 's/.*:[[:space:]]*//' | tr -d '\r')
+          jq -n \
+            --arg version "$VERSION" \
+            --arg channel "$CHANNEL" \
+            --arg released_at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg requires "$REQUIRES" --arg tested "$TESTED" --arg php "$REQUIRES_PHP" \
+            --slurpfile meta release-meta.json \
+            '{product: "form-quizz-fqi3", version: $version, channel: $channel,
+              released_at: $released_at, changelog: ($meta[0].body // ""),
+              compat: {requires: $requires, tested: $tested, requires_php: $php}}' > release.json
+          cat release.json
+
+      - name: Publish to LUS
+        uses: webpixelia/lus/.github/actions/publish-release@main
+        with:
+          server-url: ${{ vars.LUS_SERVER_URL }}
+          deploy-token: ${{ secrets.LUS_DEPLOY_TOKEN }}
+          manifest-path: release.json
+          artifact-path: form-quizz-fqi3.zip
+          signing-key: ${{ secrets.LUS_SIGNING_KEY }}
+          signing-key-id: ${{ vars.LUS_SIGNING_KEY_ID || 'k1' }}
