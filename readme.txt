@@ -6,7 +6,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Tags: Quiz Form
 Requires at least: 6.8
 Tested up to: 7.1.4
-Stable tag: 3.6.1
+Stable tag: 3.7.0
 Requires PHP: 8.0
 
 Create engaging, multi-level quizzes quickly and easily with full control over questions, stats, and gamification.  
@@ -119,6 +119,14 @@ Yes, the plugin fully supports right-to-left (RTL) languages.
 10. Developer page View
 
 == Changelog ==
+= 3.7.0 =
+* Feature: Updates and add-on installation through the Webpixelia license server, with a license key. Set FQI3_LICENSE_PROVIDER to "server" and FQI3_LICENSE_KEY in wp-config.php, or enter the key in the new License section of the options page. The GitHub provider stays the default for development sites.
+* Feature: License section in the options page: activate this site, check the status (state, expiry, sites used) and remove the key.
+* Feature: Update packages downloaded from the license server are verified with a SHA-256 checksum before installation. A single-use download link is requested at update time.
+* Improvement: When a license has expired, the options page says when the expiry was detected instead of showing an outdated date.
+* Improvement: A "too many requests" answer from the license server pauses the checks for the delay it announces and shows how long to wait, without changing the license status.
+* Improvement: License checks, failures included, are cached so the license server is not queried repeatedly.
+
 = 3.6.1 =
 * Fix: Updating an add-on hosted in a private GitHub repository failed with "Not Found". The update package is now downloaded with the GitHub token (only for the updated plugin and only from its own repository), and the API URL of a release asset is used when a token is set.
 * Improvement: A failed package download now reports the HTTP status returned by GitHub and reminds that the token must be able to read the repository.
