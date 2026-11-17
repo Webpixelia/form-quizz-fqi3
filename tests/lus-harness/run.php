@@ -133,6 +133,16 @@ if ($mode === 'b') {
     t('S15e Retry-After démesuré : plafonné à 60 min', ServerLicenseProvider::retryAfterMinutes(Env::$options['fqi3_license_status'] ?? []) === 60, (string) ServerLicenseProvider::retryAfterMinutes(Env::$options['fqi3_license_status'] ?? []));
     FakeLus::$rate429NoBody = false;
 
+    // S16 clé invalide après une clé valide : plus de date d'expiration ni de sites hérités de l'ancienne clé
+    $p = fresh(); $p->validate();
+    $okSt = Env::$options['fqi3_license_status'] ?? [];
+    t('S16 précondition : clé valide => expiration et sites présents', !empty($okSt['expires_at']) && isset($okSt['instances']));
+    Env::$options['fqi3_license_key'] = 'LUS-NOPE'; Env::$now += 5;
+    $p->validate();
+    $st = Env::$options['fqi3_license_status'] ?? [];
+    t('S16b clé inconnue : état invalid', ($st['state'] ?? '') === 'invalid', (string) ($st['state'] ?? ''));
+    t('S16c clé inconnue : expiration, sites et produits de l\'ancienne clé effacés', !isset($st['expires_at']) && !isset($st['instances']) && !isset($st['products']), json_encode(array_keys($st)));
+
     // S6 409 : activation
     $p = fresh(); Env::$options['fqi3_license_key'] = 'LUS-GOOD2'; // instance non activée
     $u = $p->checkUpdates([CORE => '3.6.1']);

@@ -601,6 +601,11 @@ class ServerLicenseProvider implements LicenseProviderInterface
             // Réponse définitive de LUS : plus de pause en cours.
             unset($next['retry_until']);
 
+            // Clé inconnue de LUS : les données d'une clé précédente (expiration, sites, produits) ne la concernent pas.
+            if ($state === 'invalid') {
+                unset($next['expires_at'], $next['instances'], $next['products'], $next['license_status']);
+            }
+
             // LUS ne renvoie pas la date d'expiration dans l'erreur `license_expired` : on mémorise le moment où
             // l'expiration a été constatée, pour ne pas présenter l'ancienne date comme une date à venir.
             if ($state === 'expired') {
