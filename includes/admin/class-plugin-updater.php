@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/class-package-signature.php';
 require_once __DIR__ . '/license-providers/LicenseProviderInterface.php';
 require_once __DIR__ . '/license-providers/GitHubLicenseProvider.php';
 require_once __DIR__ . '/license-providers/ServerLicenseProvider.php';
@@ -163,22 +164,23 @@ class Plugin_Updater {
 			);
 		}
 
-		return self::download_verified( $package['url'], $package['sha256'], $package['headers'], true );
+		return self::download_verified( $package['url'], $package['sha256'], $package['headers'], true, $package['signed'] ?? array() );
 	}
 
 	/**
-	 * Download a package to a temporary file and verify its sha256.
+	 * Download a package to a temporary file and verify its sha256 and, for LUS packages, its Ed25519 signature.
 	 *
 	 * Shared by the updater and FQI3_Addons_Page::install_addon().
 	 *
 	 * @param string               $url            Package URL.
 	 * @param string               $sha256         Expected hash (hex). Empty = no verification (GitHub provider only).
 	 * @param array<string,string> $headers        Extra request headers (e.g. GitHub Authorization).
-	 * @param bool                 $require_sha256 Refuse the package when no valid sha256 was supplied (server provider).
+	 * @param bool                 $require_sha256 Server provider: refuse the package without a valid sha256 AND without a valid signature.
+	 * @param array<string,mixed>  $signed         Signature data from the provider (slug, version, channel, signature, kid).
 	 * @return string|\WP_Error Path of the temporary file (the caller deletes it), or an error.
 	 * @since 3.7.0
 	 */
-	public static function download_verified( string $url, string $sha256 = '', array $headers = array(), bool $require_sha256 = false ) {
+	public static function download_verified( string $url, string $sha256 = '', array $headers = array(), bool $require_sha256 = false, array $signed = array() ) {
 		if ( $require_sha256 && 1 !== preg_match( '/^[a-f0-9]{64}$/i', $sha256 ) ) {
 			return new \WP_Error( 'fqi3_sha256_missing', __( 'The update was refused: the server did not provide a valid checksum.', 'form-quizz-fqi3' ) );
 		}
@@ -228,6 +230,16 @@ class Plugin_Updater {
 		if ( '' !== $sha256 && ! hash_equals( strtolower( $sha256 ), (string) hash_file( 'sha256', $tmp_file ) ) ) {
 			@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
 			return new \WP_Error( 'fqi3_sha256_mismatch', __( 'The update package is corrupted (checksum mismatch) and was not installed.', 'form-quizz-fqi3' ) );
+		}
+
+		// Signature: mandatory in server mode (unless explicitly allowed on a local site); a signature that is
+		// present is always verified, whatever the mode.
+		if ( $require_sha256 || ! empty( $signed['signature'] ) ) {
+			$verified = Package_Signature::verify( $signed, (string) hash_file( 'sha256', $tmp_file ) );
+			if ( is_wp_error( $verified ) ) {
+				@unlink( $tmp_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Temporary file.
+				return $verified;
+			}
 		}
 
 		return $tmp_file;

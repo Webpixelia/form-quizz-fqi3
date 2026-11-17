@@ -43,6 +43,9 @@ interface LicenseProviderInterface
      *   requires: ?string,
      *   requires_php: ?string,
      *   sha256: string,
+     *   channel?: string,
+     *   signature?: ?string,
+     *   signature_kid?: ?string,
      * }>|null
      *   Map plugin_basename => données de mise à jour (uniquement les plugins ayant une version plus récente).
      *   null = échec (serveur injoignable, licence invalide…) : voir getLastError().
@@ -74,7 +77,8 @@ interface LicenseProviderInterface
      *
      * @param string $slug             Slug du plugin.
      * @param string $installedVersion Version installée ('0.0.0' pour une première installation).
-     * @return array{url: string, sha256: string, version: string, headers: array<string, string>}|null
+     * @return array{url: string, sha256: string, version: string, headers: array<string, string>, signed?: array{slug: string, version: string, channel: string, signature: ?string, kid: ?string}}|null
+     *   `signed` n'est fourni que par le serveur LUS (signature Ed25519 à vérifier après téléchargement).
      */
     public function resolveDownload(string $slug, string $installedVersion = '0.0.0'): ?array;
 

@@ -63,6 +63,9 @@ final class FakeLus {
     public static string $zip = '';
     public static bool $corrupt = false, $down = false, $emptySha = false, $badHost = false, $rate429NoBody = false;
     public static int $retryAfter = 120;
+    /** @var array{kid: string, sk: string}|null Clé de signature de la « CI » (null = artefact non signé). */
+    public static ?array $sign = null;
+    public static string $channel = 'stable';
     public static function reset(): void {
         self::$licenses = [
             'LUS-GOOD'    => ['status' => 'active', 'max' => 3, 'products' => ['form-quizz-fqi3', 'form-quizz-fqi3-subscription-addon']],
@@ -74,7 +77,7 @@ final class FakeLus {
         self::$tokens = []; self::$log = []; self::$failures = 0;
         self::$zip = str_repeat('PK-fake-zip-', 40);
         self::$corrupt = self::$down = self::$emptySha = self::$badHost = self::$rate429NoBody = false;
-        self::$retryAfter = 120;
+        self::$retryAfter = 120; self::$sign = null; self::$channel = 'stable';
     }
     public static function calls(string $path = ''): int {
         return count(array_filter(self::$log, fn($l) => $path === '' || $l === $path));
@@ -129,7 +132,13 @@ final class FakeLus {
                 // WordPressResponseFormatter : `if (! isset($pluginBasenames[$slug])) continue;` puis `$plugins[$basename]`
                 if (!isset($body['plugins'][$slug])) { continue; }
                 $plugins[$body['plugins'][$slug]] = ['slug' => $slug, 'plugin' => $body['plugins'][$slug], 'new_version' => $latest,
-                    'package' => "https://$host/v1/download/$jti", 'url' => null, 'tested' => '6.8', 'requires' => '6.4', 'requires_php' => '8.0', 'sha256' => $sha];
+                    'package' => "https://$host/v1/download/$jti", 'url' => null, 'tested' => '6.8', 'requires' => '6.4', 'requires_php' => '8.0', 'sha256' => $sha,
+                    'channel' => self::$channel, 'signature' => null, 'signature_kid' => null];
+                if (self::$sign !== null) {   // sign-artifact.php : message lus-artifact-v1|produit|version|canal|sha256 (sha256 calculé par LUS)
+                    $msg = implode('|', ['lus-artifact-v1', $slug, $latest, self::$channel, hash('sha256', self::$zip)]);
+                    $plugins[$body['plugins'][$slug]]['signature'] = base64_encode(sodium_crypto_sign_detached($msg, base64_decode(self::$sign['sk'])));
+                    $plugins[$body['plugins'][$slug]]['signature_kid'] = self::$sign['kid'];
+                }
             }
             return self::res(200, ['checked_at' => 'now', 'next_check_after' => 43200, 'plugins' => $plugins]);
         }

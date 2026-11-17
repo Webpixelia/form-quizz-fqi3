@@ -290,7 +290,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 							'name' => 'WooCommerce',
 						),
 					),
-					'available'   => false,
+					'available'   => true,
 				),
 				array(
 					'title'       => 'Webhooks & Automations Add-on',
@@ -359,7 +359,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 					'slug'        => 'form-quizz-fqi3-multilingual-addon',
 					'status'      => $this->get_addon_status( 'form-quizz-fqi3-multilingual-addon' ),
 					'dependance'  => '',
-					'available'   => false,
+					'available'   => true,
 				),
 			);
 		}
@@ -1584,7 +1584,7 @@ if ( ! class_exists( 'FQI3_Addons_Page' ) ) :
 				);
 			}
 
-			$tmp_file = \Form_Quizz_FQI3\Plugin_Updater::download_verified( $package['url'], $package['sha256'], $package['headers'], $is_server );
+			$tmp_file = \Form_Quizz_FQI3\Plugin_Updater::download_verified( $package['url'], $package['sha256'], $package['headers'], $is_server, $package['signed'] ?? array() );
 			if ( is_wp_error( $tmp_file ) ) {
 				return $tmp_file;
 			}

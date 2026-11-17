@@ -181,6 +181,14 @@ class ServerLicenseProvider implements LicenseProviderInterface
             'sha256'  => $entry['sha256'],
             'version' => $entry['new_version'],
             'headers' => [],
+            // Ce que LUS a signé : vérifié après téléchargement (Package_Signature::verify), avec le hash du fichier reçu.
+            'signed'  => [
+                'slug'      => $slug,
+                'version'   => $entry['new_version'],
+                'channel'   => $entry['channel'],
+                'signature' => $entry['signature'],
+                'kid'       => $entry['signature_kid'],
+            ],
         ];
     }
 
@@ -453,6 +461,9 @@ class ServerLicenseProvider implements LicenseProviderInterface
                 'requires'     => self::str($data, 'requires'),
                 'requires_php' => self::str($data, 'requires_php'),
                 'sha256'       => strtolower((string) ($data['sha256'] ?? '')),
+                'channel'      => (string) ($data['channel'] ?? ''),
+                'signature'    => self::str($data, 'signature'),
+                'signature_kid' => self::str($data, 'signature_kid'),
             ];
         }
 

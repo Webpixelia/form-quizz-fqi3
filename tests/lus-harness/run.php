@@ -95,8 +95,12 @@ if ($mode === 'b') {
 
     // S2c téléchargement complet via le hook upgrader_pre_download, 11 min après
     Env::$now += 660;
+    // Mode serveur : le paquet doit être signé par une clé de confiance (cf. S17 pour les cas de refus).
+    $kpS = sodium_crypto_sign_keypair();
+    FakeLus::$sign = ['kid' => 'k1', 'sk' => base64_encode(sodium_crypto_sign_secretkey($kpS))];
+    Env::$filters['fqi3_lus_public_keys'] = [fn($k) => ['k1' => base64_encode(sodium_crypto_sign_publickey($kpS))]];
     $f = $upd[0]->download_private_package(false, $tr->response[CORE]->package, null, ['plugin' => CORE]);
-    t('S2c hook upgrader_pre_download : fichier téléchargé et sha256 vérifié', is_string($f) && file_exists($f) && hash_file('sha256', $f) === hash('sha256', FakeLus::$zip), is_string($f) ? 'ok' : (is_wp_error($f) ? $f->get_error_code() : gettype($f)));
+    t('S2c hook upgrader_pre_download : fichier téléchargé, sha256 et signature vérifiés', is_string($f) && file_exists($f) && hash_file('sha256', $f) === hash('sha256', FakeLus::$zip), is_string($f) ? 'ok' : (is_wp_error($f) ? $f->get_error_code() : gettype($f)));
     t('S2d hook ignoré pour un autre plugin', $upd[0]->download_private_package(false, 'x', null, ['plugin' => 'autre/autre.php']) === false);
 
     // S3 zip corrompu
@@ -157,5 +161,84 @@ if ($mode === 'b') {
     $p = new ServerLicenseProvider(SRV);
     $u = $p->checkUpdates([CORE => '3.6.1']);
     t('S6d clé en constante + site non activé : activation automatique puis mise à jour', is_array($u) && isset($u[CORE]) && FakeLus::calls('/v1/licenses/activate') === 1);
+}
+
+// ---------------------------------------------------------------------------------------------
+// S17 Signature Ed25519 des paquets (Package_Signature + Plugin_Updater::download_verified)
+// ---------------------------------------------------------------------------------------------
+if ($mode === 'b' && file_exists("$root/class-package-signature.php")) {
+    require_once "$root/class-package-signature.php";
+    require_once "$root/class-plugin-updater.php";
+    use_signature_tests: {
+        $kp   = sodium_crypto_sign_keypair();
+        $pub  = base64_encode(sodium_crypto_sign_publickey($kp));
+        $sk   = base64_encode(sodium_crypto_sign_secretkey($kp));
+        $kp2  = sodium_crypto_sign_keypair();
+        $pub2 = base64_encode(sodium_crypto_sign_publickey($kp2));
+        $sk2  = base64_encode(sodium_crypto_sign_secretkey($kp2));
+        $trust = function (array $keys) { Env::$filters['fqi3_lus_public_keys'] = [fn($k) => $keys]; };
+        $dl = function (?array $sign, array $trusted, ?callable $tweak = null) use ($trust) {
+            $p = fresh(); Env::$envType = 'production'; $trust($trusted);
+            FakeLus::$sign = $sign;
+            $d = $p->resolveDownload('form-quizz-fqi3', '3.6.1');
+            if ($d === null) { return 'resolve-null'; }
+            if ($tweak) { $d = $tweak($d); }
+            $r = \Form_Quizz_FQI3\Plugin_Updater::download_verified($d['url'], $d['sha256'], $d['headers'], true, $d['signed'] ?? []);
+            if (is_wp_error($r)) { return $r->get_error_code(); }
+            @unlink($r);
+            return 'ok';
+        };
+        $k1 = ['k1' => $pub];
+        t('S17 paquet correctement signé : installé', $dl(['kid' => 'k1', 'sk' => $sk], $k1) === 'ok');
+        t('S17b paquet non signé en mode serveur : refusé', $dl(null, $k1) === 'fqi3_signature_missing', $dl(null, $k1));
+        t('S17c clé inconnue (kid absent de la liste de confiance) : refusé', $dl(['kid' => 'k9', 'sk' => $sk], $k1) === 'fqi3_signature_unknown_key', $dl(['kid' => 'k9', 'sk' => $sk], $k1));
+        t('S17d signé par une autre clé (kid k1 mais clé privée étrangère) : refusé', $dl(['kid' => 'k1', 'sk' => $sk2], $k1) === 'fqi3_signature_invalid', $dl(['kid' => 'k1', 'sk' => $sk2], $k1));
+        t('S17e aucune clé de confiance configurée : refusé (fail closed)', $dl(['kid' => 'k1', 'sk' => $sk], []) === 'fqi3_signature_unknown_key');
+        t('S17f rotation : ancienne et nouvelle clés acceptées', $dl(['kid' => 'k1', 'sk' => $sk], ['k1' => $pub, 'k2' => $pub2]) === 'ok' && $dl(['kid' => 'k2', 'sk' => $sk2], ['k1' => $pub, 'k2' => $pub2]) === 'ok');
+        t('S17g version altérée après signature : refusé', $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['version'] = '9.9.9'; return $d; }) === 'fqi3_signature_invalid');
+        t('S17h canal altéré (stable → beta) : refusé', $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['channel'] = 'beta'; return $d; }) === 'fqi3_signature_invalid');
+        t('S17i slug altéré : refusé', $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['slug'] = 'autre-plugin'; return $d; }) === 'fqi3_signature_invalid');
+        t('S17j champ contenant « | » : refusé', $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['channel'] = 'stable|x'; return $d; }) === 'fqi3_signature_invalid');
+        t('S17k signature mal encodée / tronquée : refusé sans fatal', $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['signature'] = '!!pas-du-base64!!'; return $d; }) === 'fqi3_signature_invalid' && $dl(['kid' => 'k1', 'sk' => $sk], $k1, function ($d) { $d['signed']['signature'] = base64_encode('court'); return $d; }) === 'fqi3_signature_invalid');
+        t('S17l clé publique mal formée dans la config : refusé sans fatal', $dl(['kid' => 'k1', 'sk' => $sk], ['k1' => 'n-importe-quoi']) === 'fqi3_signature_invalid');
+
+        // Le fichier reçu doit correspondre à ce qui a été signé (hash recalculé localement, pas celui du serveur).
+        $p = fresh(); Env::$envType = 'production'; $trust($k1); FakeLus::$sign = ['kid' => 'k1', 'sk' => $sk];
+        $d = $p->resolveDownload('form-quizz-fqi3', '3.6.1'); FakeLus::$corrupt = true;
+        $r = \Form_Quizz_FQI3\Plugin_Updater::download_verified($d['url'], $d['sha256'], $d['headers'], true, $d['signed']);
+        FakeLus::$corrupt = false;
+        t('S17m fichier modifié en stockage : refusé (sha256), jamais installé', is_wp_error($r) && $r->get_error_code() === 'fqi3_sha256_mismatch');
+        // Même si le serveur mentait sur le sha256 (en cohérence avec le fichier altéré), la signature ne correspondrait plus.
+        $p = fresh(); Env::$envType = 'production'; $trust($k1); FakeLus::$sign = ['kid' => 'k1', 'sk' => $sk];
+        $d = $p->resolveDownload('form-quizz-fqi3', '3.6.1'); FakeLus::$corrupt = true;
+        $r = \Form_Quizz_FQI3\Plugin_Updater::download_verified($d['url'], hash('sha256', strrev(FakeLus::$zip)), $d['headers'], true, $d['signed']);
+        FakeLus::$corrupt = false;
+        t('S17n serveur complice (sha256 recalculé sur un fichier altéré) : la signature le détecte', is_wp_error($r) && $r->get_error_code() === 'fqi3_signature_invalid', is_wp_error($r) ? $r->get_error_code() : 'accepté');
+
+        // Mode non signé : seulement local/development ET constante explicite.
+        $p = fresh(); $trust($k1); FakeLus::$sign = null;
+        $unsigned = function () use ($p) { $d = $p->resolveDownload('form-quizz-fqi3', '3.6.1'); $r = \Form_Quizz_FQI3\Plugin_Updater::download_verified($d['url'], $d['sha256'], $d['headers'], true, $d['signed']); if (is_wp_error($r)) { return $r->get_error_code(); } @unlink($r); return 'ok'; };
+        Env::$envType = 'local';
+        t('S17o non signé sur site local SANS la constante : refusé', $unsigned() === 'fqi3_signature_missing');
+        define('FQI3_LUS_ALLOW_UNSIGNED', true);
+        $p = fresh(); $trust($k1); FakeLus::$sign = null; Env::$envType = 'local';
+        t('S17p non signé sur site local AVEC FQI3_LUS_ALLOW_UNSIGNED : accepté', $unsigned() === 'ok');
+        $p = fresh(); $trust($k1); FakeLus::$sign = null; Env::$envType = 'production';
+        t('S17q non signé en production même avec la constante : refusé', $unsigned() === 'fqi3_signature_missing');
+        $p = fresh(); $trust($k1); FakeLus::$sign = ['kid' => 'k1', 'sk' => $sk2]; Env::$envType = 'local';
+        t('S17r signature présente mais fausse sur site local avec la constante : refusé (la tolérance ne vaut que pour l\'absence)', $unsigned() === 'fqi3_signature_invalid');
+        Env::$envType = 'production';
+
+        // Contrat avec LUS : le provider transmet bien canal, signature et kid.
+        $p = fresh(); FakeLus::$sign = ['kid' => 'k1', 'sk' => $sk]; FakeLus::$channel = 'beta';
+        $u = $p->checkUpdates([CORE => '3.6.1']);
+        t('S17s /wp/check : canal, signature et kid transmis par le provider', ($u[CORE]['channel'] ?? '') === 'beta' && ($u[CORE]['signature_kid'] ?? '') === 'k1' && !empty($u[CORE]['signature']));
+        $trust($k1);
+        $d = $p->resolveDownload('form-quizz-fqi3', '3.6.1'); $r = \Form_Quizz_FQI3\Plugin_Updater::download_verified($d['url'], $d['sha256'], $d['headers'], true, $d['signed']);
+        t('S17t canal beta signé en beta : accepté', !is_wp_error($r), is_wp_error($r) ? $r->get_error_code() : '');
+        if (!is_wp_error($r)) { @unlink($r); }
+        t('S17u clé de confiance intégrée au plugin : aucune clé privée ni valeur de démonstration', \Form_Quizz_FQI3\Package_Signature::PUBLIC_KEYS === [] || count(array_filter(\Form_Quizz_FQI3\Package_Signature::PUBLIC_KEYS, fn($k) => strlen(base64_decode($k)) === SODIUM_CRYPTO_SIGN_PUBLICKEYBYTES)) === count(\Form_Quizz_FQI3\Package_Signature::PUBLIC_KEYS));
+        Env::$filters['fqi3_lus_public_keys'] = [];
+    }
 }
 echo "\n$pass passés, $fail échoués\n";
