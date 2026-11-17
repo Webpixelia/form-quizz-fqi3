@@ -97,6 +97,74 @@ class FQI3_License_Settings {
 	}
 
 	/**
+	 * Expiry line of the license screen: label and value (both empty = nothing to show).
+	 *
+	 * LUS does not send the expiry date inside a `license_expired` error: the date stored in the status is then the one
+	 * of the last successful check. It is shown only if it really is in the past; otherwise (date unknown or still in the
+	 * future, e.g. the license was shortened on the server) the screen says when the expiry was detected.
+	 *
+	 * @param array $status Value of LicenseProviderFactory::getStatus().
+	 * @return array{label: string, value: string}
+	 */
+	public static function expires_info( array $status ): array {
+		$expires = $status['expires_at'] ?? null;
+		$date    = '';
+		$ts      = 0;
+
+		if ( is_string( $expires ) && '' !== $expires ) {
+			$parsed = strtotime( $expires );
+			$ts     = false === $parsed ? 0 : $parsed;
+			$date   = (string) mysql2date( get_option( 'date_format' ), $expires );
+		}
+
+		if ( 'expired' === ( $status['state'] ?? '' ) ) {
+			if ( $ts > 0 && $ts <= time() ) {
+				return array(
+					'label' => __( 'Expired on:', 'form-quizz-fqi3' ),
+					'value' => $date,
+				);
+			}
+
+			$detected = (int) ( $status['expired_detected_at'] ?? 0 );
+
+			return array(
+				'label' => __( 'Expired:', 'form-quizz-fqi3' ),
+				'value' => $detected > 0
+					/* translators: %s: time elapsed since the expiry was detected, e.g. "2 hours" */
+					? sprintf( __( 'detected %s ago', 'form-quizz-fqi3' ), human_time_diff( $detected ) )
+					: __( 'renew the license to receive updates', 'form-quizz-fqi3' ),
+			);
+		}
+
+		if ( '' !== $date ) {
+			return array(
+				'label' => __( 'Expires:', 'form-quizz-fqi3' ),
+				'value' => $date,
+			);
+		}
+
+		return array(
+			'label' => '',
+			'value' => '',
+		);
+	}
+
+	/**
+	 * "used / max" text of the sites counter ('' when unknown).
+	 *
+	 * @param array $status Value of LicenseProviderFactory::getStatus().
+	 */
+	public static function instances_label( array $status ): string {
+		$instances = $status['instances'] ?? null;
+
+		if ( ! is_array( $instances ) ) {
+			return '';
+		}
+
+		return (int) ( $instances['used'] ?? 0 ) . ' / ' . ( isset( $instances['max'] ) ? (int) $instances['max'] : '∞' );
+	}
+
+	/**
 	 * Human-readable license state from the stored status (no HTTP request).
 	 *
 	 * @param array $status Value of LicenseProviderFactory::getStatus().
@@ -127,8 +195,9 @@ class FQI3_License_Settings {
 		$can_edit  = current_user_can( self::capability() );
 		$checked   = (int) ( $status['checked_at'] ?? 0 );
 		$instance  = LicenseProviderFactory::makeServer()->getInstanceId();
-		$expires   = $status['expires_at'] ?? null;
-		$instances = $status['instances'] ?? null;
+		$expires   = self::expires_info( $status );
+		$instances = self::instances_label( $status );
+		$retry_min = ServerLicenseProvider::retryAfterMinutes( $status );
 		?>
 		<div id="fqi3-license"
 			data-nonce="<?php echo esc_attr( wp_create_nonce( self::NONCE_ACTION ) ); ?>"
@@ -152,18 +221,21 @@ class FQI3_License_Settings {
 					</small>
 				<?php endif; ?>
 			</p>
-			<?php if ( is_string( $expires ) && '' !== $expires ) : ?>
-				<p class="mb-2">
-					<strong><?php esc_html_e( 'Expires:', 'form-quizz-fqi3' ); ?></strong>
-					<span id="fqi3-license-expires"><?php echo esc_html( mysql2date( get_option( 'date_format' ), $expires ) ); ?></span>
-				</p>
-			<?php endif; ?>
-			<?php if ( is_array( $instances ) ) : ?>
-				<p class="mb-2">
-					<strong><?php esc_html_e( 'Sites:', 'form-quizz-fqi3' ); ?></strong>
-					<span id="fqi3-license-instances"><?php echo esc_html( (int) ( $instances['used'] ?? 0 ) . ' / ' . ( isset( $instances['max'] ) ? (int) $instances['max'] : '∞' ) ); ?></span>
-				</p>
-			<?php endif; ?>
+			<p class="mb-2" id="fqi3-license-expires-row"<?php echo '' === $expires['value'] ? ' hidden' : ''; ?>>
+				<strong id="fqi3-license-expires-label"><?php echo esc_html( $expires['label'] ); ?></strong>
+				<span id="fqi3-license-expires"><?php echo esc_html( $expires['value'] ); ?></span>
+			</p>
+			<p class="mb-2" id="fqi3-license-instances-row"<?php echo '' === $instances ? ' hidden' : ''; ?>>
+				<strong><?php esc_html_e( 'Sites:', 'form-quizz-fqi3' ); ?></strong>
+				<span id="fqi3-license-instances"><?php echo esc_html( $instances ); ?></span>
+			</p>
+			<p class="text-warning mb-2" id="fqi3-license-retry"<?php echo $retry_min > 0 ? '' : ' hidden'; ?>>
+				<?php
+				if ( $retry_min > 0 ) {
+					echo esc_html( ServerLicenseProvider::messageForRetry( $retry_min ) );
+				}
+				?>
+			</p>
 			<p class="text-muted mb-2">
 				<?php
 				/* translators: %s: domain name used to identify this site to the license server */
@@ -211,7 +283,8 @@ class FQI3_License_Settings {
 		}
 
 		if ( ! $this->throttle() ) {
-			wp_send_json_error( array( 'message' => ServerLicenseProvider::messageForCode( 'rate_limited' ) ), 429 );
+			// Local limit of this screen, not an answer of the license server: the message says so.
+			wp_send_json_error( array( 'message' => __( 'Too many attempts from this account. Wait a few minutes before trying again.', 'form-quizz-fqi3' ) ), 429 );
 		}
 	}
 
@@ -222,15 +295,29 @@ class FQI3_License_Settings {
 	 */
 	private function reply( ?array $error ): void {
 		$status = LicenseProviderFactory::getStatus();
-		$data   = array(
-			'state'      => self::state_label( $status ),
-			'key'        => self::mask_key( LicenseProviderFactory::getLicenseKey() ),
-			'expires_at' => $status['expires_at'] ?? null,
-			'instances'  => $status['instances'] ?? null,
+		$expires = self::expires_info( $status );
+		$data    = array(
+			'state'           => self::state_label( $status ),
+			'key'             => self::mask_key( LicenseProviderFactory::getLicenseKey() ),
+			'expires_at'      => $status['expires_at'] ?? null,
+			'instances'       => $status['instances'] ?? null,
+			'expires_label'   => $expires['label'],
+			'expires_value'   => $expires['value'],
+			'instances_label' => self::instances_label( $status ),
+			'retry_message'   => '',
 		);
 
 		if ( null !== $error ) {
-			$data['message'] = ServerLicenseProvider::messageForCode( (string) $error['code'] );
+			// The provider message already carries the wait time for a 429 (Retry-After).
+			$data['message'] = '' !== (string) ( $error['message'] ?? '' )
+				? (string) $error['message']
+				: ServerLicenseProvider::messageForCode( (string) $error['code'] );
+
+			$retry_min = ServerLicenseProvider::retryAfterMinutes( $status );
+			if ( 'rate_limited' === (string) $error['code'] && $retry_min > 0 ) {
+				$data['retry_message'] = ServerLicenseProvider::messageForRetry( $retry_min );
+			}
+
 			wp_send_json_error( $data );
 		}
 

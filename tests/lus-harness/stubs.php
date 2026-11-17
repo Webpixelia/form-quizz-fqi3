@@ -53,12 +53,16 @@ function get_plugin_data($f) { return ['Name' => 'X', 'Version' => $GLOBALS['ins
 function wpautop($s) { return $s; }
 function esc_url_raw($u) { return $u; }
 function __return_true() { return true; }
+function _n($single, $plural, $n, $d = null) { return 1 === (int) $n ? $single : $plural; }
+function mysql2date($format, $date) { return substr((string) $date, 0, 10); }
+function human_time_diff($from, $to = 0) { return max(1, (int) round(((int) ($to ?: time()) - (int) $from) / 60)) . ' mins'; }
 
 final class FakeLus {
     public static array $licenses, $activations, $latest, $tokens, $log;
     public static int $failures = 0;
     public static string $zip = '';
-    public static bool $corrupt = false, $down = false, $emptySha = false, $badHost = false;
+    public static bool $corrupt = false, $down = false, $emptySha = false, $badHost = false, $rate429NoBody = false;
+    public static int $retryAfter = 120;
     public static function reset(): void {
         self::$licenses = [
             'LUS-GOOD'    => ['status' => 'active', 'max' => 3, 'products' => ['form-quizz-fqi3', 'form-quizz-fqi3-subscription-addon']],
@@ -69,7 +73,8 @@ final class FakeLus {
         self::$latest = ['form-quizz-fqi3' => '3.7.0', 'form-quizz-fqi3-subscription-addon' => '1.4.0', 'form-quizz-fqi3-social-login-addon' => '2.0.0'];
         self::$tokens = []; self::$log = []; self::$failures = 0;
         self::$zip = str_repeat('PK-fake-zip-', 40);
-        self::$corrupt = self::$down = self::$emptySha = self::$badHost = false;
+        self::$corrupt = self::$down = self::$emptySha = self::$badHost = self::$rate429NoBody = false;
+        self::$retryAfter = 120;
     }
     public static function calls(string $path = ''): int {
         return count(array_filter(self::$log, fn($l) => $path === '' || $l === $path));
@@ -86,6 +91,10 @@ final class FakeLus {
         $path = $p['path'];
         self::$log[] = $path;
         if (self::$down) { return new WP_Error('http_request_failed', 'cURL error 28: timeout'); }
+        // 429 sans corps d'erreur LUS (proxy, throttle générique), avec Retry-After
+        if (self::$rate429NoBody && in_array($path, ['/v1/wp/check', '/v1/licenses/activate', '/v1/licenses/validate'], true)) {
+            return ['response' => ['code' => 429], 'body' => 'Too Many Attempts.', 'headers' => ['retry-after' => (string) self::$retryAfter]];
+        }
         // TrackLicenseFailures (10 échecs/h/IP)
         if (in_array($path, ['/v1/wp/check', '/v1/licenses/activate', '/v1/licenses/validate'], true) && self::$failures >= 10) {
             return self::res(429, ['error' => ['code' => 'rate_limited']], ['retry-after' => '3600']);
@@ -105,6 +114,7 @@ final class FakeLus {
             if (!$ok) { return self::err('validation_failed', 422); }
             $lic = self::$licenses[$body['license_key']] ?? null;
             if (!$lic || $lic['status'] !== 'active') { return self::err('license_invalid', 403); }
+            if (!empty($lic['expired'])) { return self::err('license_expired', 403); }
             $inst = $norm($body['instance']['id']);
             if (!in_array($inst, self::$activations[$body['license_key']], true)) { return self::err('instance_not_activated', 409); }
             $plugins = [];
@@ -126,6 +136,7 @@ final class FakeLus {
         if ($path === '/v1/licenses/activate') {
             $lic = self::$licenses[$body['license_key'] ?? ''] ?? null;
             if (!$lic || $lic['status'] !== 'active') { return self::err('license_invalid', 403); }
+            if (!empty($lic['expired'])) { return self::err('license_expired', 403); }
             $inst = $norm($body['instance']['id']);
             if (!in_array($inst, self::$activations[$body['license_key']], true)) { self::$activations[$body['license_key']][] = $inst; }
             return self::res(200, ['activated' => true, 'license' => ['status' => 'active', 'expires_at' => null, 'instances' => ['used' => count(self::$activations[$body['license_key']]), 'max' => $lic['max']]]]);
@@ -139,6 +150,7 @@ final class FakeLus {
         if ($path === '/v1/licenses/validate') {
             $lic = self::$licenses[$body['license_key'] ?? ''] ?? null;
             if (!$lic || $lic['status'] !== 'active') { return self::err('license_invalid', 403); }
+            if (!empty($lic['expired'])) { return self::err('license_expired', 403); }
             $inst = $norm($body['instance']['id']);
             return self::res(200, ['valid' => true, 'activated' => in_array($inst, self::$activations[$body['license_key']], true),
                 'license' => ['status' => 'active', 'expires_at' => '2027-11-14T00:00:00+00:00', 'products' => $lic['products'], 'instances' => ['used' => 1, 'max' => $lic['max']]]]);

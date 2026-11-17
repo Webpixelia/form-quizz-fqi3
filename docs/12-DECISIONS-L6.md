@@ -17,3 +17,10 @@ Statut : **proposées le 2026-11-14, valables tant que tu ne les contredis pas.*
 | D-L6-11 | Hooks d'updater | Core enregistré aussi en WP-Cron et WP-CLI. | Sinon l'entrée du core disparaît de `update_plugins` après le cron. |
 
 À reporter dans le doc 09 : corriger §1.2 (flux avec marqueur + jeton frais), ajouter l'étape d'activation, `FQI3_LICENSE_INSTANCE`, `FQI3_LUS_ALLOW_INSECURE`, multisite.
+
+## Addendum L6.3 (2026-11-14)
+
+- D-L6-05 clos : la condition « Coming Soon » de la page Add-ons devient `empty(github_repo) && ! isServerMode()`.
+- D-L6-12 : la clé n'est saisie que par AJAX (champ sans `name`), validée au format avant tout appel, activée immédiatement ; en cas d'échec, la clé précédente est restaurée.
+- D-L6-13 : limite de 5 essais / 10 min / utilisateur côté client, pour ne pas faire bloquer l'IP partagée par LUS (10 échecs/h/IP).
+- D-L6-14 : le champ « GitHub Personal Token » est masqué en mode serveur, sauf si la constante existe.

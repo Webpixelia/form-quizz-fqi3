@@ -1236,8 +1236,27 @@ jQuery(document).ready(function($) {
         function update(data) {
             if (!data) { return; }
             var set = function (id, value) { var el = document.getElementById(id); if (el && value) { el.textContent = value; } };
+            // A row is shown only when it has a value; its text is always refreshed (the old value must not linger).
+            var row = function (rowId, valueId, value, labelId, label) {
+                var rowEl = document.getElementById(rowId);
+                var valueEl = document.getElementById(valueId);
+                if (!rowEl || !valueEl || typeof value !== 'string') { return; }
+                valueEl.textContent = value;
+                if (labelId) {
+                    var labelEl = document.getElementById(labelId);
+                    if (labelEl && typeof label === 'string') { labelEl.textContent = label; }
+                }
+                rowEl.hidden = value === '';
+            };
             set('fqi3-license-state', data.state);
             set('fqi3-license-key', data.key);
+            row('fqi3-license-expires-row', 'fqi3-license-expires', data.expires_value, 'fqi3-license-expires-label', data.expires_label);
+            row('fqi3-license-instances-row', 'fqi3-license-instances', data.instances_label);
+            var retry = document.getElementById('fqi3-license-retry');
+            if (retry && typeof data.retry_message === 'string') {
+                retry.textContent = data.retry_message;
+                retry.hidden = data.retry_message === '';
+            }
         }
 
         buttons.forEach(function (button) {

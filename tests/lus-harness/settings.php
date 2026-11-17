@@ -93,6 +93,59 @@ t('T9 multisite : clé dans site_option, pas dans option', (Env::$siteOptions['f
 // T10 masquage / étiquettes
 t('T10 mask_key', FQI3_License_Settings::mask_key(K1) === '••••••••EEEE' && FQI3_License_Settings::mask_key('') === '');
 
+// T11 ligne « expiration » (expires_info) : l'ancienne date n'est jamais présentée comme à venir quand l'état est « expiré »
+$past = '2020-01-01T00:00:00+00:00'; $future = '2099-01-01T00:00:00+00:00';
+$i = FQI3_License_Settings::expires_info(['state' => 'active', 'expires_at' => $future]);
+t('T11 active + date : « Expires: »', $i['label'] === 'Expires:' && $i['value'] === '2099-01-01', json_encode($i));
+$i = FQI3_License_Settings::expires_info(['state' => 'active']);
+t('T11b active sans date : ligne masquée', $i['value'] === '' && $i['label'] === '');
+$i = FQI3_License_Settings::expires_info(['state' => 'expired', 'expires_at' => $past]);
+t('T11c expirée + date passée : « Expired on: » + la date', $i['label'] === 'Expired on:' && $i['value'] === '2020-01-01', json_encode($i));
+$i = FQI3_License_Settings::expires_info(['state' => 'expired', 'expires_at' => $future, 'expired_detected_at' => time() - 600]);
+t('T11d expirée + ancienne date future : la date n\'est PAS affichée, constat à la place', $i['label'] === 'Expired:' && str_contains($i['value'], 'detected') && !str_contains($i['value'], '2099'), json_encode($i));
+$i = FQI3_License_Settings::expires_info(['state' => 'expired', 'expires_at' => $future]);
+t('T11e expirée sans constat : message neutre, pas de date', $i['label'] === 'Expired:' && !str_contains($i['value'], '2099') && $i['value'] !== '', json_encode($i));
+
+// T12 licence expirée côté LUS : état « Expired », date périmée masquée
+fresh(); Env::$options['fqi3_license_key'] = K1; FakeLus::$activations[K1] = ['client.example.com']; LicenseProviderFactory::reset();
+call('ajax_validate'); // active, expires_at = 2027-11-14 (réponse de validate du faux LUS)
+FakeLus::$licenses[K1]['expired'] = true; Env::$now += 5;
+$r = call('ajax_validate'); $st = LicenseProviderFactory::getStatus();
+t('T12 licence expirée : erreur, état Expired', !$r->ok && ($r->data['state'] ?? '') === 'Expired', $r->data['state'] ?? '');
+t('T12b constat d\'expiration enregistré', ($st['expired_detected_at'] ?? 0) > 0);
+t('T12c l\'écran n\'affiche plus l\'ancienne date comme échéance', ($r->data['expires_label'] ?? '') !== 'Expires:' && !str_contains((string) ($r->data['expires_value'] ?? ''), '2027'), json_encode([$r->data['expires_label'] ?? null, $r->data['expires_value'] ?? null]));
+t('T12d message license_expired', str_contains((string) ($r->data['message'] ?? ''), 'expired'));
+// Retour à la normale : la licence est de nouveau valide
+unset(FakeLus::$licenses[K1]['expired']); Env::$now += 5;
+$r = call('ajax_validate'); $st = LicenseProviderFactory::getStatus();
+t('T12e licence rétablie : active, constat effacé, date de nouveau affichée', $r->ok && !isset($st['expired_detected_at']) && ($r->data['expires_label'] ?? '') === 'Expires:');
+
+// T13 429 de LUS (sans corps d'erreur) : état de licence conservé, message avec la durée, jamais « Invalid »
+fresh(); Env::$options['fqi3_license_key'] = K1; FakeLus::$activations[K1] = ['client.example.com']; LicenseProviderFactory::reset();
+call('ajax_validate'); // état active
+FakeLus::$rate429NoBody = true; FakeLus::$retryAfter = 120; Env::$now += 5;
+$r = call('ajax_validate'); $st = LicenseProviderFactory::getStatus();
+t('T13 429 : erreur, état toujours « Active » (jamais Invalid)', !$r->ok && ($r->data['state'] ?? '') === 'Active' && ($st['state'] ?? '') === 'active', $r->data['state'] ?? '');
+t('T13b message temporaire avec la durée (2 minutes)', str_contains((string) ($r->data['message'] ?? ''), '2 minutes'), $r->data['message'] ?? '');
+t('T13c pause enregistrée (retry_until) et message de pause', ($st['retry_until'] ?? 0) >= time() + 100 && ($r->data['retry_message'] ?? '') !== '');
+t('T13d l\'état n\'est pas écrasé (pas de code license_invalid)', ($st['code'] ?? '') !== 'license_invalid');
+// Retour du serveur : la pause disparaît
+FakeLus::$rate429NoBody = false; Env::$now += 5;
+$r = call('ajax_validate'); $st = LicenseProviderFactory::getStatus();
+t('T13e après le 429 : succès, pause effacée', $r->ok && !isset($st['retry_until']) && ($r->data['retry_message'] ?? 'x') === '');
+
+// T14 429 de LUS alors que la licence était expirée : reste « Expired » (et pas Invalid)
+fresh(); Env::$options['fqi3_license_key'] = K1; FakeLus::$activations[K1] = ['client.example.com']; LicenseProviderFactory::reset();
+call('ajax_validate'); FakeLus::$licenses[K1]['expired'] = true; Env::$now += 5; call('ajax_validate');
+FakeLus::$licenses[K1]['expired'] = false; FakeLus::$rate429NoBody = true; Env::$now += 5;
+$r = call('ajax_validate');
+t('T14 429 après une licence expirée : état conservé (Expired), message de pause', ($r->data['state'] ?? '') === 'Expired' && str_contains((string) ($r->data['message'] ?? ''), 'minutes'), $r->data['state'] ?? '');
+
+// T15 la limite locale de l'écran (5 essais / 10 min) n'a pas le message de LUS
+fresh(); $last = null;
+for ($i = 0; $i < 6; $i++) { $last = call('ajax_save', ['license_key' => 'bad']); }
+t('T15 limite locale : 429 avec un message distinct de celui du serveur de licences', $last->http === 429 && !str_contains((string) ($last->data['message'] ?? ''), 'license server'), $last->data['message'] ?? '');
+
 // T4 clé en constante (en dernier : define() est irréversible dans le process) : modification refusée
 fresh(); define('FQI3_LICENSE_KEY', K2); LicenseProviderFactory::reset();
 $r = call('ajax_save', ['license_key' => K1]);

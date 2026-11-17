@@ -117,6 +117,22 @@ if ($mode === 'b') {
     $p = fresh(); LicenseProviderFactory::reset();
     t('S14 get_latest() retourne un tableau (plus de fatal force_check)', is_array($upd[0]->get_latest()) || $upd[0]->get_latest() === false);
     t('S14b force_check() ne lève pas de TypeError quand rien n\'est disponible', is_object($upd[0]->force_check()));
+    // S15 429 sans corps d'erreur LUS : pause, état de licence conservé, une seule requête pour N rafraîchissements
+    $p = fresh(); $p->validate(); // état « active »
+    FakeLus::$rate429NoBody = true; FakeLus::$retryAfter = 300; Env::$now += 5;
+    $before = FakeLus::calls('/v1/wp/check');
+    $p->checkUpdates([CORE => '3.6.1']); $p->checkUpdates([CORE => '3.6.1']); $p->checkUpdates([CORE => '3.6.1']);
+    $st = Env::$options['fqi3_license_status'] ?? [];
+    t('S15 429 sans corps : code rate_limited (pas http_429)', ($p->getLastError()['code'] ?? '') === 'rate_limited', $p->getLastError()['code'] ?? '');
+    t('S15b 429 : une seule requête pour 3 rafraîchissements (pause = Retry-After)', FakeLus::calls('/v1/wp/check') - $before === 1, (FakeLus::calls('/v1/wp/check') - $before) . ' requêtes');
+    t('S15c 429 : état de licence conservé (active), pause de 5 min enregistrée', ($st['state'] ?? '') === 'active' && ServerLicenseProvider::retryAfterMinutes($st) === 5, json_encode([$st['state'] ?? null, ServerLicenseProvider::retryAfterMinutes($st)]));
+    Env::$now += 301; FakeLus::$rate429NoBody = false;
+    $u = $p->checkUpdates([CORE => '3.6.1']);
+    t('S15d reprise automatique après Retry-After', is_array($u) && isset($u[CORE]));
+    $p = fresh(); FakeLus::$retryAfter = 999999; FakeLus::$rate429NoBody = true; $p->validate();
+    t('S15e Retry-After démesuré : plafonné à 60 min', ServerLicenseProvider::retryAfterMinutes(Env::$options['fqi3_license_status'] ?? []) === 60, (string) ServerLicenseProvider::retryAfterMinutes(Env::$options['fqi3_license_status'] ?? []));
+    FakeLus::$rate429NoBody = false;
+
     // S6 409 : activation
     $p = fresh(); Env::$options['fqi3_license_key'] = 'LUS-GOOD2'; // instance non activée
     $u = $p->checkUpdates([CORE => '3.6.1']);

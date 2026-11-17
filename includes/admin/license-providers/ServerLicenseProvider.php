@@ -504,7 +504,14 @@ class ServerLicenseProvider implements LicenseProviderInterface
             return ['http' => $http, 'body' => $body, 'error' => null];
         }
 
-        $code = is_string($body['error']['code'] ?? null) ? $body['error']['code'] : ($http >= 500 ? 'server_error' : 'http_' . $http);
+        // Un 429 est toujours « rate_limited », même sans corps d'erreur LUS (ex. réponse d'un proxy) : jamais un échec de licence.
+        if (is_string($body['error']['code'] ?? null)) {
+            $code = $body['error']['code'];
+        } elseif ($http === 429) {
+            $code = 'rate_limited';
+        } else {
+            $code = $http >= 500 ? 'server_error' : 'http_' . $http;
+        }
         $extra = [];
         if ($http === 429) {
             $extra['retry_after'] = max(0, (int) wp_remote_retrieve_header($response, 'retry-after'));
@@ -544,6 +551,7 @@ class ServerLicenseProvider implements LicenseProviderInterface
         $status['code']       = 'ok';
         $status['checked_at'] = time();
         $status['last_error'] = '';
+        unset($status['retry_until'], $status['expired_detected_at']);
         if (isset($license['status'])) {
             $status['license_status'] = (string) $license['status'];
         }
@@ -579,15 +587,35 @@ class ServerLicenseProvider implements LicenseProviderInterface
             // Réseau / 5xx / 429 : on garde l'état de licence connu et on note l'incident.
             $next['last_error']    = (string) ($error['code'] ?? 'unreachable');
             $next['last_error_at'] = time();
+
+            // 429 : pause temporaire annoncée à l'écran de licence (retryAfterMinutes()), sans toucher à l'état de la licence.
+            if (($error['code'] ?? '') === 'rate_limited') {
+                $next['retry_until'] = time() + self::retryDelay($error);
+            }
         } else {
             $next['state']      = $state;
             $next['code']       = $error['code'] ?? 'ok';
             $next['checked_at'] = time();
             $next['last_error'] = '';
+
+            // Réponse définitive de LUS : plus de pause en cours.
+            unset($next['retry_until']);
+
+            // LUS ne renvoie pas la date d'expiration dans l'erreur `license_expired` : on mémorise le moment où
+            // l'expiration a été constatée, pour ne pas présenter l'ancienne date comme une date à venir.
+            if ($state === 'expired') {
+                if (($previous['state'] ?? '') !== 'expired' || empty($previous['expired_detected_at'])) {
+                    $next['expired_detected_at'] = time();
+                }
+            } else {
+                unset($next['expired_detected_at']);
+            }
         }
 
         $unchanged = ($previous['state'] ?? '') === ($next['state'] ?? '')
             && ($previous['last_error'] ?? '') === ($next['last_error'] ?? '')
+            && ($previous['retry_until'] ?? 0) === ($next['retry_until'] ?? 0)
+            && ($previous['expired_detected_at'] ?? 0) === ($next['expired_detected_at'] ?? 0)
             && (time() - (int) ($previous['checked_at'] ?? 0)) < HOUR_IN_SECONDS;
 
         if (! $unchanged) {
@@ -661,10 +689,54 @@ class ServerLicenseProvider implements LicenseProviderInterface
             case 'validation_failed':
                 return HOUR_IN_SECONDS;
             case 'rate_limited':
-                return max(MINUTE_IN_SECONDS, min(HOUR_IN_SECONDS, (int) ($error['retry_after'] ?? HOUR_IN_SECONDS)));
+                return self::retryDelay($error);
             default:
                 return self::SOFT_FAIL_TTL;
         }
+    }
+
+    /**
+     * Délai d'attente après un 429 : `Retry-After` du serveur, borné entre 1 minute et 1 heure (1 heure si absent).
+     *
+     * @param array<string, mixed> $error
+     */
+    private static function retryDelay(array $error): int
+    {
+        $retry = (int) ($error['retry_after'] ?? 0);
+
+        return max(MINUTE_IN_SECONDS, min(HOUR_IN_SECONDS, $retry > 0 ? $retry : HOUR_IN_SECONDS));
+    }
+
+    /**
+     * Message « réessayez dans X minutes » après un 429 du serveur de licences.
+     */
+    public static function messageForRetry(int $minutes): string
+    {
+        $minutes = max(1, $minutes);
+
+        return sprintf(
+            /* translators: %d: number of minutes to wait. */
+            _n(
+                'Too many requests to the license server. Try again in about %d minute.',
+                'Too many requests to the license server. Try again in about %d minutes.',
+                $minutes,
+                'form-quizz-fqi3'
+            ),
+            $minutes
+        );
+    }
+
+    /**
+     * Minutes restantes avant de pouvoir réessayer après un 429 (0 si aucune pause en cours).
+     * Pour l'écran de licence : « Réessayez dans X minutes ».
+     *
+     * @param array<string, mixed> $status Statut enregistré (option `fqi3_license_status`).
+     */
+    public static function retryAfterMinutes(array $status): int
+    {
+        $remaining = (int) ($status['retry_until'] ?? 0) - time();
+
+        return $remaining > 0 ? (int) ceil($remaining / MINUTE_IN_SECONDS) : 0;
     }
 
     /**
@@ -673,7 +745,13 @@ class ServerLicenseProvider implements LicenseProviderInterface
      */
     private static function err(string $code, int $http = 0, array $extra = []): array
     {
-        return array_merge(['code' => $code, 'message' => self::messageForCode($code), 'http' => $http], $extra);
+        $message = self::messageForCode($code);
+
+        if ($code === 'rate_limited' && (int) ($extra['retry_after'] ?? 0) > 0) {
+            $message = self::messageForRetry((int) ceil(self::retryDelay($extra) / MINUTE_IN_SECONDS));
+        }
+
+        return array_merge(['code' => $code, 'message' => $message, 'http' => $http], $extra);
     }
 
     /**
