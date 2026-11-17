@@ -29,7 +29,7 @@ final class Package_Signature {
 	 * @var array<string, string>
 	 */
 	const PUBLIC_KEYS = array(
-		// 'k1' => '<base64 public key>',
+		'k1' => 'OZN8D9s8U5OtxwKKc8t+eV5MVQ4K1n7wDNLg7zlh0bw=',
 	);
 
 	/**
